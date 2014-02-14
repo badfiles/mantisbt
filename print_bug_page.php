@@ -264,7 +264,7 @@ if ( $t_show_handler || $t_show_due_date ) {
 #
 # Priority, Severity, Reproducibility
 #
-
+/**
 if ( $t_show_priority || $t_show_severity || $t_show_reproducibility ) {
 	echo '<tr class="print">';
 
@@ -297,7 +297,7 @@ if ( $t_show_priority || $t_show_severity || $t_show_reproducibility ) {
 
 	echo '</tr>';
 }
-
+*/
 #
 # Status, Resolution
 #
@@ -507,6 +507,7 @@ echo "<tr class=\"print\">";
 echo "<td class=\"print-category\">" . lang_get( 'bug_relationships' ) . "</td>";
 echo "<td class=\"print\" colspan=\"5\">" . relationship_get_summary_html_preview( $f_bug_id ) . "</td></tr>";
 
+/**
 if ( $t_show_attachments ) {
 	echo '<tr class="print">';
 	echo '<th class="print-category">', lang_get( 'attached_files' ), '</th>';
@@ -540,11 +541,11 @@ if ( $t_show_attachments ) {
 
 	echo '</td></tr>';
 }
-
+*/
 #
 # Issue History
 #
-
+/**
 if ( $t_show_history ) {
 	echo '<tr><td class="print-spacer" colspan="6"><hr /></td></tr>';
 
@@ -570,7 +571,7 @@ if ( $t_show_history ) {
 		echo '</tr>';
 	}
 }
-
+*/
 echo '</table>';
 
 define( 'PRINT_BUGNOTE_INC_ALLOW', true );
