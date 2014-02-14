@@ -647,6 +647,7 @@ function html_footer( $p_file = null ) {
 
 	# We don't have a button anymore, so for now we will only show the resized
 	# version of the logo when not on login page.
+/**
 	if ( !is_page_name( 'login_page' ) ) {
 		echo "\t<div id=\"powered-by-mantisbt-logo\">\n";
 		$t_mantisbt_logo_url = helper_mantis_url( 'images/mantis_logo.png' );
@@ -657,18 +658,18 @@ function html_footer( $p_file = null ) {
 			"</a>\n";
 		echo "\t</div>\n";
 	}
-
+*/
 	# Show MantisBT version and copyright statement
 	$t_version_suffix = '';
 	$t_copyright_years = ' 2000 - ' . date('Y');
 	if ( config_get( 'show_version' ) == ON ) {
 		$t_version_suffix = ' ' . htmlentities( MANTIS_VERSION . config_get_global( 'version_suffix' ) );
 	}
-
+/**
 	echo '<address id="mantisbt-copyright">' . "\n";
 	echo '<address id="version">Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT ' . $t_version_suffix . "</a></address>\n";
 	echo "Copyright &copy;$t_copyright_years MantisBT Team";
-
+*/
 	# Show optional user-specified custom copyright statement
 	$t_copyright_statement = config_get( 'copyright_statement' );
 	if ( $t_copyright_statement ) {
@@ -680,7 +681,7 @@ function html_footer( $p_file = null ) {
 	# Show contact information
 	if ( !is_page_name( 'login_page' ) ) {
 		$t_webmaster_contact_information = sprintf( lang_get( 'webmaster_contact_information' ), string_html_specialchars( config_get( 'webmaster_email' ) ) );
-		echo "\t<address id=\"webmaster-contact-information\">$t_webmaster_contact_information</address>\n";
+//		echo "\t<address id=\"webmaster-contact-information\">$t_webmaster_contact_information</address>\n";
 	}
 
 	event_signal( 'EVENT_LAYOUT_PAGE_FOOTER' );

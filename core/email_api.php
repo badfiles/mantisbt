@@ -868,7 +868,7 @@ function email_send( $p_email_data ) {
 	}
 
 	$mail->IsHTML( false );              # set email format to plain text
-	$mail->WordWrap = 80;              # set word wrap to 50 characters
+	$mail->WordWrap = 300;              # set word wrap to 50 characters
 	$mail->Priority = $t_email_data->metadata['priority'];  # Urgent = 1, Not Urgent = 5, Disable = 0
 	$mail->CharSet = $t_email_data->metadata['charset'];
 	$mail->Host = config_get( 'smtp_host' );
@@ -1146,13 +1146,15 @@ function email_format_bug_message( $p_visible_bug_data ) {
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_handler' );
 	$t_message .= $t_email_separator1 . " \n";
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_project' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_bug' );
+//	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_bug' );
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_category' );
+/**
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_reproducibility' );
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_severity' );
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_priority' );
+*/
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_status' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_target_version' );
+//	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_target_version' );
 
 	# custom fields formatting
 	foreach( $p_visible_bug_data['custom_fields'] as $t_custom_field_name => $t_custom_field_data ) {
@@ -1169,11 +1171,11 @@ function email_format_bug_message( $p_visible_bug_data ) {
 		$t_message .= email_format_attribute( $p_visible_bug_data, 'email_fixed_in_version' );
 	}
 	$t_message .= $t_email_separator1 . " \n";
-
+/**
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_date_submitted' );
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_last_modified' );
 	$t_message .= $t_email_separator1 . " \n";
-
+*/
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_summary' );
 
 	$t_message .= lang_get( 'email_description' ) . ": \n" . $p_visible_bug_data['email_description'] . "\n";
@@ -1239,6 +1241,7 @@ function email_format_bug_message( $p_visible_bug_data ) {
 	}
 
 	# format history
+/**
 	if( array_key_exists( 'history', $p_visible_bug_data ) ) {
 		$t_message .= lang_get( 'bug_history' ) . " \n";
 		$t_message .= utf8_str_pad( lang_get( 'date_modified' ), 17 ) . utf8_str_pad( lang_get( 'username' ), 15 ) . utf8_str_pad( lang_get( 'field' ), 25 ) . utf8_str_pad( lang_get( 'change' ), 20 ) . " \n";
@@ -1255,7 +1258,7 @@ function email_format_bug_message( $p_visible_bug_data ) {
 
 	return $t_message;
 }
-
+*/
 /**
  * if $p_visible_bug_data contains specified attribute the function
  * returns concatenated translated attribute name and original
