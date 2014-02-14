@@ -1255,10 +1255,10 @@ function email_format_bug_message( $p_visible_bug_data ) {
 		}
 		$t_message .= $t_email_separator1 . " \n\n";
 	}
-
+*/
 	return $t_message;
 }
-*/
+
 /**
  * if $p_visible_bug_data contains specified attribute the function
  * returns concatenated translated attribute name and original
