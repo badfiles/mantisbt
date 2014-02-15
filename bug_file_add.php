@@ -52,7 +52,8 @@ require_api( 'print_api.php' );
 require_api( 'string_api.php' );
 
 $f_bug_id	= gpc_get_int( 'bug_id', -1 );
-$f_files		= gpc_get_file( 'ufile', -1 );
+$f_files	= gpc_get_file( 'ufile', -1 );
+$f_to_send	= gpc_get_bool( 'to_send', false );
 
 if ( $f_bug_id == -1 && $f_files	== -1 ) {
 	# _POST/_FILES does not seem to get populated if you exceed size limit so check if bug_id is -1
@@ -78,7 +79,7 @@ access_ensure_bug_level( config_get( 'upload_bug_file_threshold' ), $f_bug_id );
 $t_files = helper_array_transpose( $f_files );
 foreach( $t_files as $t_file ) {
 	if( !empty( $t_file['name'] ) ) {
-		file_add( $f_bug_id, $t_file, 'bug' );
+		file_add( $f_bug_id, $t_file, $f_to_send, 'bug' );
 	}
 }
 

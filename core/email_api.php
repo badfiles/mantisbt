@@ -46,6 +46,7 @@
  * @uses user_api.php
  * @uses user_pref_api.php
  * @uses utility_api.php
+ * @uses file_api.php
  *
  * @uses class.phpmailer.php PHPMailer library
  */
@@ -73,6 +74,7 @@ require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'user_pref_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'file_api.php' );
 
 require_lib( 'phpmailer' . DIRECTORY_SEPARATOR . 'class.phpmailer.php' );
 
@@ -576,6 +578,8 @@ function email_generic( $p_bug_id, $p_notify_type, $p_message_id = null, $p_head
 
 	$t_project_id = bug_get_field( $p_bug_id, 'project_id' );
 
+	$t_attach_files = serialize(bug_get_attachments( $p_bug_id, true ));
+
 	if( is_array( $t_recipients ) ) {
 		# send email to every recipient
 		foreach( $t_recipients as $t_user_id => $t_user_email ) {
@@ -585,7 +589,7 @@ function email_generic( $p_bug_id, $p_notify_type, $p_message_id = null, $p_head
 			lang_push( user_pref_get_language( $t_user_id, $t_project_id ) );
 
 			$t_visible_bug_data = email_build_visible_bug_data( $t_user_id, $p_bug_id, $p_message_id );
-			email_bug_info_to_one_user( $t_visible_bug_data, $p_message_id, $t_project_id, $t_user_id, $p_header_optional_params );
+			email_bug_info_to_one_user( $t_visible_bug_data, $p_message_id, $t_project_id, $t_user_id, $t_attach_files, $p_header_optional_params );
 
 			lang_pop();
 		}
@@ -705,7 +709,7 @@ function email_relationship_child_resolved_closed( $p_bug_id, $p_message_id ) {
  * @param array $p_headers
  * @return int
  */
-function email_store( $p_recipient, $p_subject, $p_message, $p_headers = null ) {
+function email_store( $p_recipient, $p_subject, $p_message, $p_headers = null, $p_attach_files = null ) {
 	global $g_email_stored;
 
 	$t_recipient = trim( $p_recipient );
@@ -743,7 +747,7 @@ function email_store( $p_recipient, $p_subject, $p_message, $p_headers = null ) 
 	}
 	$t_email_data->metadata['hostname'] = $t_hostname;
 
-	$t_email_id = email_queue_add( $t_email_data );
+	$t_email_id = email_queue_add( $t_email_data, $p_attach_files );
 
 	$g_email_stored = true;
 
@@ -902,6 +906,13 @@ function email_send( $p_email_data ) {
 
 	$mail->Subject = $t_subject;
 	$mail->Body = make_lf_crlf( "\n" . $t_message );
+	
+	if( isset( $t_email_data->attachments ) && is_array( $t_email_data->attachments ) ) {
+		foreach( $t_email_data->attachments as $t_attachment ) {
+			$t_blob = file_get_content( $t_attachment['id'] );
+			$mail->AddStringAttachment( $t_blob['content'], $t_attachment['filename'], 'base64', $t_blob['type'] );
+		}
+	}
 
 	if( isset( $t_email_data->metadata['headers'] ) && is_array( $t_email_data->metadata['headers'] ) ) {
 		foreach( $t_email_data->metadata['headers'] as $t_key => $t_value ) {
@@ -931,6 +942,11 @@ function email_send( $p_email_data ) {
 
 			if ( $t_email_data->email_id > 0 ) {
 				email_queue_delete( $t_email_data->email_id );
+			}
+			if( isset( $t_email_data->attachments ) && is_array( $t_email_data->attachments ) ) {
+				foreach( $t_email_data->attachments as $t_attachment ) {
+				file_set_field($t_attachment['id'], 'to_send', false);
+				}
 			}
 		} else {
 			# We should never get here, as an exception is thrown after failures
@@ -1068,7 +1084,7 @@ function email_bug_reminder( $p_recipients, $p_bug_id, $p_message ) {
  * @param array $p_header_optional_params
  * @return null
  */
-function email_bug_info_to_one_user( $p_visible_bug_data, $p_message_id, $p_project_id, $p_user_id, $p_header_optional_params = null ) {
+function email_bug_info_to_one_user( $p_visible_bug_data, $p_message_id, $p_project_id, $p_user_id, $p_attach_files, $p_header_optional_params = null ) {
 	$t_user_email = user_get_email( $p_user_id );
 
 	# check whether email should be sent
@@ -1107,7 +1123,7 @@ function email_bug_info_to_one_user( $p_visible_bug_data, $p_message_id, $p_proj
 	}
 
 	# send mail
-	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers );
+	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers, $p_attach_files );
 
 	return;
 }

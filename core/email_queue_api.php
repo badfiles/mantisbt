@@ -66,6 +66,11 @@ class EmailData {
 	);
 
 	/**
+	 * Attachments array
+	 */
+	var $attachments = '';
+
+	/**
 	 * Email ID
 	 */
 	var $email_id = 0;
@@ -90,9 +95,10 @@ function email_queue_prepare_db( $p_email_data ) {
 /**
  * Add to email queue
  * @param EmailData $p_email_data
+ * @param array (serialized) $p_attach_files
  * @return int
  */
-function email_queue_add( $p_email_data ) {
+function email_queue_add( $p_email_data, $p_attach_files = null ) {
 	$t_email_data = email_queue_prepare_db( $p_email_data );
 
 	# email cannot be blank
@@ -125,15 +131,17 @@ function email_queue_add( $p_email_data ) {
 				      subject,
 					  body,
 					  submitted,
-					  metadata)
+					  metadata,
+					  attachments)
 				  VALUES
 				    ( " . db_param() . ",
 				      " . db_param() . ",
 				      " . db_param() . ",
 					  " . db_param() . ",
+					  " . db_param() . ",
 					  " . db_param() . "
 					)";
-	db_query_bound( $query, array( $c_email, $c_subject, $c_body, db_now(), $c_metadata ) );
+	db_query_bound( $query, array( $c_email, $c_subject, $c_body, db_now(), $c_metadata, $p_attach_files) );
 	$t_id = db_insert_id( $t_email_table, 'email_id' );
 
 	log_event( LOG_EMAIL, "message #$t_id queued" );
@@ -154,7 +162,8 @@ function email_queue_row_to_object( $p_row ) {
 
 	$t_row = $p_row;
 	$t_row['metadata'] = unserialize( $t_row['metadata'] );
-
+	$t_row['attachments'] = unserialize( $t_row['attachments'] );
+	
 	$t_email_data = new EmailData;
 
 	$t_row_keys = array_keys( $t_row );

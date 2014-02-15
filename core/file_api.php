@@ -464,6 +464,26 @@ function file_get_field( $p_file_id, $p_field_name, $p_table = 'bug' ) {
 }
 
 /**
+ * Set the specified field value
+ * @param int $p_file_id file id
+ * @param string $p_field_name field name
+ * @param        $p_field_value field value
+ * @param string $p_table table name
+ * @return string
+ */
+function file_set_field( $p_file_id, $p_field_name, $p_field_value, $p_table = 'bug' ) {
+	$t_bug_file_table = db_get_table( $p_table . '_file' );
+	if( !db_field_exists( $p_field_name, $t_bug_file_table ) ) {
+	trigger_error( ERROR_DB_FIELD_NOT_FOUND, ERROR );
+	}
+
+	$query = "UPDATE $t_bug_file_table SET $p_field_name=" . db_param() . " WHERE id=" . db_param();
+	$result = db_query_bound( $query, array( $p_field_value, (int)$p_file_id ));
+
+	return db_result( $result );
+}
+
+/**
  * Delete File
  * @param int $p_file_id file id
  * @param string $p_table table id
@@ -636,6 +656,7 @@ function file_is_name_unique( $p_name, $p_bug_id, $p_table  = 'bug' ) {
  *
  * @param integer $p_bug_id the bug id (should be 0 when adding project doc)
  * @param array $p_file the uploaded file info, as retrieved from gpc_get_file()
+ * @param bool $p_to_send mark file to be sent if true
  * @param string $p_table 'bug' or 'project' depending on attachment type
  * @param string $p_title file title
  * @param string $p_desc file description
@@ -643,7 +664,7 @@ function file_is_name_unique( $p_name, $p_bug_id, $p_table  = 'bug' ) {
  * @param int $p_date_added date added
  * @param bool $p_skip_bug_update skip bug last modification update (useful when importing bug attachments)
  */
-function file_add( $p_bug_id, $p_file, $p_table = 'bug', $p_title = '', $p_desc = '', $p_user_id = null, $p_date_added = 0, $p_skip_bug_update = false ) {
+function file_add( $p_bug_id, $p_file, $p_to_send = false, $p_table = 'bug', $p_title = '', $p_desc = '', $p_user_id = null, $p_date_added = 0, $p_skip_bug_update = false ) {
 
 	file_ensure_uploaded( $p_file );
 	$t_file_name = $p_file['name'];
@@ -727,7 +748,7 @@ function file_add( $p_bug_id, $p_file, $p_table = 'bug', $p_title = '', $p_desc 
 
 	$t_query_fields = "
 		$t_id_col, title, description, diskfile, filename, folder,
-		filesize, file_type, date_added, user_id";
+		filesize, file_type, date_added, user_id, to_send";
 	$t_param = array(
 		$t_id,
 		$p_title,
@@ -739,6 +760,7 @@ function file_add( $p_bug_id, $p_file, $p_table = 'bug', $p_title = '', $p_desc 
 		$p_file['type'],
 		$p_date_added,
 		(int)$p_user_id,
+		$p_to_send,
 	);
 
 	# oci8 stores contents in a BLOB, which is updated separately
