@@ -51,6 +51,7 @@ require_api( 'print_api.php' );
 require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'profile_api.php' );
 
 auth_ensure_user_authenticated();
 
@@ -61,8 +62,7 @@ $row = user_get_row( $f_user_id );
 
 extract( $row, EXTR_PREFIX_ALL, 'u' );
 
-$t_can_manage = access_has_global_level( config_get( 'manage_user_threshold' ) ) &&
-	access_has_global_level( $u_access_level );
+$t_can_manage = access_has_global_level( config_get( 'manage_user_threshold' ) ) && access_has_global_level( $u_access_level );
 $t_can_see_realname = access_has_project_level( config_get( 'show_user_realname_threshold' ) );
 $t_can_see_email = access_has_project_level( config_get( 'show_user_email_threshold' ) );
 
@@ -108,6 +108,33 @@ html_page_top();
 		</span></span>
 		<span class="label-style"></span>
 	</div>
+<?php
+	if( $t_can_manage || $t_can_see_email ) {
+		foreach( profile_get_all_for_user( $u_id ) as $t_profile ) {
+			echo '<h2>' . lang_get( 'profile' ) . '</h2>';
+			
+			echo '<div class="field-container">';
+			echo '<span class="display-label"><span>' . lang_get( 'platform' ) . '</span></span>';
+			echo '<span class="display-value"><span>' . string_display_line( $t_profile[platform] ) . '</span></span>';
+			echo '<span class="label-style"></span></div>';
+
+			echo '<div class="field-container">';
+			echo '<span class="display-label"><span>' . lang_get( 'os' ) . '</span></span>';
+			echo '<span class="display-value"><span>' . string_display_line( $t_profile[os] ) . '</span></span>';
+			echo '<span class="label-style"></span></div>';
+			
+			echo '<div class="field-container">';
+			echo '<span class="display-label"><span>' . lang_get( 'os_version' ) . '</span></span>';
+			echo '<span class="display-value"><span>' . string_display_line( $t_profile[os_build] ) . '</span></span>';
+			echo '<span class="label-style"></span></div>';
+
+			echo '<div class="field-container">';
+			echo '<span class="display-label"><span>' . lang_get( 'additional_description' ) . '</span></span>';
+			echo '<span class="display-value"><span>' . string_display_line( $t_profile[description] ) . '</span></span>';
+			echo '<span class="label-style"></span></div>';
+			}
+	}
+?>
 	<span class="section-links">
 	<?php if ( $t_can_manage ) { ?>
 			<span id="manage-user-link"><a href="<?php echo string_html_specialchars( 'manage_user_edit_page.php?user_id=' . $f_user_id ); ?>"><?php echo lang_get( 'manage_user' ); ?></a></span>
