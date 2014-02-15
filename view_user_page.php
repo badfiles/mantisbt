@@ -51,6 +51,7 @@ require_api( 'print_api.php' );
 require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'profile_api.php' );
 
 auth_ensure_user_authenticated();
 
@@ -62,7 +63,7 @@ $t_row = user_get_row( $f_user_id );
 extract( $t_row, EXTR_PREFIX_ALL, 'u' );
 
 $t_can_manage = access_has_global_level( config_get( 'manage_user_threshold' ) ) &&
-	access_has_global_level( $u_access_level );
+       access_has_global_level( $u_access_level );
 $t_can_see_realname = access_has_project_level( config_get( 'show_user_realname_threshold' ) );
 $t_can_see_email = access_has_project_level( config_get( 'show_user_email_threshold' ) );
 
@@ -126,6 +127,27 @@ layout_page_begin();
 		</td>
 	</tr>
 	</fieldset>
+	<?php
+	if( $t_can_manage || $t_can_see_email ) {
+		foreach( profile_get_all_for_user( $u_id ) as $t_profile ) {
+			echo '<tr><th class="category">';
+			echo lang_get( 'platform' ) . '</th><td>';
+			echo string_display_line( $t_profile[platform] ) . '</td></tr>';
+
+			echo '<tr><th class="category">';
+			echo lang_get( 'os' ) . '</th><td>';
+			echo string_display_line( $t_profile[os] ) . '</td></tr>';
+
+			echo '<tr><th class="category">';
+			echo lang_get( 'os_version' ) . '</th><td>';
+			echo string_display_line( $t_profile[os_build] ) . '</td></tr>';
+
+			echo '<tr><th class="category">';
+			echo lang_get( 'additional_description' ) . '</th><td>';
+			echo string_display_line( $t_profile[description] ) . '</td></tr>';
+			}
+	}
+	?>
 </table>
 	</div>
 	</div>
