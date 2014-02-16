@@ -342,6 +342,7 @@ function file_get_visible_attachments( $p_bug_id ) {
 
 		$t_attachment['preview'] = false;
 		$t_attachment['type'] = '';
+		$t_attachment['to_send'] = $t_row['to_send'];
 
 		$t_ext = strtolower( pathinfo( $t_attachment['display_name'], PATHINFO_EXTENSION ) );
 		$t_attachment['alt'] = $t_ext;

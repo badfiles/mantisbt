@@ -1542,7 +1542,7 @@ function bug_get_bugnote_stats( $p_bug_id ) {
 /**
  * Get array of attachments associated with the specified bug id.  The array will be
  * sorted in terms of date added (ASC).  The array will include the following fields:
- * id, title, diskfile, filename, filesize, file_type, date_added, user_id.
+ * id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send.
  * @param int $p_bug_id integer representing bug id
  * @param bool $p_only_to_send select files to be sent only
  * @return array array of results or null
@@ -1555,7 +1555,7 @@ function bug_get_attachments( $p_bug_id, $p_only_to_send = false ) {
 	$t_filter = '';
 	if( $p_only_to_send) $t_filter = ' AND to_send = true ';
 	
-	$query = "SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id
+	$query = "SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send
 		                FROM $t_bug_file_table
 		                WHERE bug_id=" . db_param() . $t_filter . "
 		                ORDER BY date_added";
