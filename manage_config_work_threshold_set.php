@@ -176,7 +176,7 @@ set_capability_row( 'change_view_status_threshold' );
 set_capability_row( 'show_monitor_list_threshold' );
 set_capability_boolean( 'auto_set_status_to_assigned' );
 set_capability_enum( 'bug_assigned_status' );
-set_capability_boolean( 'limit_reporters', true );
+set_capability_boolean( 'limit_reporters' );
 
 # Notes
 set_capability_row( 'add_bugnote_threshold' );
