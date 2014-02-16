@@ -578,7 +578,8 @@ function email_generic( $p_bug_id, $p_notify_type, $p_message_id = null, $p_head
 
 	$t_project_id = bug_get_field( $p_bug_id, 'project_id' );
 
-	$t_attach_files = serialize(bug_get_attachments( $p_bug_id, true ));
+	$t_attach_files = bug_get_attachments( $p_bug_id, true );
+	$t_attach_files_ser = serialize( $t_attach_files );
 
 	if( is_array( $t_recipients ) ) {
 		# send email to every recipient
@@ -589,9 +590,15 @@ function email_generic( $p_bug_id, $p_notify_type, $p_message_id = null, $p_head
 			lang_push( user_pref_get_language( $t_user_id, $t_project_id ) );
 
 			$t_visible_bug_data = email_build_visible_bug_data( $t_user_id, $p_bug_id, $p_message_id );
-			email_bug_info_to_one_user( $t_visible_bug_data, $p_message_id, $t_project_id, $t_user_id, $t_attach_files, $p_header_optional_params );
+			email_bug_info_to_one_user( $t_visible_bug_data, $p_message_id, $t_project_id, $t_user_id, $t_attach_files_ser, $p_header_optional_params );
 
 			lang_pop();
+		}
+		# clean to_send field for queued files
+		if( isset( $t_attach_files ) && is_array( $t_attach_files ) ) {
+			foreach( $t_attach_files as $t_attachment ) {
+			file_set_field( $t_attachment['id'], 'to_send', false );
+			}
 		}
 	}
 }
@@ -939,14 +946,8 @@ function email_send( $p_email_data ) {
 		$t_success = $mail->Send();
 		if ( $t_success ) {
 			$t_success = true;
-
 			if ( $t_email_data->email_id > 0 ) {
 				email_queue_delete( $t_email_data->email_id );
-			}
-			if( isset( $t_email_data->attachments ) && is_array( $t_email_data->attachments ) ) {
-				foreach( $t_email_data->attachments as $t_attachment ) {
-				file_set_field($t_attachment['id'], 'to_send', false);
-				}
 			}
 		} else {
 			# We should never get here, as an exception is thrown after failures
