@@ -1767,8 +1767,8 @@ function print_bug_attachment_header( $p_attachment ) {
 		if ( $p_attachment['can_download'] ) {
 			echo '</a>';
 		}
-		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size']  ) . '">';
-		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get('file_size_system') , config_get('file_size_unit') ) . ')</span>';
+		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0  ) . '">';
+		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get('file_size_system') ) . ')</span>';
 		echo lang_get( 'word_separator' ) . '<span class="italic">' . date( config_get( 'normal_date_format' ), $p_attachment['date_added'] ) . '</span>';
 		event_signal('EVENT_VIEW_BUG_ATTACHMENT', array($p_attachment));
 	} else {
@@ -1872,36 +1872,38 @@ function print_timezone_option_list( $p_timezone ) {
  * Returns file size information in units of a chosen system.
  * @param int $p_size file size in bytes
  * @param int $p_unit_type base to display sizes (BINARY OR DECIMAL). Defaults to BINARY (1024).
- * @param int $p_power file size unit in terms of base power (0 for bytes, 1 for kilo, 2 for mega, etc). Defaults to BYTE (0).
+ * @param int $p_force_unit force using file size unit in terms of base power (0 for bytes, 1 for kilo, 2 for mega, etc).
+                            Defaults to auto (-1).
  * @return string
  */
-function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_power = BYTE ) {
-	switch ( $p_unit_type ) {
-		case BINARY:
+function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 ) {
+	if( ( $p_force_unit == 0 ) || ( $p_size <= 10 * $p_unit_type ) ) {
+		$t_unit = 'unit_bytes';
+		$t_divider = 1;
+	} else {
+		if( $p_unit_type == BINARY ) {
 			$t_system = 'binary';
-			break;
-		case DECIMAL:
+		} else {
 			$t_system = 'decimal';
-			break;
-		default:
-			$t_system = 'binary';
-	}
-	switch ( $p_power ) {
-		case BYTE:
-			$t_unit = 'unit_bytes';
-			$t_divider = 1;
-			break;
-		case KB:
-			$t_unit = 'unit_k_' . $t_system;
-			$t_divider = $p_unit_type;
-			break;
-		case MB:
-			$t_unit = 'unit_m_' . $t_system;
-			$t_divider = pow( $p_unit_type, 2 );
-			break;
-		default:
-			$t_unit = 'unit_bytes';
-			$t_divider = 1;
+		}
+		switch( $p_force_unit ) {
+			case -1:
+				if( ($t_divider = pow( $p_unit_type, 2)) <= $p_size )  {
+					$t_unit = 'unit_m_' . $t_system;
+					break;
+				}
+				$t_unit = 'unit_k_' . $t_system;
+				$t_divider = $p_unit_type;
+				break;
+			case 1:
+				$t_unit = 'unit_k_' . $t_system;
+				$t_divider = $p_unit_type;
+				break;
+			case 2:
+				$t_unit = 'unit_m_' . $t_system;
+				$t_divider = pow( $p_unit_type, 2 );
+				break;
+		}
 	}
 	return sprintf( lang_get( 'file_size_info' ), number_format( $p_size / $t_divider ), lang_get( $t_unit ) ) ;
 }
@@ -1912,10 +1914,10 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_power = BYTE ) {
  * @param int $p_unit_type system to display file size (base)
  * @param int $p_unit_power unit in terms of base power
  */
-function print_max_filesize( $p_size, $p_unit_type, $p_unit_power ) {
-	echo '<span class="small" title="' . get_filesize_info( $p_size ) . '">';
+function print_max_filesize( $p_size ) {
+	echo '<span class="small" title="' . get_filesize_info( $p_size, BINARY, 0 ) . '">';
 	echo lang_get( 'max_file_size_label' )
 		. lang_get( 'word_separator' )
-		. get_filesize_info( $p_size, $p_unit_type, $p_unit_power );
+		. get_filesize_info( $p_size, config_get( 'file_size_system' ) );
 	echo '</span>';
 }
