@@ -1767,8 +1767,8 @@ function print_bug_attachment_header( $p_attachment ) {
 		if ( $p_attachment['can_download'] ) {
 			echo '</a>';
 		}
-		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0  ) . '">';
-		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get('file_size_system') ) . ')</span>';
+		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0 ) . '">';
+		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get( 'file_size_system' ) ) . ')</span>';
 		echo lang_get( 'word_separator' ) . '<span class="italic">' . date( config_get( 'normal_date_format' ), $p_attachment['date_added'] ) . '</span>';
 		event_signal('EVENT_VIEW_BUG_ATTACHMENT', array($p_attachment));
 	} else {
@@ -1888,7 +1888,7 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 )
 		}
 		switch( $p_force_unit ) {
 			case -1:
-				if( ($t_divider = pow( $p_unit_type, 2)) <= $p_size )  {
+				if( ( $t_divider = pow( $p_unit_type, 2) ) <= $p_size )  {
 					$t_unit = 'unit_m_' . $t_system;
 					break;
 				}
@@ -1911,8 +1911,6 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 )
 /**
  * Print maximum file size information
  * @param int $p_size in bytes
- * @param int $p_unit_type system to display file size (base)
- * @param int $p_unit_power unit in terms of base power
  */
 function print_max_filesize( $p_size ) {
 	echo '<span class="small" title="' . get_filesize_info( $p_size, BINARY, 0 ) . '">';
