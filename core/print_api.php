@@ -1888,7 +1888,7 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 )
 		}
 		switch( $p_force_unit ) {
 			case -1:
-				if( ( $t_divider = $p_unit_type * $p_unit_type ) ) <= $p_size )  {
+				if( ( $t_divider = $p_unit_type * $p_unit_type ) <= $p_size )  {
 					$t_unit = 'unit_m_' . $t_system;
 					break;
 				}
@@ -1901,7 +1901,7 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 )
 				break;
 			case 2:
 				$t_unit = 'unit_m_' . $t_system;
-				$t_divider = $p_unit_type * $p_unit_type );
+				$t_divider = $p_unit_type * $p_unit_type;
 				break;
 		}
 	}
