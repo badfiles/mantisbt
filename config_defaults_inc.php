@@ -1675,13 +1675,6 @@ $g_max_file_size = 5 * 1024 * 1024;
 $g_file_size_system = BINARY;
 
 /**
- * Default file size unit to display.
- * BYTE, KB or MB.
- * @global int $g_file_size_unit
- */
-$g_file_size_unit = KB;
-
-/**
  * Maximum number of files that can be uploaded simultaneously
  * @global int $g_file_upload_max_num
  */

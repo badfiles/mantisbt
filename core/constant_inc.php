@@ -36,10 +36,6 @@ define( 'WARN', 2 );
 define( 'BINARY', 1024 );
 define( 'DECIMAL', 1000 );
 
-define( 'BYTE', 0 );
-define( 'KB', 1 );
-define( 'MB', 2 );
-
 # PHP-related constants
 define( 'PHP_CLI', 0 );
 define( 'PHP_CGI', 1 );
