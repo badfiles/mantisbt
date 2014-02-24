@@ -73,7 +73,7 @@ if ( helper_get_current_project() !== $t_existing_bug->project_id ) {
 # Ensure that the user has permission to update bugs. This check also factors
 # in whether the user has permission to view private bugs. The
 # $g_limit_reporters option is also taken into consideration.
-access_ensure_bug_level( config_get( 'update_bug_threshold' ), $f_bug_id );
+//access_ensure_bug_level( config_get( 'update_bug_threshold' ), $f_bug_id );
 
 # Check if the bug is in a read-only state and whether the current user has
 # permission to update read-only bugs.

@@ -126,9 +126,9 @@ if( $t_status_legend_position == STATUS_LEGEND_POSITION_TOP || $t_status_legend_
 			echo '&#160;';
 			print_bracket_link( 'print_all_bug_page.php', lang_get( 'print_all_bug_page_link' ) );
 			echo '&#160;';
-			print_bracket_link( 'csv_export.php', lang_get( 'csv_export' ) );
-			echo '&#160;';
-			print_bracket_link( 'excel_xml_export.php', lang_get( 'excel_export' ) );
+//			print_bracket_link( 'csv_export.php', lang_get( 'csv_export' ) );
+//			echo '&#160;';
+//			print_bracket_link( 'excel_xml_export.php', lang_get( 'excel_export' ) );
 
 			$t_event_menu_options = $t_links = event_signal( 'EVENT_MENU_FILTER' );
 
