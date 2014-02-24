@@ -1873,8 +1873,8 @@ function print_timezone_option_list( $p_timezone ) {
 
 /**
  * Returns file size information in units of a chosen system.
- * @param int $p_size file size in bytes
- * @param int $p_unit_type base to display sizes (BINARY OR DECIMAL). Defaults to BINARY (1024).
+ * @param int $p_size file  size in bytes
+ * @param int $p_unit_type  base to display sizes (BINARY OR DECIMAL). Defaults to BINARY (1024).
  * @param int $p_force_unit force using file size unit in terms of base power (0 for bytes, 1 for kilo, 2 for mega, etc).
                             Defaults to auto (-1).
  * @return string
@@ -1883,7 +1883,9 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 )
 	if( ( $p_force_unit == 0 ) || ( ( $p_force_unit == -1 ) && ( $p_size <= 10 * $p_unit_type ) ) ) {
 		$t_unit = 'unit_bytes';
 		$t_divider = 1;
+		$t_point = 0;
 	} else {
+		$t_point = 1;
 		if( $p_unit_type == BINARY ) {
 			$t_system = 'binary';
 		} else {
@@ -1908,7 +1910,7 @@ function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 )
 				break;
 		}
 	}
-	return sprintf( lang_get( 'file_size_info' ), number_format( $p_size / $t_divider ), lang_get( $t_unit ) ) ;
+	return sprintf( lang_get( 'file_size_info' ), number_format( $p_size / $t_divider, $t_point ), lang_get( $t_unit ) ) ;
 }
 
 /**
