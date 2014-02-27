@@ -126,7 +126,6 @@ $i = 0;
 while( $row = db_fetch_array( $result ) ) {
 	$i++;
 	extract( $row, EXTR_PREFIX_ALL, 'v' );
-	$v_filesize = number_format( $v_filesize );
 	$v_title = string_display( $v_title );
 	$v_description = string_display_links( $v_description );
 	$v_date_added = date( config_get( 'normal_date_format' ), $v_date_added );
@@ -138,7 +137,10 @@ while( $row = db_fetch_array( $result ) ) {
 	$t_href = '<a href="file_download.php?file_id='.$v_id.'&amp;type=doc">';
 	echo $t_href;
 	print_file_icon( $v_filename );
-	echo '</a>&#160;' . $t_href . $v_title . '</a> (' . $v_filesize . lang_get( 'word_separator' ) . lang_get( 'bytes' ) . ')';
+	echo '</a>&#160;' . $t_href . $v_title . '</a>';
+	echo '<span class="small" title="' . get_filesize_info( $v_filesize , BINARY, 0 ) . '">';
+	echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $v_filesize , config_get( 'file_size_system' ) ) . ')</span>';
+	
 ?>
 	<br />
 	<span class="small">
