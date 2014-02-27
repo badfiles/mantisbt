@@ -381,8 +381,6 @@ if( 2 == $t_install_state ) {
 		# due to a bug in ADODB, this call prompts warnings, hence the @
 		# the check only works on mysql if the database is open
 		$t_version_info = @$g_db->ServerInfo();
-		echo '<br /> Running ' . $f_db_type . ' version ' . nl2br( $t_version_info['description'] );
-
 	} else {
 		print_test_result( BAD, true, 'Does administrative user have access to the database? ( ' . db_error_msg() . ' )' );
 	}
@@ -686,6 +684,8 @@ if( !$g_database_upgrade ) {
 </tr>
 
 </table>
+</form>
+
 <?php
 }  # end install_state == 1
 
@@ -794,7 +794,7 @@ if( 3 == $t_install_state ) {
 			print_test_result( BAD, false, 'Database user doesn\'t have access to the database ( ' . db_error_msg() . ' )' );
 		}
 		$g_db->Close();
-		?>
+	?>
 </tr>
 <?php
 	}
@@ -895,11 +895,11 @@ if( 3 == $t_install_state ) {
 					foreach( $sqlarray as $sql ) {
 						# "CREATE OR REPLACE TRIGGER" statements must end with "END;\n/" for Oracle sqlplus
 						if ( $f_db_type == 'oci8' && stripos( $sql, 'CREATE OR REPLACE TRIGGER' ) === 0 ) {
-							$t_sql_end = "\n/";
+							$t_sql_end = PHP_EOL . "/";
 						} else {
 							$t_sql_end = ";";
 						}
-						echo htmlentities( $sql ) . $t_sql_end . "\n\n";
+						echo htmlentities( $sql ) . $t_sql_end . PHP_EOL . PHP_EOL;
 					}
 				}
 			} else {
@@ -935,7 +935,7 @@ if( 3 == $t_install_state ) {
 		}
 		if( $f_log_queries ) {
 			# add a query to set the database version
-			echo 'INSERT INTO ' . db_get_table( 'config' ) . ' ( value, type, access_reqd, config_id, project_id, user_id ) VALUES (\'' . $lastid . '\', 1, 90, \'database_version\', 0, 0 );' . "\n";
+			echo 'INSERT INTO ' . db_get_table( 'config' ) . ' ( value, type, access_reqd, config_id, project_id, user_id ) VALUES (\'' . $lastid . '\', 1, 90, \'database_version\', 0, 0 );' . PHP_EOL;
 			echo '</pre><br /><p style="color:red">Your database has not been created yet. Please create the database, then install the tables and data using the information above before proceeding.</p></td></tr>';
 		}
 	}
@@ -985,49 +985,57 @@ if( 5 == $t_install_state ) {
 
 <tr>
 	<td bgcolor="#ffffff">
-		<?php
-			if( !$t_config_exists ) {
-		echo 'Creating Configuration File (config_inc.php)<br />';
-		echo '<span class="error-msg">(if this file is not created, create it manually with the contents below)</span>';
+<?php
+	if( !$t_config_exists ) {
+?>
+		Creating Configuration File (config_inc.php)<br />
+		<span class="error-msg">
+			(if this file is not created, create it manually with the contents below)
+		</span>
+<?php
 	} else {
-		echo 'Updating Configuration File (config_inc.php)<br />';
+?>
+		Updating Configuration File (config_inc.php)<br />
+<?php
 	}
-	?>
+?>
 	</td>
-	<?php
-	$t_config = '<?php' . "\n"
-		. "\$g_hostname               = '$f_hostname';\n"
-		. "\$g_db_type                = '$f_db_type';\n"
-		. "\$g_database_name          = '$f_database_name';\n"
-		. "\$g_db_username            = '$f_db_username';\n"
-		. "\$g_db_password            = '$f_db_password';\n";
+<?php
+	# Generating the config_inc.php file
+
+	$t_config = '<?php' . PHP_EOL
+		. "\$g_hostname               = '$f_hostname';" . PHP_EOL
+		. "\$g_db_type                = '$f_db_type';" . PHP_EOL
+		. "\$g_database_name          = '" . addslashes( $f_database_name ) . "';" . PHP_EOL
+		. "\$g_db_username            = '" . addslashes( $f_db_username ) . "';" . PHP_EOL
+		. "\$g_db_password            = '" . addslashes( $f_db_password ) . "';" . PHP_EOL;
 
 	switch( $f_db_type ) {
 		case 'db2':
-			$t_config .=  "\$g_db_schema              = '$f_db_schema';\n";
+			$t_config .=  "\$g_db_schema              = '$f_db_schema';" . PHP_EOL;
 			break;
 		default:
 			break;
 	}
-	$t_config .= "\n";
+	$t_config .= PHP_EOL;
 
 	# Add lines for table prefix/suffix if different from default
 	$t_insert_line = false;
 	foreach( $t_prefix_defaults['other'] as $t_key => $t_value ) {
 		$t_new_value = ${'f_' . $t_key};
 		if( $t_new_value != $t_value ) {
-			$t_config .= '$g_' . str_pad( $t_key, 25 ) . "= '" . ${'f_' . $t_key} . "';\n";
+			$t_config .= '$g_' . str_pad( $t_key, 25 ) . "= '" . ${'f_' . $t_key} . "';" . PHP_EOL;
 			$t_insert_line = true;
 		}
 	}
 	if( $t_insert_line ) {
-		$t_config .= "\n";
+		$t_config .= PHP_EOL;
 	}
 
 	$t_config .=
-		  "\$g_default_timezone       = '$f_timezone';\n"
-		. "\n"
-		. "\$g_crypto_master_salt     = '$f_crypto_master_salt';\n";
+		  "\$g_default_timezone       = '$f_timezone';" . PHP_EOL
+		. PHP_EOL
+		. "\$g_crypto_master_salt     = '" . addslashes( $f_crypto_master_salt ) . "';" . PHP_EOL;
 
 	$t_write_failed = true;
 
@@ -1061,11 +1069,28 @@ if( 5 == $t_install_state ) {
 </tr>
 <?php
 	if( true == $t_write_failed ) {
-		echo '<tr><table width="50%" cellpadding="10" cellspacing="1">';
-		echo '<tr><td>Please add the following lines to ' . $g_absolute_path . 'config_inc.php before continuing to the database upgrade check:</td></tr>';
-		echo '<tr><td><pre>' . htmlentities( $t_config ) . '</pre></td></tr></table></tr>';
+?>
+<tr>
+	<td colspan="2">
+		<table width="50%" cellpadding="10" cellspacing="1">
+			<tr>
+				<td>
+					Please add the following lines to
+					'<?php echo $g_absolute_path; ?>config_inc.php'
+					before continuing to the database upgrade check:
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<pre><?php echo htmlentities( $t_config ); ?></pre>
+				</td>
+			</tr>
+		</table>
+	</td>
+</tr>
+<?php
 	}
-	?>
+?>
 
 </table>
 
@@ -1186,19 +1211,27 @@ if( 6 == $t_install_state ) {
 if( 7 == $t_install_state ) {
 	# cleanup and launch upgrade
 	?>
-<p>Install was successful.</p>
+<table width="100%" bgcolor="#222222" cellpadding="10" cellspacing="1">
+<tr>
+	<td bgcolor="#e8e8e8" colspan="2">
+		<span class="title">Installation Complete...</span>
+	</td>
+</tr>
+<tr bgcolor="#ffffff">
+	<td>
+		MantisBT was installed successfully.
 <?php if( $f_db_exists ) {?>
-<p><a href="../login_page.php">Continue</a> to log into Mantis</p>
-<?php
-	} else {?>
-<p>Please log in as the administrator and <a href="../login_page.php">create</a> your first project.</p>
+		<a href="../login_page.php">Continue</a> to log in.
+<?php } else { ?>
+		Please log in as the administrator and <a href="../login_page.php">create</a> your first project.
+<?php } ?>
+	</td>
+	<?php print_test_result( GOOD ); ?>
+</tr>
+</table>
 
 <?php
-	}
 }
-?>
-</form>
-<?php
 
 # end install_state == 7
 
@@ -1207,7 +1240,7 @@ if( $g_failed && $t_install_state != 1 ) {
 <table width="100%" bgcolor="#222222" cellpadding="10" cellspacing="1">
 <tr>
 	<td bgcolor="#e8e8e8" colspan="2">
-		<span class="title">Checks Failed...</span>
+		<span class="title">Installation Failed...</span>
 	</td>
 </tr>
 <tr>
