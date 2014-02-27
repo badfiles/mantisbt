@@ -1183,6 +1183,8 @@ $s_note_user_id_label = 'Note By:';
 $s_filter_match_type = 'Match Type';
 $s_filter_match_all = 'All Conditions';
 $s_filter_match_any = 'Any Condition';
+$s_bgnts = '#';
+$s_bugnotes = 'Bugnotes';
 
 # view_all_inc.php
 $s_none = 'none';
