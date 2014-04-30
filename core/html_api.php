@@ -22,32 +22,36 @@
  * This is the call order of these functions, should you need to figure out
  * which to modify or which to leave out:
  *
- * html_page_top1
- * 	html_begin
- * 	html_head_begin
- * 	html_css
- * 	html_content_type
- * 	html_rss_link
- * 	(html_meta_redirect)
- * 	html_title
- * html_page_top2
- * 	html_page_top2a
- * 	html_head_end
- * 	html_body_begin
- * 	html_top_banner
- * 	html_login_info
- * 	(print_project_menu_bar)
- * 	print_menu
+ * html_page_top
+ *   html_page_top1
+ *     html_begin
+ *     html_head_begin
+ *     html_content_type
+ *     (Additional META tags: {@see $g_meta_include_file} and {@see robots_meta config})
+ *     html_title
+ *     html_css
+ *     html_rss_link
+ *     html_head_javascript
+ *   (html_meta_redirect)
+ *   html_page_top2
+ *     html_page_top2a
+ *       html_head_end
+ *       html_body_begin
+ *       html_top_banner
+ *     html_login_info
+ *     (print_project_menu_bar)
+ *     print_menu
  *
  * ...Page content here...
  *
- * html_page_bottom1
- * 	(print_menu)
- * 	html_page_bottom1a
- * 	html_bottom_banner
- * 	html_footer
- * 	html_body_end
- * html_end
+ * html_page_bottom
+ *   html_page_bottom1
+ *     (print_menu)
+ *     html_page_bottom1a
+ *       html_bottom_banner
+ *       html_footer
+ *       html_body_end
+ *       html_end
  *
  * @package CoreAPI
  * @subpackage HTMLAPI
@@ -180,15 +184,16 @@ function html_page_top( $p_page_title = null, $p_redirect_url = null ) {
 function html_page_top1( $p_page_title = null ) {
 	html_begin();
 	html_head_begin();
-	html_css();
+
 	html_content_type();
 	include( config_get( 'meta_include_file' ) );
-
 	global $g_robots_meta;
 	if ( !is_blank( $g_robots_meta ) ) {
 		echo "\t", '<meta name="robots" content="', $g_robots_meta, '" />', "\n";
 	}
 
+	html_title( $p_page_title );
+	html_css();
 	html_rss_link();
 
 	$t_favicon_image = config_get( 'favicon_image' );
@@ -200,7 +205,6 @@ function html_page_top1( $p_page_title = null ) {
 	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Text Search" href="' . string_sanitize_url( 'browser_search_plugin.php?type=text', true) . '" />' . "\n";
 	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Issue Id" href="' . string_sanitize_url( 'browser_search_plugin.php?type=id', true) . '" />' . "\n";
 
-	html_title( $p_page_title );
 	html_head_javascript();
 }
 
@@ -1307,7 +1311,6 @@ function html_status_legend() {
 
 	$t_status_array = MantisEnum::getAssocArrayIndexedByValues( config_get( 'status_enum_string' ) );
 	$t_status_names = MantisEnum::getAssocArrayIndexedByValues( lang_get( 'status_enum_string' ) );
-	$enum_count = count( $t_status_array );
 
 	# read through the list and eliminate unused ones for the selected project
 	# assumes that all status are are in the enum array
@@ -1348,7 +1351,6 @@ function html_status_legend() {
 	echo '<tr>';
 
 	# draw the status bar
-	$width = (int)( 100 / count( $t_status_array ) );
 	$t_status_enum_string = config_get('status_enum_string' );
 	foreach( $t_status_array as $t_status => $t_name ) {
 		$t_val = isset( $t_status_names[$t_status] ) ? $t_status_names[$t_status] : $t_status_array[$t_status];
@@ -1372,7 +1374,7 @@ function html_status_percentage_legend() {
 	$t_status_percents = get_percentage_by_status();
 	$t_status_enum_string = config_get('status_enum_string' );
 	$t_enum_values = MantisEnum::getValues( $t_status_enum_string );
-	$enum_count = count( $t_enum_values );
+	$t_enum_count = count( $t_enum_values );
 
 	$t_bug_count = array_sum( $t_status_percents );
 
@@ -1380,7 +1382,7 @@ function html_status_percentage_legend() {
 		echo '<br />';
 		echo '<table class="width100" cellspacing="1">';
 		echo '<tr>';
-		echo '<td class="form-title" colspan="' . $enum_count . '">' . lang_get( 'issue_status_percentage' ) . '</td>';
+		echo '<td class="form-title" colspan="' . $t_enum_count . '">' . lang_get( 'issue_status_percentage' ) . '</td>';
 		echo '</tr>';
 		echo '<tr>';
 
@@ -1531,7 +1533,6 @@ function html_button_bug_assign_to( $p_bug ) {
 	}
 
 	$t_current_user_id = auth_get_current_user_id();
-	$t_new_status = ( ON == config_get( 'auto_set_status_to_assigned' ) ) ? config_get( 'bug_assigned_status' ) : $p_bug->status;
 	$t_options = array();
 	$t_default_assign_to = null;
 
@@ -1736,9 +1737,6 @@ function html_button_wiki( $p_bug_id ) {
  * @return null
  */
 function html_buttons_view_bug_page( $p_bug_id ) {
-	$t_resolved = config_get( 'bug_resolved_status_threshold' );
-	$t_closed = config_get( 'bug_closed_status_threshold' );
-	$t_status = bug_get_field( $p_bug_id, 'status' );
 	$t_readonly = bug_is_readonly( $p_bug_id );
 	$t_sticky = config_get( 'set_bug_sticky_threshold' );
 

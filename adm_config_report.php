@@ -245,14 +245,18 @@ while( $row = db_fetch_array( $t_result ) ) {
 
 # Build filter's where clause
 $t_where = '';
+$t_param = array();
 if( $t_filter_user_value != META_FILTER_NONE ) {
-	$t_where .= " AND user_id = $t_filter_user_value ";
+	$t_where .= " AND user_id = " . db_param();
+	$t_param[] = $t_filter_user_value;
 }
 if( $t_filter_project_value != META_FILTER_NONE ) {
-	$t_where .= " AND project_id = $t_filter_project_value ";
+	$t_where .= " AND project_id = " . db_param();
+	$t_param[] = $t_filter_project_value;
 }
 if( $t_filter_config_value != META_FILTER_NONE ) {
-	$t_where .= " AND config_id = '$t_filter_config_value' ";
+	$t_where .= " AND config_id = " . db_param();
+	$t_param[] = $t_filter_config_value;
 }
 if( $t_where != '' ) {
 	$t_where = " WHERE 1=1 " . $t_where;
@@ -262,7 +266,7 @@ $query = "SELECT config_id, user_id, project_id, type, value, access_reqd
 	FROM $t_config_table
 	$t_where
 	ORDER BY user_id, project_id, config_id ";
-$result = db_query_bound( $query );
+$t_result = db_query_bound( $query, $t_param );
 ?>
 
 <!-- FILTER FORM -->
@@ -355,7 +359,7 @@ $result = db_query_bound( $query );
 # db contains a large number of configurations
 $t_form_security_token = form_security_token( 'adm_config_delete' );
 
-while( $row = db_fetch_array( $result ) ) {
+while( $row = db_fetch_array( $t_result ) ) {
 	extract( $row, EXTR_PREFIX_ALL, 'v' );
 
 ?>

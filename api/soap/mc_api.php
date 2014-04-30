@@ -1,16 +1,25 @@
 <?php
-# MantisConnect - A webservice interface to Mantis Bug Tracker
-# Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
-# This program is distributed under dual licensing.  These include
-# GPL and a commercial licenses.  Victor Boctor reserves the right to
-# change the license of future releases.
-# See docs/ folder for more details
+# MantisBT - A PHP based bugtracking system
+
+# MantisBT is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# MantisBT is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * MantisConnect - A webservice interface to Mantis Bug Tracker
+ * A webservice interface to Mantis Bug Tracker
  *
  * @package MantisBT
  * @copyright Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
+ * @copyright Copyright 2005  MantisBT Team - mantisbt-dev@lists.sourceforge.net
  * @link http://www.mantisbt.org
  */
 
@@ -167,25 +176,10 @@ function mci_check_login( $p_username, $p_password ) {
 		return false;
 	}
 
-	# if no user name supplied, then attempt to login as anonymous user.
-	if( is_blank( $p_username ) ) {
-		$t_anon_allowed = config_get( 'allow_anonymous_login' );
-		if( OFF == $t_anon_allowed ) {
-			return false;
-		}
+	# Must not pass in password, otherwise, authentication will be by-passed.
+	$t_password = ( $p_password === null ) ? '' : $p_password;
 
-		$p_username = config_get( 'anonymous_account' );
-
-		# do not use password validation.
-		$p_password = null;
-	} else {
-		if( is_blank( $p_password ) ) {
-			# require password for authenticated access
-			return false;
-		}
-	}
-
-	if( false === auth_attempt_script_login( $p_username, $p_password ) ) {
+	if ( false === auth_attempt_script_login( $p_username, $t_password ) ) {
 		return false;
 	}
 
@@ -194,12 +188,12 @@ function mci_check_login( $p_username, $p_password ) {
 
 function mci_has_readonly_access( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 	$t_access_level = user_get_access_level( $p_user_id, $p_project_id );
-	return( $t_access_level >= config_get( 'mc_readonly_access_level_threshold' ) );
+	return( $t_access_level >= config_get( 'webservice_readonly_access_level_threshold' ) );
 }
 
 function mci_has_readwrite_access( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 	$t_access_level = user_get_access_level( $p_user_id, $p_project_id );
-	return( $t_access_level >= config_get( 'mc_readwrite_access_level_threshold' ) );
+	return( $t_access_level >= config_get( 'webservice_readwrite_access_level_threshold' ) );
 }
 
 function mci_has_access( $p_access_level, $p_user_id, $p_project_id = ALL_PROJECTS ) {
@@ -209,7 +203,7 @@ function mci_has_access( $p_access_level, $p_user_id, $p_project_id = ALL_PROJEC
 
 function mci_has_administrator_access( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 	$t_access_level = user_get_access_level( $p_user_id, $p_project_id );
-	return( $t_access_level >= config_get( 'mc_admin_access_level_threshold' ) );
+	return( $t_access_level >= config_get( 'webservice_admin_access_level_threshold' ) );
 }
 
 function mci_get_project_id( $p_project ) {
@@ -411,11 +405,11 @@ function mci_filter_db_get_available_queries( $p_project_id = null, $p_user_id =
 					AND (is_public = " . db_prepare_bool(true) . "
 						OR user_id = " . db_param() . ")
 					ORDER BY is_public DESC, name ASC";
-	$result = db_query_bound( $query, array( $t_project_id, $t_user_id ) );
-	$query_count = db_num_rows( $result );
+	$t_result = db_query_bound( $query, array( $t_project_id, $t_user_id ) );
+	$query_count = db_num_rows( $t_result );
 
 	for( $i = 0;$i < $query_count;$i++ ) {
-		$row = db_fetch_array( $result );
+		$row = db_fetch_array( $t_result );
 
 		$t_filter_detail = explode( '#', $row['filter_string'], 2 );
 		if ( !isset($t_filter_detail[1]) ) {

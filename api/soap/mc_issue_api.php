@@ -1,16 +1,25 @@
 <?php
-# MantisConnect - A webservice interface to Mantis Bug Tracker
-# Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
-# This program is distributed under dual licensing.  These include
-# GPL and a commercial licenses.  Victor Boctor reserves the right to
-# change the license of future releases.
-# See docs/ folder for more details
+# MantisBT - A PHP based bugtracking system
+
+# MantisBT is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# MantisBT is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * MantisConnect - A webservice interface to Mantis Bug Tracker
+ * A webservice interface to Mantis Bug Tracker
  *
  * @package MantisBT
  * @copyright Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
+ * @copyright Copyright 2005  MantisBT Team - mantisbt-dev@lists.sourceforge.net
  * @link http://www.mantisbt.org
  */
 
@@ -329,7 +338,7 @@ function mci_issue_get_relationships( $p_issue_id, $p_user_id ) {
 
 	$t_src_relationships = relationship_get_all_src( $p_issue_id );
 	foreach( $t_src_relationships as $t_relship_row ) {
-		if( access_has_bug_level( config_get( 'mc_readonly_access_level_threshold' ), $t_relship_row->dest_bug_id, $p_user_id ) ) {
+		if( access_has_bug_level( config_get( 'webservice_readonly_access_level_threshold' ), $t_relship_row->dest_bug_id, $p_user_id ) ) {
 			$t_relationship = array();
 			$t_reltype = array();
 			$t_relationship['id'] = $t_relship_row->id;
@@ -343,7 +352,7 @@ function mci_issue_get_relationships( $p_issue_id, $p_user_id ) {
 
 	$t_dest_relationships = relationship_get_all_dest( $p_issue_id );
 	foreach( $t_dest_relationships as $t_relship_row ) {
-		if( access_has_bug_level( config_get( 'mc_readonly_access_level_threshold' ), $t_relship_row->src_bug_id, $p_user_id ) ) {
+		if( access_has_bug_level( config_get( 'webservice_readonly_access_level_threshold' ), $t_relship_row->src_bug_id, $p_user_id ) ) {
 			$t_relationship = array();
 			$t_relationship['id'] = $t_relship_row->id;
 			$t_reltype = array();
@@ -556,12 +565,12 @@ function mc_issue_get_id_from_summary( $p_username, $p_password, $p_summary ) {
 		FROM $t_bug_table
 		WHERE summary = " . db_param();
 
-	$result = db_query_bound( $query, array( $p_summary ), 1 );
+	$t_result = db_query_bound( $query, array( $p_summary ), 1 );
 
-	if( db_num_rows( $result ) == 0 ) {
+	if( db_num_rows( $t_result ) == 0 ) {
 		return 0;
 	} else {
-		while(( $row = db_fetch_array( $result ) ) !== false ) {
+		while(( $row = db_fetch_array( $t_result ) ) !== false ) {
 			$t_issue_id = (int) $row['id'];
 			$t_project_id = bug_get_field( $t_issue_id, 'project_id' );
 			$g_project_override = $t_project_id;
@@ -624,7 +633,7 @@ function mc_issue_add( $p_username, $p_password, $p_issue ) {
 		if( $t_reporter_id != $t_user_id ) {
 
 			# Make sure that active user has access level required to specify a different reporter.
-			$t_specify_reporter_access_level = config_get( 'mc_specify_reporter_on_add_access_level_threshold' );
+			$t_specify_reporter_access_level = config_get( 'webservice_specify_reporter_on_add_access_level_threshold' );
 			if( !access_has_project_level( $t_specify_reporter_access_level, $t_project_id, $t_user_id ) ) {
 				return mci_soap_fault_access_denied( $t_user_id, "Active user does not have access level required to specify a different issue reporter" );
 			}
@@ -666,12 +675,12 @@ function mc_issue_add( $p_username, $p_password, $p_issue ) {
 	if ( isset( $p_issue['version'] ) && !is_blank( $p_issue['version'] ) && !version_get_id( $p_issue['version'], $t_project_id ) ) {
 		$t_version = $p_issue['version'];
 
-		$t_error_when_version_not_found = config_get( 'mc_error_when_version_not_found' );
+		$t_error_when_version_not_found = config_get( 'webservice_error_when_version_not_found' );
 		if( $t_error_when_version_not_found == ON ) {
 			$t_project_name = project_get_name( $t_project_id );
 			return SoapObjectsFactory::newSoapFault('Client', "Version '$t_version' does not exist in project '$t_project_name'.");
 		} else {
-			$t_version_when_not_found = config_get( 'mc_version_when_not_found' );
+			$t_version_when_not_found = config_get( 'webservice_version_when_not_found' );
 			$t_version = $t_version_when_not_found;
 		}
 	}
@@ -857,12 +866,12 @@ function mc_issue_update( $p_username, $p_password, $p_issue_id, $p_issue ) {
 	}
 
 	if ( isset( $p_issue['version'] ) && !is_blank( $p_issue['version'] ) && !version_get_id( $p_issue['version'], $t_project_id ) ) {
-		$t_error_when_version_not_found = config_get( 'mc_error_when_version_not_found' );
+		$t_error_when_version_not_found = config_get( 'webservice_error_when_version_not_found' );
 		if( $t_error_when_version_not_found == ON ) {
 			$t_project_name = project_get_name( $t_project_id );
 			return SoapObjectsFactory::newSoapFault( 'Client', "Version '" . $p_issue['version'] . "' does not exist in project '$t_project_name'." );
 		} else {
-			$t_version_when_not_found = config_get( 'mc_version_when_not_found' );
+			$t_version_when_not_found = config_get( 'webservice_version_when_not_found' );
 			$p_issue['version'] = $t_version_when_not_found;
 		}
 	}

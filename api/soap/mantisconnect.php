@@ -1,20 +1,27 @@
 <?php
-# MantisConnect - A webservice interface to Mantis Bug Tracker
-# 
-# This program is distributed under dual licensing.  These include
-# GPL and a commercial licenses.  Victor Boctor reserves the right to
-# change the license of future releases.
-# See docs/ folder for more details
+# MantisBT - A PHP based bugtracking system
+
+# MantisBT is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# MantisBT is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * MantisConnect - A webservice interface to Mantis Bug Tracker
+ * A webservice interface to Mantis Bug Tracker
  *
  * @package MantisBT
  * @copyright Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
+ * @copyright Copyright 2005  MantisBT Team - mantisbt-dev@lists.sourceforge.net
  * @link http://www.mantisbt.org
  */
-
-set_include_path( '../../library' );
 
 # Path to MantisBT is assumed to be the grand parent directory.  If this is not
 # the case, then this variable should be set to the MantisBT path.
@@ -26,15 +33,6 @@ $t_mantis_dir = dirname( dirname( dirname( __FILE__ ) ) ) . DIRECTORY_SEPARATOR;
 # include Mantis files
 $g_bypass_headers = true;
 require_once( $t_mantis_dir . 'core.php' );
-
-# constants and configurations
-$t_current_dir = dirname( __FILE__ ) . DIRECTORY_SEPARATOR;
-require_once( $t_current_dir . 'mc_config_defaults_inc.php' );
-
-$t_user_configs = $t_current_dir . 'mc_config_inc.php';
-if( file_exists( $t_user_configs ) ) {
-	require_once( $t_user_configs );
-}
 
 /**
  * Checks if the request for the webservice is a documentation request (eg:
@@ -73,7 +71,7 @@ if ( !mci_is_webservice_call() ) {
 		echo 'This is not a SOAP webservice request, for documentation, see ' .  $parts[0] . 'mantisconnect.php';
 		exit();
 	}
-	
+
 	header('Content-Type: text/xml');
 	$wsdl = file_get_contents('mantisconnect.wsdl');
 	$wsdl = str_replace('http://www.mantisbt.org/bugs/api/soap/mantisconnect.php', config_get('path').'api/soap/mantisconnect.php', $wsdl);

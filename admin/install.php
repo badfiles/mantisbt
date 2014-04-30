@@ -27,7 +27,7 @@ error_reporting( E_ALL );
 @set_time_limit( 0 );
 
 # Load the MantisDB core in maintenance mode. This mode will assume that
-# config_inc.php hasn't been specified. Thus the database will not be opened
+# config/config_inc.php hasn't been specified. Thus the database will not be opened
 # and plugins will not be loaded.
 define( 'MANTIS_MAINTENANCE_MODE', true );
 
@@ -153,7 +153,7 @@ if( 0 == $t_install_state ) {
 <?php
 }
 
-$t_config_filename = $g_absolute_path . 'config_inc.php';
+$t_config_filename = $g_config_path . 'config_inc.php';
 $t_config_exists = file_exists( $t_config_filename );
 
 # Initialize Oracle-specific values for prefix and suffix, and set
@@ -286,6 +286,16 @@ print_test( 'Checking if safe mode is enabled for install script',
 	true,
 	'Disable safe_mode in php.ini before proceeding' ) ?>
 
+<?php
+	print_test( 'Checking there is no config_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/config_inc.php' ), true, 'Move config_inc.php to config/config_inc.php.' );
+	print_test( 'Checking there is no custom_constants_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/custom_constants_inc.php' ), true, 'Move custom_constants_inc.php to config/custom_constants_inc.php.' );
+	print_test( 'Checking there is no custom_strings_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/custom_strings_inc.php' ), true, 'Move custom_strings_inc.php to config/custom_strings_inc.php.' );
+	print_test( 'Checking there is no custom_functions_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/custom_functions_inc.php' ), true, 'Move custom_functions_inc.php to config/custom_functions_inc.php.' );
+	print_test( 'Checking there is no custom_relationships_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/custom_relationships_inc.php' ), true, 'Move custom_relationships_inc.php to config/custom_relationships_inc.php.' );
+	print_test( 'Checking there is no mc_config_defaults_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/api/soap/mc_config_defaults_inc.php' ), true, 'Delete this file.' );
+	print_test( 'Checking there is no mc_config_inc.php in 1.2.x location.', !file_exists( dirname( dirname( __FILE__ ) ) . '/api/soap/mc_config_inc.php' ), true, 'Move contents to config_inc.php file.' );
+?>
+
 </table>
 <?php
 	if( false == $g_failed ) {
@@ -370,8 +380,8 @@ if( 2 == $t_install_state ) {
 			$f_db_exists = true;
 		}
 		if( $f_db_type == 'db2' ) {
-			$result = $g_db->execute( 'set schema ' . $f_db_schema );
-			if( $result === false ) {
+			$t_result = $g_db->execute( 'set schema ' . $f_db_schema );
+			if( $t_result === false ) {
 				print_test_result( BAD, true, 'set schema failed: ' . $g_db->errorMsg() );
 			}
 		} else {
@@ -400,8 +410,8 @@ if( 2 == $t_install_state ) {
 		if( $t_result == true ) {
 			$t_db_open = true;
 			if( $f_db_type == 'db2' ) {
-				$result = $g_db->execute( 'set schema ' . $f_db_schema );
-				if( $result === false ) {
+				$t_result = $g_db->execute( 'set schema ' . $f_db_schema );
+				if( $t_result === false ) {
 					print_test_result( BAD, true, 'set schema failed: ' . $g_db->errorMsg() );
 				}
 			} else {
@@ -782,8 +792,8 @@ if( 3 == $t_install_state ) {
 		$t_result = @$g_db->Connect( $f_hostname, $f_db_username, $f_db_password, $f_database_name );
 
 		if( $f_db_type == 'db2' ) {
-			$result = $g_db->execute( 'set schema ' . $f_db_schema );
-			if( $result === false ) {
+			$t_result = $g_db->execute( 'set schema ' . $f_db_schema );
+			if( $t_result === false ) {
 				echo $g_db->errorMsg();
 			}
 		}
@@ -832,18 +842,68 @@ if( 3 == $t_install_state ) {
 		}
 
 		if( $f_db_type == 'db2' ) {
-			$result = $g_db->execute( 'set schema ' . $f_db_schema );
-			if( $result === false ) {
+			$t_result = $g_db->execute( 'set schema ' . $f_db_schema );
+			if( $t_result === false ) {
 				echo $g_db->errorMsg();
 			}
 		}
+
+		$dict = NewDataDictionary( $g_db );
+
+		# Special processing for specific schema versions
+		# This allows execution of additional install steps, which are
+		# not a Mantis schema upgrade but nevertheless required due to
+		# changes in the code
+
+		if( $t_last_update > 51 && $t_last_update < 189 ) {
+			# Since MantisBT 1.1.0 / ADOdb 4.96 (corresponding to schema 51)
+			# 'L' columns are BOOLEAN instead of SMALLINT
+			# Check for any DB discrepancies and update columns if needed
+			$t_bool_columns = check_pgsql_bool_columns();
+			if( $t_bool_columns !== true ) {
+				# Some columns need converting
+				$t_msg = "PostgreSQL: check Boolean columns' actual type";
+				if( is_array( $t_bool_columns ) ) {
+					print_test(
+						$t_msg,
+						count( $t_bool_columns ) == 0,
+						false,
+						count( $t_bool_columns ) . ' columns must be converted to BOOLEAN'
+					);
+				} else {
+					# We did not get an array => error occured
+					print_test( $t_msg, false, true, $t_bool_columns );
+				}
+
+				# Convert the columns
+				foreach( $t_bool_columns as $t_row ) {
+					extract( $t_row, EXTR_PREFIX_ALL, 'v' );
+					$t_null = $v_is_nullable ? 'NULL' : 'NOT NULL';
+					$t_default = is_null( $v_column_default ) ? 'NULL' : $v_column_default;
+					$t_sqlarray = $dict->AlterColumnSQL(
+						$v_table_name,
+						"$v_column_name L $t_null DEFAULT $t_default"
+					);
+					print_test(
+						"Converting column $v_table_name.$v_column_name to BOOLEAN",
+						2 == $dict->ExecuteSQLArray( $t_sqlarray, false ),
+						true,
+						print_r( $t_sqlarray, true )
+					);
+					if( $g_failed ) {
+						# Error occured, bail out
+						break;
+					}
+				}
+			}
+		}
+		# End of special processing for specific schema versions
 
 		while(( $i <= $lastid ) && !$g_failed ) {
 			if( !$f_log_queries ) {
 				echo '<tr><td bgcolor="#ffffff">';
 			}
 
-			$dict = @NewDataDictionary( $g_db );
 			$t_sql = true;
 			$t_target = $upgrade[$i][1][0];
 
@@ -973,7 +1033,7 @@ if( 4 == $t_install_state ) {
 
 # all checks have passed, install the database
 if( 5 == $t_install_state ) {
-	$t_config_filename = $g_absolute_path . 'config_inc.php';
+	$t_config_filename = $g_config_path . 'config_inc.php';
 	$t_config_exists = file_exists( $t_config_filename );
 	?>
 <table width="100%" cellpadding="10" cellspacing="1">
@@ -988,14 +1048,14 @@ if( 5 == $t_install_state ) {
 <?php
 	if( !$t_config_exists ) {
 ?>
-		Creating Configuration File (config_inc.php)<br />
+		Creating Configuration File (config/config_inc.php)<br />
 		<span class="error-msg">
 			(if this file is not created, create it manually with the contents below)
 		</span>
 <?php
 	} else {
 ?>
-		Updating Configuration File (config_inc.php)<br />
+		Updating Configuration File (config/config_inc.php)<br />
 <?php
 	}
 ?>
@@ -1059,7 +1119,7 @@ if( 5 == $t_install_state ) {
 			( $f_db_schema != config_get( 'db_schema', '') ) ||
 			( $f_db_username != config_get( 'db_username', '' ) ) ||
 			( $f_db_password != config_get( 'db_password', '' ) ) ) {
-			print_test_result( BAD, false, 'file ' . $g_absolute_path . 'config_inc.php' . ' already exists and has different settings' );
+			print_test_result( BAD, false, 'file ' . $g_config_path . 'config_inc.php' . ' already exists and has different settings' );
 		} else {
 			print_test_result( GOOD, false );
 			$t_write_failed = false;
@@ -1131,8 +1191,8 @@ if( 6 == $t_install_state ) {
 	}
 
 	if( $f_db_type == 'db2' ) {
-		$result = $g_db->execute( 'set schema ' . $f_db_schema );
-		if( $result === false ) {
+		$t_result = $g_db->execute( 'set schema ' . $f_db_schema );
+		if( $t_result === false ) {
 			echo $g_db->errorMsg();
 		}
 	}

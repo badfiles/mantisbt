@@ -139,8 +139,8 @@ function config_get( $p_option, $p_default = null, $p_user = null, $p_project = 
 			if( !$g_cache_filled ) {
 				$t_config_table = db_get_table( 'config' );
 				$query = "SELECT config_id, user_id, project_id, type, value, access_reqd FROM $t_config_table";
-				$result = db_query_bound( $query );
-				while( false <> ( $row = db_fetch_array( $result ) ) ) {
+				$t_result = db_query_bound( $query );
+				while( false <> ( $row = db_fetch_array( $t_result ) ) ) {
 					$t_config = $row['config_id'];
 					$t_user = $row['user_id'];
 					$t_project = $row['project_id'];
@@ -230,7 +230,7 @@ function config_get_access( $p_option, $p_user = null, $p_project = null ) {
 	global $g_cache_config, $g_cache_config_access, $g_cache_filled;
 
 	if( !$g_cache_filled ) {
-		$t = config_get( $p_option, -1, $p_user, $p_project );
+		config_get( $p_option, -1, $p_user, $p_project );
 	}
 
 	# prepare the user's list
@@ -286,7 +286,7 @@ function config_is_set( $p_option, $p_user = null, $p_project = null ) {
 	global $g_cache_config, $g_cache_filled;
 
 	if( !$g_cache_filled ) {
-		$t = config_get( $p_option, -1, $p_user, $p_project );
+		config_get( $p_option, -1, $p_user, $p_project );
 	}
 
 	# prepare the user's list
@@ -366,7 +366,7 @@ function config_set( $p_option, $p_value, $p_user = NO_USER, $p_project = ALL_PR
 		if( $p_user !== NO_USER ) {
 			user_ensure_exists( $p_user );
 		}
-		
+
 		$t_config_table = db_get_table( 'config' );
 		$t_query = "SELECT COUNT(*) from $t_config_table
 				WHERE config_id = " . db_param() . " AND
@@ -404,7 +404,7 @@ function config_set( $p_option, $p_value, $p_user = NO_USER, $p_project = ALL_PR
 			);
 		}
 
-		$result = db_query_bound( $t_set_query, $t_params );
+		db_query_bound( $t_set_query, $t_params );
 	}
 
 	config_set_cache( $p_option, $c_value, $t_type, $p_user, $p_project, $p_access );
@@ -501,8 +501,6 @@ function config_can_delete( $p_option ) {
  * @param int $p_project project id
  */
 function config_delete( $p_option, $p_user = ALL_USERS, $p_project = ALL_PROJECTS ) {
-	global $g_cache_config, $g_cache_config_access;
-
 	# bypass table lookup for certain options
 	$t_bypass_lookup = !config_can_set_in_database( $p_option );
 
@@ -516,7 +514,7 @@ function config_delete( $p_option, $p_user = ALL_USERS, $p_project = ALL_PROJECT
 				WHERE config_id = " . db_param() . " AND
 					project_id=" . db_param() . " AND
 					user_id=" . db_param();
-		$result = db_query_bound( $query, array( $p_option, $p_project, $p_user ) );
+		db_query_bound( $query, array( $p_option, $p_project, $p_user ) );
 	}
 
 	config_flush_cache( $p_option, $p_user, $p_project );
@@ -547,9 +545,8 @@ function config_delete_for_user( $p_option, $p_user_id ) {
  */
 function config_delete_project( $p_project = ALL_PROJECTS ) {
 	$t_config_table = db_get_table( 'config' );
-	$query = "DELETE FROM $t_config_table
-				WHERE project_id=" . db_param();
-	$result = db_query_bound( $query, array( $p_project ) );
+	$t_query = "DELETE FROM $t_config_table WHERE project_id=" . db_param();
+	db_query_bound( $t_query, array( $p_project ) );
 
 	# flush cache here in case some of the deleted configs are in use.
 	config_flush_cache();
@@ -564,7 +561,7 @@ function config_delete_project( $p_project = ALL_PROJECTS ) {
  * @param int $p_project project id
  */
 function config_flush_cache( $p_option = '', $p_user = ALL_USERS, $p_project = ALL_PROJECTS ) {
-	global $g_cache_config, $g_cache_config_access, $g_cache_filled;
+	global $g_cache_filled;
 
 	if( '' !== $p_option ) {
 		unset( $GLOBALS['g_cache_config'][$p_option][$p_user][$p_project] );
@@ -626,6 +623,22 @@ function config_obsolete( $p_var, $p_replace = '' ) {
 			$t_info .= 'please use ' . $p_replace . ' instead.';
 		}
 
+		check_print_test_warn_row( $t_description, false, $t_info );
+	}
+}
+
+/**
+ * Checks if an obsolete environment variable is set.
+ * If so, an error will be generated and the script will exit.
+ *
+ * @param string $p_env_variable old variable
+ * @param string $p_replace new variable
+ */
+function env_obsolete( $p_env_variable, $p_new_env_variable ) {
+	$t_env = getenv( $p_env_variable );
+	if ( $t_env ) {
+		$t_description = 'Environment variable <em>' . $p_env_variable . '</em> is obsolete.';
+		$t_info = 'please use ' . $p_new_env_variable . ' instead.';
 		check_print_test_warn_row( $t_description, false, $t_info );
 	}
 }

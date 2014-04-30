@@ -140,12 +140,11 @@ function get_percentage_by_status() {
 		$query .= ' AND view_state < ' . VS_PRIVATE;
 	}
 	$query .= ' GROUP BY status';
-	$result = db_query_bound( $query );
+	$t_result = db_query_bound( $query );
 
-	$t_bug_count = 0;
 	$t_status_count_array = array();
 
-	while( $row = db_fetch_array( $result ) ) {
+	while( $row = db_fetch_array( $t_result ) ) {
 		$t_status_count_array[$row['status']] = $row['num'];
 	}
 	$t_bug_count = array_sum( $t_status_count_array );
@@ -478,7 +477,7 @@ function helper_project_specific_where( $p_project_id, $p_user_id = null ) {
 	if( 0 == count( $t_project_ids ) ) {
 		$t_project_filter = ' 1<>1';
 	} else if( 1 == count( $t_project_ids ) ) {
-		$t_project_filter = ' project_id=' . $t_project_ids[0];
+		$t_project_filter = ' project_id=' . reset( $t_project_ids );
 	} else {
 		$t_project_filter = ' project_id IN (' . join( ',', $t_project_ids ) . ')';
 	}

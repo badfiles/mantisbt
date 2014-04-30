@@ -73,10 +73,58 @@ if( db_is_oracle() ) {
 }
 
 /**
- * Tracks the query parameter count for use with db_aparam:().
- * @global int $g_db_param_count
+ * Mantis Database Parameters Count class
+ * Stores the current parameter count, provides method to generate parameters
+ * and a simple stack mechanism to enable the caller to build multiple queries
+ * concurrently on RDBMS using positional parameters (e.g. PostgreSQL)
+ * @package MantisBT
+ * @subpackage classes
  */
-$g_db_param_count = 0;
+class MantisDbParam {
+	/** Current parameter count */
+	public $count = 0;
+
+	/** Parameter count stack */
+	private $stack = array();
+
+	/**
+	 * Generate a string to insert a parameter into a database query string
+	 * @return string 'wildcard' matching a parameter in correct ordered format for the current database.
+	 */
+	public function assign() {
+		global $g_db;
+		return $g_db->Param( $this->count++ );
+	}
+
+	/**
+	 * Pushes current parameter count onto stack and resets its value to 0
+	 */
+	public function push() {
+		$this->stack[] = $this->count;
+		$this->count = 0;
+	}
+
+	/**
+	 * Pops the previous value of param count from the stack
+	 * This function is called by {@see db_query_bound()} and should not need
+	 * to be executed directly
+	 */
+	public function pop() {
+		global $g_db;
+
+		$this->count = (int)array_pop( $this->stack );
+		if( db_is_pgsql() ) {
+			# Manually reset the ADOdb param number to the value we just popped
+			$g_db->_pnum = $this->count;
+		}
+	}
+}
+
+/**
+ * Tracks the query parameter count
+ * @global object $g_db_param
+ */
+$g_db_param = new MantisDbParam();
 
 /**
  * Open a connection to the database.
@@ -152,7 +200,6 @@ function db_is_connected() {
  * @return bool indicating if php current supports the given database type
  */
 function db_check_database_support( $p_db_type ) {
-	$t_support = false;
 	switch( $p_db_type ) {
 		case 'mysql':
 			$t_support = function_exists( 'mysql_connect' );
@@ -275,6 +322,7 @@ function db_check_identifier_size( $p_identifier ) {
 /**
  * execute query, requires connection to be opened
  * An error will be triggered if there is a problem executing the query.
+ * This will pop the database parameter stack {@see MantisDbParam} after a successful execution
  * @global array of previous executed queries for profiling
  * @global adodb database connection object
  * @global boolean indicating whether queries array is populated
@@ -285,7 +333,7 @@ function db_check_identifier_size( $p_identifier ) {
  * @return ADORecordSet|bool adodb result set or false if the query failed.
  */
 function db_query_bound( $p_query, $arr_parms = null, $p_limit = -1, $p_offset = -1 ) {
-	global $g_queries_array, $g_db, $g_db_log_queries, $g_db_param_count;
+	global $g_queries_array, $g_db, $g_db_log_queries, $g_db_param;
 
 	$t_db_type = config_get_global( 'db_type' );
 
@@ -368,28 +416,33 @@ function db_query_bound( $p_query, $arr_parms = null, $p_limit = -1, $p_offset =
 		array_push( $g_queries_array, array( '', $t_elapsed ) );
 	}
 
-	# We can't reset the counter because we have queries being built
-	# and executed while building bigger queries in filter_api. -jreese
-	# $g_db_param_count = 0;
-
 	if( !$t_result ) {
 		db_error( $p_query );
 		trigger_error( ERROR_DB_QUERY_FAILED, ERROR );
 		return false;
 	} else {
+		$g_db_param->pop();
 		return $t_result;
 	}
 }
 
 /**
  * Generate a string to insert a parameter into a database query string
- * @return string 'wildcard' matching a paramater in correct ordered format for the current database.
+ * @return string 'wildcard' matching a parameter in correct ordered format for the current database.
  */
 function db_param() {
-	global $g_db;
-	global $g_db_param_count;
+	global $g_db_param;
+	return $g_db_param->assign();
+}
 
-	return $g_db->Param( $g_db_param_count++ );
+/**
+ * Pushes current parameter count onto stack and resets its value
+ * Allows the caller to build multiple queries concurrently on RDBMS using
+ * positional parameters (e.g. PostgreSQL)
+ */
+function db_param_push() {
+	global $g_db_param;
+	$g_db_param->push();
 }
 
 /**
@@ -398,8 +451,6 @@ function db_param() {
  * @return int Record Count
  */
 function db_num_rows( $p_result ) {
-	global $g_db;
-
 	return $p_result->RecordCount();
 }
 
@@ -498,8 +549,6 @@ function db_fetch_array( &$p_result ) {
  * @return mixed Database result
  */
 function db_result( $p_result, $p_index1 = 0, $p_index2 = 0 ) {
-	global $g_db;
-
 	if( $p_result && ( db_num_rows( $p_result ) > 0 ) ) {
 		$p_result->Move( $p_index1 );
 		$t_result = $p_result->GetArray();
@@ -524,7 +573,6 @@ function db_result( $p_result, $p_index1 = 0, $p_index2 = 0 ) {
  */
 function db_insert_id( $p_table = null, $p_field = "id" ) {
 	global $g_db;
-	$t_db_type = config_get_global( 'db_type' );
 
 	if( isset( $p_table ) ) {
 		if( db_is_oracle() ) {
@@ -533,14 +581,14 @@ function db_insert_id( $p_table = null, $p_field = "id" ) {
 			$query = "SELECT currval('" . $p_table . "_" . $p_field . "_seq')";
 		}
 		if( isset( $query ) ) {
-			$result = db_query_bound( $query );
-			return db_result( $result );
+			$t_result = db_query_bound( $query );
+			return db_result( $t_result );
 		}
 	}
 	if( db_is_mssql() ) {
 		$query = "SELECT IDENT_CURRENT('$p_table')";
-		$result = db_query_bound( $query );
-		return db_result( $result );
+		$t_result = db_query_bound( $query );
+		return db_result( $t_result );
 	}
 	return $g_db->Insert_ID();
 }
@@ -556,6 +604,9 @@ function db_table_exists( $p_table_name ) {
 	}
 
 	$t_tables = db_get_table_list();
+	if( !is_array( $t_tables ) ) {
+		return false;
+	}
 
 	# Can't use in_array() since it is case sensitive
 	$t_table_name = utf8_strtolower( $p_table_name );
@@ -575,7 +626,7 @@ function db_table_exists( $p_table_name ) {
  * @return bool indicating whether the index exists
  */
 function db_index_exists( $p_table_name, $p_index_name ) {
-	global $g_db, $g_db_schema;
+	global $g_db;
 
 	if( is_blank( $p_index_name ) || is_blank( $p_table_name ) ) {
 		return false;
@@ -606,7 +657,6 @@ function db_index_exists( $p_table_name, $p_index_name ) {
  * @return bool indicating whether the field exists
  */
 function db_field_exists( $p_field_name, $p_table_name ) {
-	global $g_db;
 	$columns = db_field_names( $p_table_name );
 	return in_array( $p_field_name, $columns );
 }
@@ -791,8 +841,6 @@ function db_prepare_bool( $p_bool ) {
  * @return string Formatted Date for DB insertion e.g. 1970-01-01 00:00:00 ready for database insertion
  */
 function db_now() {
-	global $g_db;
-
 	return time();
 }
 

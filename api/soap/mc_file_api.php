@@ -1,16 +1,25 @@
 <?php
-# MantisConnect - A webservice interface to Mantis Bug Tracker
-# Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
-# This program is distributed under dual licensing.  These include
-# GPL and a commercial licenses.  Victor Boctor reserves the right to
-# change the license of future releases.
-# See docs/ folder for more details
+# MantisBT - A PHP based bugtracking system
+
+# MantisBT is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 2 of the License, or
+# (at your option) any later version.
+#
+# MantisBT is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * MantisConnect - A webservice interface to Mantis Bug Tracker
+ * A webservice interface to Mantis Bug Tracker
  *
  * @package MantisBT
  * @copyright Copyright 2004  Victor Boctor - vboctor@users.sourceforge.net
+ * @copyright Copyright 2005  MantisBT Team - mantisbt-dev@lists.sourceforge.net
  * @link http://www.mantisbt.org
  */
 
@@ -131,7 +140,7 @@ function mci_file_add( $p_id, $p_name, $p_content, $p_file_type, $p_table, $p_ti
 
 	if( 'bug' == $p_table ) {
 		# bump the last_updated date
-		$result = bug_update_date( $t_issue_id );
+		bug_update_date( $t_issue_id );
 
 		# add history entry
 		history_log_event_special( $t_issue_id, FILE_ADDED, $p_name );
@@ -166,13 +175,13 @@ function mci_file_get( $p_file_id, $p_type, $p_user_id ) {
 			return SoapObjectsFactory::newSoapFault( 'Server', 'Invalid file type '.$p_type. ' .' );
 	}
 
-	$result = db_query_bound( $t_query, array( $p_file_id ) );
+	$t_result = db_query_bound( $t_query, array( $p_file_id ) );
 
-	if ( $result->EOF ) {
+	if ( $t_result->EOF ) {
 		return SoapObjectsFactory::newSoapFault( 'Client', 'Unable to find an attachment with type ' . $p_type. ' and id ' . $p_file_id . ' .' );
 	}
 
-	$row = db_fetch_array( $result );
+	$row = db_fetch_array( $t_result );
 
 	if ( $p_type == 'doc' ) {
 		$t_project_id = $row['project_id'];
