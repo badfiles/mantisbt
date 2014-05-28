@@ -246,10 +246,10 @@ function summary_print_by_enum( $p_enum ) {
  * @param int $p_num_days number of days
  * @return int
  */
-function summary_new_bug_count_by_date( $p_time_length = 1 ) {
+function summary_new_bug_count_by_date( $p_num_days = 1 ) {
 	$t_mantis_bug_table = db_get_table( 'bug' );
 
-	$c_time_length = (int) $p_time_length * SECONDS_PER_DAY;
+	$_time_length = (int) $p_num_days * SECONDS_PER_DAY;
 
 	$t_project_id = helper_get_current_project();
 
@@ -271,12 +271,12 @@ function summary_new_bug_count_by_date( $p_time_length = 1 ) {
  * @param int $p_num_days number of days
  * @return int
  */
-function summary_resolved_bug_count_by_date( $p_time_length = 1 ) {
+function summary_resolved_bug_count_by_date( $p_num_days = 1 ) {
 	$t_bug_table = db_get_table( 'bug' );
 	$t_bug_history_table = db_get_table( 'bug_history' );
 	$t_resolved = config_get( 'bug_resolved_status_threshold' );
 
-	$c_time_length = (int) $p_time_length * SECONDS_PER_DAY;
+	$c_time_length = (int) $p_num_days * SECONDS_PER_DAY;
 
 	$t_project_id = helper_get_current_project();
 
@@ -344,7 +344,7 @@ function summary_print_by_date( $p_date_array ) {
 }
 
 /**
- * Print list of open bugs with the highest activity score the score is calculated assigning 
+ * Print list of open bugs with the highest activity score the score is calculated assigning
  * one "point" for each history event associated with the bug
  */
 function summary_print_by_activity() {
@@ -890,7 +890,7 @@ function summary_print_developer_resolution( $p_resolution_enum_string ) {
 			$t_row_count++;
 			echo '<td>';
 			echo summary_helper_get_developer_label( $t_handler_id );
-			echo '</td>';
+			echo "</td>\n";
 
 			# We need to track the percentage of bugs that are considered fixed, as well as
 			# those that aren't considered bugs to begin with (when looking at %age)
@@ -903,7 +903,7 @@ function summary_print_developer_resolution( $p_resolution_enum_string ) {
 					$res_bug_count = $t_arr2[$c_res_s[$j]];
 				}
 
-				echo '<td>';
+				echo '<td class="right">';
 				if( 0 < $res_bug_count ) {
 					$t_bug_link = '<a class="subtle" href="' . $t_filter_prefix . '&amp;' . FILTER_PROPERTY_HANDLER_ID . '=' . $t_handler_id;
 					$t_bug_link = $t_bug_link . '&amp;' . FILTER_PROPERTY_RESOLUTION . '=' . $c_res_s[$j] . '">';
@@ -911,7 +911,7 @@ function summary_print_developer_resolution( $p_resolution_enum_string ) {
 				} else {
 					echo $res_bug_count;
 				}
-				echo '</td>';
+				echo "</td>\n";
 
 				if( $c_res_s[$j] >= config_get( 'bug_resolution_fixed_threshold' ) ) {
 					if ( $c_res_s[$j] < config_get( 'bug_resolution_not_fixed_threshold' ) ) {
@@ -929,9 +929,9 @@ function summary_print_developer_resolution( $p_resolution_enum_string ) {
 			if(( $t_arr2['total'] - $t_bugs_notbugs ) > 0 ) {
 				$t_percent_fixed = ( $t_bugs_fixed / ( $t_arr2['total'] - $t_bugs_notbugs ) );
 			}
-			echo '<td>';
+			echo '<td class="right">';
 			printf( '% 1.0f%%', ( $t_percent_fixed * 100 ) );
-			echo '</td>';
+			echo "</td>\n";
 			echo '</tr>';
 		}
 	}
@@ -1005,7 +1005,7 @@ function summary_print_reporter_resolution( $p_resolution_enum_string ) {
 			$t_row_count++;
 			echo '<td>';
 			echo string_display_line( user_get_name( $t_reporter_id ) );
-			echo '</td>';
+			echo "</td>\n";
 
 			# We need to track the percentage of bugs that are considered fix, as well as
 			# those that aren't considered bugs to begin with (when looking at %age)
@@ -1018,7 +1018,7 @@ function summary_print_reporter_resolution( $p_resolution_enum_string ) {
 					$res_bug_count = $t_arr2[$c_res_s[$j]];
 				}
 
-				echo '<td>';
+				echo '<td class="right">';
 				if( 0 < $res_bug_count ) {
 					$t_bug_link = '<a class="subtle" href="' . config_get( 'bug_count_hyperlink_prefix' ) . '&amp;' . FILTER_PROPERTY_REPORTER_ID . '=' . $t_reporter_id;
 					$t_bug_link = $t_bug_link . '&amp;' . FILTER_PROPERTY_RESOLUTION . '=' . $c_res_s[$j] . '">';
@@ -1026,7 +1026,7 @@ function summary_print_reporter_resolution( $p_resolution_enum_string ) {
 				} else {
 					echo $res_bug_count;
 				}
-				echo '</td>';
+				echo "</td>\n";
 
 				if( $c_res_s[$j] >= config_get( 'bug_resolution_fixed_threshold' ) ) {
 					if ( $c_res_s[$j] < config_get( 'bug_resolution_not_fixed_threshold' ) ) {
@@ -1044,9 +1044,9 @@ function summary_print_reporter_resolution( $p_resolution_enum_string ) {
 			if( $t_total_user_bugs > 0 ) {
 				$t_percent_errors = ( $t_bugs_notbugs / $t_total_user_bugs );
 			}
-			echo '<td>';
+			echo '<td class="right">';
 			printf( '% 1.0f%%', ( $t_percent_errors * 100 ) );
-			echo '</td>';
+			echo "</td>\n";
 			echo '</tr>';
 		}
 	}

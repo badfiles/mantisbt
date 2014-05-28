@@ -30,6 +30,7 @@ step "Create database $MANTIS_DB_NAME"
 case $DB in
 
 	mysql)
+		DB_TYPE='mysqli'
 		DB_USER='root'
 		DB_PASSWORD=''
 		DB_CMD='mysql -e'
@@ -39,6 +40,7 @@ case $DB in
 		;;
 
 	pgsql)
+		DB_TYPE='pgsql'
 		DB_USER='postgres'
 		DB_PASSWORD=''
 		DB_CMD="psql -U $DB_USER -c"
@@ -53,35 +55,26 @@ esac
 # -----------------------------------------------------------------------------
 step "Web server setup"
 
-if [ $TRAVIS_PHP_VERSION = '5.3' ]; then
-	# install Apache as PHP 5.3 does not come with an embedded web server
-	sudo apt-get update -qq
-	sudo apt-get install -qq apache2 libapache2-mod-php5 php5-mysql php5-pgsql
+sudo apt-get update -qq
+sudo apt-get install -qq apache2 libapache2-mod-php5 php5-mysql php5-pgsql
 
-	cat <<-EOF | sudo tee /etc/apache2/sites-available/default >/dev/null
-		<VirtualHost *:80>
-		    DocumentRoot $PWD
-		    <Directory />
-		        Options FollowSymLinks
-		        AllowOverride All
-		    </Directory>
-		    <Directory $PWD>
-		        Options Indexes FollowSymLinks MultiViews
-		        AllowOverride All
-		        Order allow,deny
-		        allow from all
-		    </Directory>
-		</VirtualHost>
-		EOF
+cat <<-EOF | sudo tee /etc/apache2/sites-available/default >/dev/null
+    <VirtualHost *:$PORT>
+        DocumentRoot $PWD
+        <Directory />
+            Options FollowSymLinks
+            AllowOverride All
+        </Directory>
+        <Directory $PWD>
+            Options Indexes FollowSymLinks MultiViews
+            AllowOverride All
+            Order allow,deny
+            allow from all
+        </Directory>
+    </VirtualHost>
+EOF
 
-	sudo service apache2 restart
-else
-	# use PHP's embedded server
-	# get path of PHP as the path is not in $PATH for sudo
-	myphp=$(which php)
-	# sudo needed for port 80
-	sudo $myphp -S $HOSTNAME:$PORT &
-fi
+sudo service apache2 restart
 
 # needed to allow web server to create config_inc.php
 chmod 777 config
@@ -96,7 +89,7 @@ step "MantisBT Installation"
 # Define parameters for MantisBT installer
 declare -A query=(
 	[install]=2
-	[db_type]=$DB
+	[db_type]=$DB_TYPE
 	[hostname]=$HOSTNAME
 	[database_name]=$MANTIS_DB_NAME
 	[db_username]=$DB_USER
