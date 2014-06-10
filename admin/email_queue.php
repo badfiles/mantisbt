@@ -32,12 +32,12 @@ html_page_top();
 
 $f_to = gpc_get( 'send', null );
 
-if ( $f_to !== null ) {
-	if ( $f_to == 'all' ) {
+if( $f_to !== null ) {
+	if( $f_to == 'all' ) {
 		echo "Sending emails...<br />";
 		email_send_all();
 		echo "Done";
-	} else if ( $f_to == 'sendordelall' ) {
+	} else if( $f_to == 'sendordelall' ) {
 		echo "Sending or deleting emails...<br />";
 		email_send_all(true);
 		echo "Done";
@@ -45,7 +45,7 @@ if ( $f_to !== null ) {
 	} else {
 		$t_email_data = email_queue_get( (int) $f_to );
 
-		// check if email was found.  This can fail if another request picks up the email first and sends it.
+		# check if email was found.  This can fail if another request picks up the email first and sends it.
 		echo 'Sending email...<br />';
 		if( $t_email_data !== false ) {
 			if( !email_send( $t_email_data ) ) {

@@ -270,7 +270,6 @@ function custom_function_default_auth_can_change_password() {
  *
  * @param int $p_columns_target see COLUMNS_TARGET_* in constant_inc.php
  * @param int $p_user_id The user id or null for current logged in user.
- * @param int $p_project_id The project id or null for current project.
  * @return array
  */
 function custom_function_default_get_columns_to_view( $p_columns_target = COLUMNS_TARGET_VIEW_PAGE, $p_user_id = null ) {
@@ -331,7 +330,7 @@ function custom_function_default_print_column_title( $p_column, $p_columns_targe
 		if( function_exists( $t_function ) ) {
 			$t_function( $t_sort, $t_dir, $p_columns_target );
 
-		} else if ( isset( $t_plugin_columns[ $p_column ] ) ) {
+		} else if( isset( $t_plugin_columns[ $p_column ] ) ) {
 			$t_column_object = $t_plugin_columns[ $p_column ];
 			print_column_title_plugin( $p_column, $t_column_object, $t_sort, $t_dir, $p_columns_target );
 
@@ -378,7 +377,7 @@ function custom_function_default_print_column_value( $p_column, $p_bug, $p_colum
 				$t_def = custom_field_get_definition( $t_field_id );
 				print_custom_field_value( $t_def, $t_field_id, $t_issue_id );
 			} else {
-				// field is not linked to project
+				# field is not linked to project
 				echo $t_column_empty;
 			}
 		}
@@ -399,7 +398,7 @@ function custom_function_default_print_column_value( $p_column, $p_bug, $p_colum
 				$t_function( $p_bug );
 			}
 
-		} else if ( isset( $t_plugin_columns[ $p_column ] ) ) {
+		} else if( isset( $t_plugin_columns[ $p_column ] ) ) {
 			$t_column_object = $t_plugin_columns[ $p_column ];
 			print_column_plugin( $t_column_object, $p_bug, $p_columns_target );
 

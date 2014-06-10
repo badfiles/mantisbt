@@ -84,7 +84,7 @@ function config_get( $p_option, $p_default = null, $p_user = null, $p_project = 
 		if( $g_project_override !== null && $p_project === null ) {
 			$p_project = $g_project_override;
 		}
-		# @@ debug @@ if ( ! db_is_connected() ) { echo "no db "; }
+		# @@ debug @@ if( ! db_is_connected() ) { echo "no db "; }
 		# @@ debug @@ echo "lu table=" . ( db_table_exists( $t_config_table ) ? "yes " : "no " );
 		if( !$g_cache_db_table_exists ) {
 			$t_config_table = db_get_table( 'config' );
@@ -591,7 +591,7 @@ function config_obsolete( $p_var, $p_replace = '' ) {
 		$t_description = 'The configuration option <em>' . $p_var . '</em> is now obsolete';
 		$t_info = '';
 
-		// Check if set in the database
+		# Check if set in the database
 		if( is_array( $g_cache_config ) && array_key_exists( $p_var, $g_cache_config ) ) {
 			$t_info .= 'it is currently defined in ';
 			if( isset( $GLOBALS['g_' . $p_var] ) ) {
@@ -611,7 +611,7 @@ function config_obsolete( $p_var, $p_replace = '' ) {
 			$t_info .= '</ul>';
 		}
 
-		// Replacement defined
+		# Replacement defined
 		if( is_array( $p_replace ) ) {
 			$t_info .= 'please see the following options: <ul>';
 			foreach( $p_replace as $t_option ) {
@@ -636,7 +636,7 @@ function config_obsolete( $p_var, $p_replace = '' ) {
  */
 function env_obsolete( $p_env_variable, $p_new_env_variable ) {
 	$t_env = getenv( $p_env_variable );
-	if ( $t_env ) {
+	if( $t_env ) {
 		$t_description = 'Environment variable <em>' . $p_env_variable . '</em> is obsolete.';
 		$t_info = 'please use ' . $p_new_env_variable . ' instead.';
 		check_print_test_warn_row( $t_description, false, $t_info );
@@ -740,8 +740,8 @@ function config_is_private( $p_config_var ) {
 		case 'neato_tool':
 			return true;
 
-		// Marked obsolete in 1.3.0dev - keep here to make sure they are not disclosed by soap api.
-		// These can be removed once complete removal from config and db is enforced by upgrade process.
+		# Marked obsolete in 1.3.0dev - keep here to make sure they are not disclosed by soap api.
+		# These can be removed once complete removal from config and db is enforced by upgrade process.
 		case 'file_upload_ftp_server':
 		case 'file_upload_ftp_user':
 		case 'file_upload_ftp_pass':

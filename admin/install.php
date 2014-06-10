@@ -179,7 +179,6 @@ if( $t_config_exists && $t_install_state <= 1 ) {
 	$f_db_username            = config_get( 'db_username', '' );
 	$f_db_password            = config_get( 'db_password', '' );
 	$f_timezone               = config_get( 'default_timezone', '' );
-	$f_crypto_master_salt     = config_get( 'crypto_master_salt', '' );
 
 	# Set default prefix/suffix form variables ($f_db_table_XXX)
 	foreach( $t_prefix_defaults['other'] as $t_key => $t_value ) {
@@ -198,7 +197,6 @@ if( $t_config_exists && $t_install_state <= 1 ) {
 		$f_db_password = config_get( 'db_password' );
 	}
 	$f_timezone           = gpc_get( 'timezone', config_get( 'default_timezone' ) );
-	$f_crypto_master_salt = gpc_get( 'crypto_master_salt', config_get( 'crypto_master_salt' ) );
 
 	# Set default prefix/suffix form variables ($f_db_table_XXX)
 	$t_prefix_type = $f_db_type == 'oci8' ? $f_db_type : 'other';
@@ -225,7 +223,7 @@ if( $t_config_exists ) {
 		# Oracle supports binding in two ways:
 		#  - hostname, username/password and database name
 		#  - tns name (insert into hostname field) and username/password, database name is still empty
-		if ( $f_db_type == 'oci8' ) {
+		if( $f_db_type == 'oci8' ) {
 			$t_db_conn_exists = $t_db_conn_exists || ( $f_database_name == '' && $f_db_username !== '' && $f_hostname !== '' );
 		}
 		print_test( 'Checking Database connection settings exist',
@@ -645,27 +643,6 @@ if( !$g_database_upgrade ) {
 		</select>
 	</td>
 </tr>
-
-<!-- Cryptographic salt -->
-<tr>
-	<td>
-		Master salt value for cryptographic hashing
-		(Refer to documentation for details)
-	</td>
-	<td>
-<?php
-	# Automatically generate a strong master salt/nonce for MantisBT
-	# cryptographic purposes. If a strong source of randomness is not
-	# available the user will have to manually set this value post
-	# installation.
-	$t_crypto_master_salt = crypto_generate_random_string(32);
-	if ( $t_crypto_master_salt !== null ) {
-		$t_crypto_master_salt = base64_encode( $t_crypto_master_salt );
-	}
-?>
-		<input name="crypto_master_salt" type="textbox" size=40 value="<?php echo $t_crypto_master_salt; ?>">
-	</td>
-</tr>
 <?php
 } # end install-only fields
 ?>
@@ -736,7 +713,7 @@ if( 3 == $t_install_state ) {
 			print_test_result( GOOD );
 			$t_db_open = true;
 		} else {
-			// create db
+			# create db
 			$g_db = ADONewConnection( $f_db_type );
 			$t_result = $g_db->Connect( $f_hostname, $f_admin_username, $f_admin_password );
 
@@ -837,7 +814,7 @@ if( 3 == $t_install_state ) {
 		}
 
 		# Make sure we do the upgrades using UTF-8 if needed
-		if ( $f_db_type === 'mysql' || $f_db_type === 'mysqli' ) {
+		if( $f_db_type === 'mysql' || $f_db_type === 'mysqli' ) {
 			$g_db->execute( 'SET NAMES UTF8' );
 		}
 
@@ -932,13 +909,13 @@ if( 3 == $t_install_state ) {
 					break;
 
 				case NULL:
-					// No-op upgrade step - required for oci8
+					# No-op upgrade step - required for oci8
 					break;
 
 				default:
 						$sqlarray = call_user_func_array( array( $dict, $upgrade[$i][0] ), $upgrade[$i][1] );
 
-					/* 0: function to call, 1: function params, 2: function to evaluate before calling upgrade, if false, skip upgrade. */
+					# 0: function to call, 1: function params, 2: function to evaluate before calling upgrade, if false, skip upgrade.
 					if( isset( $upgrade[$i][2] ) ) {
 						if( call_user_func_array( $upgrade[$i][2][0], $upgrade[$i][2][1] ) ) {
 							$sqlarray = call_user_func_array( array( $dict, $upgrade[$i][0] ), $upgrade[$i][1] );
@@ -954,7 +931,7 @@ if( 3 == $t_install_state ) {
 				if( $t_sql ) {
 					foreach( $sqlarray as $sql ) {
 						# "CREATE OR REPLACE TRIGGER" statements must end with "END;\n/" for Oracle sqlplus
-						if ( $f_db_type == 'oci8' && stripos( $sql, 'CREATE OR REPLACE TRIGGER' ) === 0 ) {
+						if( $f_db_type == 'oci8' && stripos( $sql, 'CREATE OR REPLACE TRIGGER' ) === 0 ) {
 							$t_sql_end = PHP_EOL . "/";
 						} else {
 							$t_sql_end = ";";
@@ -1013,8 +990,8 @@ if( 3 == $t_install_state ) {
 # database installed, get any additional information
 if( 4 == $t_install_state ) {
 
-	/** @todo to be written */
-	// must post data gathered to preserve it
+	# @todo to be written
+	# must post data gathered to preserve it
 	?>
 		<input name="hostname" type="hidden" value="<?php echo $f_hostname?>">
 		<input name="db_type" type="hidden" value="<?php echo $f_db_type?>">
@@ -1063,6 +1040,15 @@ if( 5 == $t_install_state ) {
 <?php
 	# Generating the config_inc.php file
 
+	# Automatically generate a strong master salt/nonce for MantisBT
+	# cryptographic purposes. If a strong source of randomness is not
+	# available the user will have to manually set this value post
+	# installation.
+	$t_crypto_master_salt = crypto_generate_random_string(32);
+	if( $t_crypto_master_salt !== null ) {
+		$t_crypto_master_salt = base64_encode( $t_crypto_master_salt );
+	}
+
 	$t_config = '<?php' . PHP_EOL
 		. "\$g_hostname               = '$f_hostname';" . PHP_EOL
 		. "\$g_db_type                = '$f_db_type';" . PHP_EOL
@@ -1095,7 +1081,7 @@ if( 5 == $t_install_state ) {
 	$t_config .=
 		  "\$g_default_timezone       = '$f_timezone';" . PHP_EOL
 		. PHP_EOL
-		. "\$g_crypto_master_salt     = '" . addslashes( $f_crypto_master_salt ) . "';" . PHP_EOL;
+		. "\$g_crypto_master_salt     = '" . addslashes( $t_crypto_master_salt ) . "';" . PHP_EOL;
 
 	$t_write_failed = true;
 
@@ -1113,7 +1099,7 @@ if( 5 == $t_install_state ) {
 		}
 	} else {
 		# already exists, see if the information is the same
-		if ( ( $f_hostname != config_get( 'hostname', '' ) ) ||
+		if( ( $f_hostname != config_get( 'hostname', '' ) ) ||
 			( $f_db_type != config_get( 'db_type', '' ) ) ||
 			( $f_database_name != config_get( 'database_name', '') ) ||
 			( $f_db_schema != config_get( 'db_schema', '') ) ||
@@ -1128,6 +1114,12 @@ if( 5 == $t_install_state ) {
 	?>
 </tr>
 <?php
+	if( $t_crypto_master_salt === null ) {
+		print_test( 'Setting Cryptographic salt in config file', false , false,
+					'Unable to find a random number source for cryptographic purposes. You will need to edit ' .
+					$g_config_path . 'config_inc.php' . ' and set a value for $g_crypto_master_salt manually' );
+	}
+
 	if( true == $t_write_failed ) {
 ?>
 <tr>

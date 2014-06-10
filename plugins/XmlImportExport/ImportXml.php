@@ -52,11 +52,11 @@ class SourceData {
 
 	/**
 	 * Get url to view issue
-	 * @param int issue id
+	 * @param int $p_issue_id issue id
      * @return string
 	 */
-	public function get_issue_url( $issue_id ) {
-		return $this->urlbase . 'view.php?id=' . $issue_id;
+	public function get_issue_url( $p_issue_id ) {
+		return $this->urlbase . 'view.php?id=' . $p_issue_id;
 	}
 
 	/**
@@ -100,7 +100,6 @@ class ImportXML {
 	 */
 	private $fallback_;
 
-	// issues specific options
 	/**
 	 * keep category
 	 * @access private
@@ -137,7 +136,7 @@ class ImportXML {
 	 * Perform import from an XML file
 	 */
 	public function import( ) {
-		// Read the <mantis> element and it's attributes
+		# Read the <mantis> element and it's attributes
 		while( $this->reader_->read( ) && $this->reader_->name == 'mantis' ) {
 			$this->source_->version = $this->reader_->getAttribute( 'version' );
 			$this->source_->urlbase = $this->reader_->getAttribute( 'urlbase' );
@@ -148,12 +147,12 @@ class ImportXML {
 
 		echo 'Importing file, please wait...';
 
-		// loop through the elements
+		# loop through the elements
 		while( $this->reader_->read( ) ) {
 			switch( $this->reader_->nodeType ) {
 				case XMLReader::ELEMENT:
 
-					/* element start */
+					# element start
 					$t_element_name = $this->reader_->localName;
 					$t_importer = $this->get_importer_object( $t_element_name );
 					if( !is_null( $t_importer ) ) {
@@ -166,7 +165,7 @@ class ImportXML {
 
 		echo " Done\n";
 
-		// replace references in bug description and additional information
+		# replace references in bug description and additional information
 		$importedIssues = $this->itemsMap_->getall( 'issue' );
 		printf( "Processing cross-references for %s issues...", count( $importedIssues ) );
 		foreach( $importedIssues as $oldId => $newId ) {
@@ -174,29 +173,29 @@ class ImportXML {
 			$content_replaced = false;
 
 			$bugLinkRegexp = '/(^|[^\w])(' . preg_quote( $this->source_->issuelink, '/' ) . ')(\d+)\b/e';
-			// replace links in description
+			# replace links in description
 			preg_match_all( $bugLinkRegexp, $bugData->description, $matches );
-			if ( is_array( $matches[3] && count( $matches[3] ) > 0 ) ) {
+			if( is_array( $matches[3] && count( $matches[3] ) > 0 ) ) {
 				$content_replaced = true;
 				foreach ( $matches[3] as $old_id ) {
 					$bugData->description = str_replace( $this->source_->issuelink . $old_id, $this->getReplacementString( $this->source_->issuelink, $old_id ), $bugData->description);
 				}
 			}
-			// replace links in additional information
+			# replace links in additional information
 			preg_match_all( $bugLinkRegexp, $bugData->additional_information, $matches );
-			if ( is_array( $matches[3] && count( $matches[3] ) > 0 ) ) {
+			if( is_array( $matches[3] && count( $matches[3] ) > 0 ) ) {
 				$content_replaced = true;
 				foreach ( $matches[3] as $old_id ) {
 					$bugData->additional_information = str_replace( $this->source_->issuelink . $old_id, $this->getReplacementString( $this->source_->issuelink, $old_id ), $bugData->additional_information);
 				}
 			}
-			if ( $content_replaced ) {
-				// only update bug if necessary (otherwise last update date would be unnecessarily overwritten)
+			if( $content_replaced ) {
+				# only update bug if necessary (otherwise last update date would be unnecessarily overwritten)
 				$bugData->update( true );
 			}
 		}
 
-		// @todo: replace references within bugnotes
+		# @todo: replace references within bug notes
 		echo " Done\n";
 	}
 
@@ -222,10 +221,10 @@ class ImportXML {
 
 			case 'renumber':
 				if( $this->itemsMap_->exists( 'issue', $p_oldId ) ) {
-					// regular renumber
+					# regular renumber
 					$replacement = $linkTag . $this->itemsMap_->getNewID( 'issue', $p_oldId );
 				} else {
-					// fallback strategy
+					# fallback strategy
 					if( $this->fallback_ == 'link' ) {
 						$replacement = $this->source_->get_issue_url( $p_oldId );
 					}
@@ -244,7 +243,7 @@ class ImportXML {
 
 	/**
 	 * Get importer object
-	 * @param element $p_element_name name
+	 * @param string $p_element_name name
      * @return ImportXml_Issue
 	 */
 	private function get_importer_object( $p_element_name ) {
@@ -262,18 +261,18 @@ class ImportXML {
 
 /**
  * Convert each character of the passed string to the corresponding HTML entity.
- * @param string string to convert
+ * @param string $p_string string to convert
  * @return string
  */
-function htmlFullEntities( $string ) {
-	$chars = str_split( $string );
+function htmlFullEntities( $p_string ) {
+	$chars = str_split( $p_string );
 	$escaped = array_map( 'getEntity', $chars );
 	return implode( '', $escaped );
 }
 
 /**
  * Get entity
- * @param string character to convert
+ * @param string $char character to convert
  * @return string
  */
 function getEntity( $char ) {

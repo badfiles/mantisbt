@@ -26,7 +26,7 @@
  * @uses config_api.php
  */
 
-if ( !defined( 'CHECK_DISPLAY_INC_ALLOW' ) ) {
+if( !defined( 'CHECK_DISPLAY_INC_ALLOW' ) ) {
 	return;
 }
 
@@ -63,7 +63,7 @@ if( plugin_is_installed( 'MantisGraph' ) ) {
 		get_gd_version() == 2
 	);
 
-	if ( plugin_config_get( 'eczlibrary', ON ) == OFF ) {
+	if( plugin_config_get( 'eczlibrary', ON ) == OFF ) {
 		$t_jpgraph_path = plugin_config_get( 'jpgraph_path' );
 		if( $t_jpgraph_path == '' ) {
 			$t_jpgraph_path = config_get( 'absolute_path' ) . 'library/jpgraph';
@@ -73,7 +73,7 @@ if( plugin_is_installed( 'MantisGraph' ) ) {
 		$t_jpgraph_found = check_print_test_row(
 			'Checking we can find jpgraph library class files',
 			file_exists( $t_jpgraph_path ),
-			//array( false => dirname( $t_jpgraph_path ) )
+			# array( false => dirname( $t_jpgraph_path ) )
 			dirname( $t_jpgraph_path )
 		);
 

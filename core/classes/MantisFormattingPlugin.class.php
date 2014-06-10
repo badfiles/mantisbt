@@ -1,8 +1,6 @@
 <?php
 # MantisBT - A PHP based bugtracking system
 
-# Copyright 2002  MantisBT Team - mantisbt-dev@lists.sourceforge.
-
 # MantisBT is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 2 of the License, or
@@ -46,9 +44,9 @@ abstract class MantisFormattingPlugin extends MantisPlugin {
 	/**
 	 * Plain text processing.
 	 * @param string $p_event Event name
-	 * @param string $p_string Unformatted text
-	 * @param boolean $p_multiline Multiline text
-	 * @return mixed Array with formatted text and multi-line parameter
+	 * @param string $p_string Un-formatted text
+	 * @param bool $p_multiline Multi-line text
+	 * @return string plain text
 	 */
 	function text( $p_event, $p_string, $p_multiline = true ) {
 		return $p_string;
@@ -57,9 +55,9 @@ abstract class MantisFormattingPlugin extends MantisPlugin {
 	/**
 	 * Formatted text processing.
 	 * @param string $p_event Event name
-	 * @param string $p_string Unformatted text
-	 * @param boolean $p_multiline Multiline text
-	 * @return mixed Array with formatted text and multi-line parameter
+	 * @param string $p_string Un-formatted text
+	 * @param bool $p_multiline Multi-line text
+	 * @return string formatted text
 	 */
 	function formatted( $p_event, $p_string, $p_multiline = true ) {
 		return $p_string;
@@ -68,8 +66,8 @@ abstract class MantisFormattingPlugin extends MantisPlugin {
 	/**
 	 * RSS text processing.
 	 * @param string $p_event Event name
-	 * @param string $p_string Unformatted text
-	 * @return string Formatted text
+	 * @param string $p_string Un-formatted text
+	 * @return string Formatted RSS text
 	 */
 	function rss( $p_event, $p_string ) {
 		return $p_string;
@@ -78,8 +76,8 @@ abstract class MantisFormattingPlugin extends MantisPlugin {
 	/**
 	 * Email text processing.
 	 * @param string $p_event Event name
-	 * @param string $p_string Unformatted text
-	 * @return string Formatted text
+	 * @param string $p_string Un-formatted text
+	 * @return string Formatted email text
 	 */
 	function email( $p_event, $p_string ) {
 		return $p_string;

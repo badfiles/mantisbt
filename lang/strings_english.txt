@@ -1560,6 +1560,22 @@ $s_month_october = 'October';
 $s_month_november = 'November';
 $s_month_december = 'December';
 
+# Timeline Feature Strings
+$s_timeline_issue_created = '<span class="username">%1s</span> created issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_note_created = '<span class="username">%1s</span> commented on issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_monitor = '<span class="username">%1s</span> is monitoring issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_unmonitor = '<span class="username">%1s</span> stopped monitoring issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_tagged = '<span class="username">%1s</span> tagged issue <span class="issue_id">%2s</span> with <span class="tag_name">%3s</span>';
+$s_timeline_issue_untagged = '<span class="username">%1s</span> removed <span class="tag_name">%3s</span> from issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_resolved = '<span class="username">%1s</span> resolved issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_closed = '<span class="username">%1s</span> closed issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_reopened = '<span class="username">%1s</span> reopened issue <span class="issue_id">%2s</span>';
+$s_timeline_issue_assigned = '<span class="username">%1s</span> assigned issue <span class="issue_id">%2s</span> to <span class="username">%3s</span>';
+$s_timeline_issue_assigned_to_self = '<span class="username">%1s</span> picked up issue <span class="issue_id">%2s</span>';
+$s_timeline_no_activity = 'No activity within time range.';
+$s_timeline_title = 'Timeline';
+$s_timeline_more = 'More events...';
+
 /**
  * ERROR strings
  */
@@ -1667,12 +1683,16 @@ $MANTIS_ERROR[ERROR_TAG_NOT_ATTACHED] = 'That tag is not attached to that issue.
 $MANTIS_ERROR[ERROR_TAG_ALREADY_ATTACHED] = 'That tag already attached to that issue.';
 $MANTIS_ERROR[ERROR_TOKEN_NOT_FOUND] = 'Token could not be found.';
 $MANTIS_ERROR[ERROR_EVENT_UNDECLARED] = 'Event "%1$s" has not yet been declared.';
-$MANTIS_ERROR[ERROR_PLUGIN_NOT_REGISTERED] = 'Plugin is not registered with MantisBT.';
-$MANTIS_ERROR[ERROR_PLUGIN_ALREADY_INSTALLED] = 'Plugin is already installed.';
-$MANTIS_ERROR[ERROR_PLUGIN_PAGE_NOT_FOUND] = 'Plugin page not found.';
+$MANTIS_ERROR[ERROR_PLUGIN_NOT_REGISTERED] = 'Plugin "%1$s" is not registered.';
+$MANTIS_ERROR[ERROR_PLUGIN_NOT_LOADED] = 'Plugin "%1$s" is not loaded, make sure its dependencies are met.';
+$MANTIS_ERROR[ERROR_PLUGIN_ALREADY_INSTALLED] = 'Plugin "%1$s" is already installed.';
+$MANTIS_ERROR[ERROR_PLUGIN_PAGE_NOT_FOUND] = 'Page "%2$s" does not exist in Plugin "%1$s".';
+$MANTIS_ERROR[ERROR_PLUGIN_FILE_NOT_FOUND] = 'File "%2$s" does not exist in Plugin "%1$s".';
 $MANTIS_ERROR[ERROR_PLUGIN_INSTALL_FAILED] = 'Plugin installation failed: %1$s.';
 $MANTIS_ERROR[ERROR_PLUGIN_UPGRADE_FAILED] = 'Upgrading the plugin schema failed in block #%1$s.';
 $MANTIS_ERROR[ERROR_PLUGIN_UPGRADE_NEEDED] = 'The "%1$s" plugin needs to be upgraded before you can access this page.';
+$MANTIS_ERROR[ERROR_PLUGIN_INVALID_PAGE] = 'The format of the specified plugin page "%1$s" is invalid. It must match "Plugin[/path/to]/page".';
+$MANTIS_ERROR[ERROR_PLUGIN_INVALID_FILE] = 'The format of the specified plugin file "%1$s" is invalid. It must match "Plugin[/path/to]/file[.ext]".';
 $MANTIS_ERROR[ERROR_PLUGIN_GENERIC] = 'There was an unknown error "%1$s" during execution of the "%2$s" plugin.';
 $MANTIS_ERROR[ERROR_COLUMNS_DUPLICATE] = 'Field "%1$s" contains duplicate column "%2$s".';
 $MANTIS_ERROR[ERROR_COLUMNS_INVALID] = 'Field "%1$s" contains invalid field "%2$s".';

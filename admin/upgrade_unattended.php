@@ -15,6 +15,7 @@
 # along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * This file handles unattended upgrades of Mantis
  * @package MantisBT
  * @copyright Copyright 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
  * @copyright Copyright 2002  MantisBT Team - mantisbt-dev@lists.sourceforge.net
@@ -38,20 +39,20 @@ $g_error_send_page_header = false; # suppress page headers in the error handler
 
 $g_failed = false;
 
-/* This script is probably meant to be executed from PHP CLI and hence should
- * not be interpreted as text/html. However saying that, we do call gpc_
- * functions that only make sense in PHP CGI mode. Given this mismatch we'll
- * just assume for now that this script is meant to be used from PHP CGI and
- * the output is meant to be text/plain. We also need to prevent Internet
- * Explorer from ignoring our MIME type and using it's own MIME sniffing.
- */
+
+# This script is probably meant to be executed from PHP CLI and hence should
+# not be interpreted as text/html. However saying that, we do call gpc_
+# functions that only make sense in PHP CGI mode. Given this mismatch we'll
+# just assume for now that this script is meant to be used from PHP CGI and
+# the output is meant to be text/plain. We also need to prevent Internet
+# Explorer from ignoring our MIME type and using it's own MIME sniffing.
 header( 'Content-Type: text/plain' );
 header( 'X-Content-Type-Options: nosniff' );
 
 /**
  * Print the result of an upgrade step.
  *
- * @param integer $p_result       GOOD or BAD.
+ * @param int $p_result       GOOD or BAD.
  * @param bool    $p_hard_fail  If result is BAD, sets the global failure flag.
  * @param string  $p_message    The message describing the upgrade step.
  * @access private
@@ -91,9 +92,9 @@ if( false == $t_result ) {
 
 # TODO: Enhance this check to support the mode where this script is called on an empty database.
 # check to see if the new installer was used
-if ( -1 == config_get( 'database_version', -1 ) ) {
-        echo "Upgrade from the current installed MantisBT version is no longer supported.  If you are using MantisBT version older than 1.0.0, then upgrade to v1.0.0 first.";
-        exit( 1 );
+if( -1 == config_get( 'database_version', -1 ) ) {
+		echo "Upgrade from the current installed MantisBT version is no longer supported.  If you are using MantisBT version older than 1.0.0, then upgrade to v1.0.0 first.";
+		exit( 1 );
 }
 
 # read control variables with defaults
@@ -105,8 +106,8 @@ $f_db_password = gpc_get( 'db_password', config_get( 'db_password', '' ) );
 $f_db_exists = gpc_get_bool( 'db_exists', false );
 
 # install the tables
-if ( !preg_match( '/^[a-zA-Z0-9_]+$/', $f_db_type ) ||
-     !file_exists( dirname( dirname( __FILE__ ) ) . '/library/adodb/drivers/adodb-' . $f_db_type . '.inc.php' ) ) {
+if( !preg_match( '/^[a-zA-Z0-9_]+$/', $f_db_type ) ||
+	 !file_exists( dirname( dirname( __FILE__ ) ) . '/library/adodb/drivers/adodb-' . $f_db_type . '.inc.php' ) ) {
 	echo 'Invalid db type ' . htmlspecialchars( $f_db_type ) . '.';
 	exit;
 }
@@ -137,29 +138,29 @@ while(( $i <= $lastid ) && !$g_failed ) {
 	$t_sql = true;
 	$t_target = $upgrade[$i][1][0];
 
-	if ( $upgrade[$i][0] == 'InsertData' ) {
+	if( $upgrade[$i][0] == 'InsertData' ) {
 		$sqlarray = call_user_func_array( $upgrade[$i][0], $upgrade[$i][1] );
-	} else if ( $upgrade[$i][0] == 'UpdateSQL' ) {
+	} else if( $upgrade[$i][0] == 'UpdateSQL' ) {
 		$sqlarray = array(
 			$upgrade[$i][1],
 		);
 
 		$t_target = $upgrade[$i][1];
-	} else if ( $upgrade[$i][0] == 'UpdateFunction' ) {
+	} else if( $upgrade[$i][0] == 'UpdateFunction' ) {
 		$sqlarray = array(
 			$upgrade[$i][1],
 		);
 
-		if ( isset( $upgrade[$i][2] ) ) {
+		if( isset( $upgrade[$i][2] ) ) {
 			$sqlarray[] = $upgrade[$i][2];
 		}
 
 		$t_sql = false;
 		$t_target = $upgrade[$i][1];
 	} else {
-		/* 0: function to call, 1: function params, 2: function to evaluate before calling upgrade, if false, skip upgrade. */
-		if ( isset( $upgrade[$i][2] ) ) {
-			if ( call_user_func_array( $upgrade[$i][2][0], $upgrade[$i][2][1] ) ) {
+		# 0: function to call, 1: function params, 2: function to evaluate before calling upgrade, if false, skip upgrade.
+		if( isset( $upgrade[$i][2] ) ) {
+			if( call_user_func_array( $upgrade[$i][2][0], $upgrade[$i][2][1] ) ) {
 				$sqlarray = call_user_func_array( Array( $dict, $upgrade[$i][0] ), $upgrade[$i][1] );
 			} else {
 				$sqlarray = array();
@@ -170,17 +171,17 @@ while(( $i <= $lastid ) && !$g_failed ) {
 	}
 
 	echo 'Schema ' . $upgrade[$i][0] . ' ( ' . $t_target . ' ) ';
-	if ( $t_sql ) {
+	if( $t_sql ) {
 		$ret = $dict->ExecuteSQLArray( $sqlarray, false );
 	} else {
-		if ( isset( $sqlarray[1] ) ) {
+		if( isset( $sqlarray[1] ) ) {
 			$ret = call_user_func( 'install_' . $sqlarray[0], $sqlarray[1] );
 		} else {
 			$ret = call_user_func( 'install_' . $sqlarray[0] );
 		}
 	}
 
-	if ( $ret == 2 ) {
+	if( $ret == 2 ) {
 		print_test_result( GOOD );
 		config_set( 'database_version', $i );
 	} else {
@@ -200,5 +201,3 @@ if( false == $g_failed ) {
 
 echo "Failed.\n";
 exit( 1 );
-
-# vim: noexpandtab tabstop=4 softtabstop=0:

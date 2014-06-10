@@ -35,9 +35,9 @@ require_once( 'lang_api.php' );
 
 /**
  * Get a chunk of JSON from a given URL.
- * @param string URL
- * @param string Optional top-level member to retrieve
- * @return multi JSON class structure, false in case of non-existent member
+ * @param string $p_url URL
+ * @param string $p_member Optional top-level member to retrieve
+ * @return mixed JSON class structure, false in case of non-existent member
  */
 function json_url( $p_url, $p_member = null ) {
 	$t_data = url_get( $p_url );
@@ -54,8 +54,13 @@ function json_url( $p_url, $p_member = null ) {
 
 /**
  * JSON error handler
- * 
- * <p>Ensures that all necessary headers are set and terminates processing after being invoked.</p>
+ *
+ * Ensures that all necessary headers are set and terminates processing after being invoked.
+ * @param int $p_type contains the level of the error raised, as an integer.
+ * @param string $p_error contains the error message, as a string.
+ * @param string $p_file contains the filename that the error was raised in, as a string.
+ * @param int $p_line contains the line number the error was raised at, as an integer.
+ * @param array $p_context to the active symbol table at the point the error occurred (optional)
  */
 function json_error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 	# flush any language overrides to return to user's natural default
@@ -65,8 +70,8 @@ function json_error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 		}
 	}
 
-	$t_error_code = ERROR_GENERIC; // default
-	
+	$t_error_code = ERROR_GENERIC; # default
+
 	# build an appropriate error string
 	switch( $p_type ) {
 		case E_WARNING:
@@ -105,26 +110,28 @@ function json_error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 			'type' => $t_error_type,
 			'message' => $t_error_description
 		),
-		'contents' => $t_error_description 
+		'contents' => $t_error_description
 	));
 }
 /**
  * Outputs the specified contents inside a json response with OK status
- * 
+ *
  * <p>Ensures that all necessary headers are set and terminates processing.</p>
  * @param string $contents The contents to encode
  */
- function json_output_response ( $contents = '') {
-	
- 	json_output_raw( array(
+function json_output_response ( $contents = '') {
+	json_output_raw( array(
 		'status' => 'OK',
-		'contents' => $contents	
+		'contents' => $contents
 	) );
 }
 
-function json_output_raw( $contents ) {
-	
+/**
+ * output json data
+ * @param mixed $p_contents raw data to json encode
+ */
+function json_output_raw( $p_contents ) {
 	header('Content-Type: application/json');
-	echo json_encode( $contents );
+	echo json_encode( $p_contents );
 	exit();
 }

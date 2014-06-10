@@ -429,7 +429,7 @@ function custom_field_update( $p_field_id, $p_def_array ) {
 		trigger_error( ERROR_CUSTOM_FIELD_INVALID_PROPERTY, ERROR );
 	}
 
-	if (   $p_def_array['length_min'] < 0
+	if(   $p_def_array['length_min'] < 0
 		|| ( $p_def_array['length_max'] != 0 && $p_def_array['length_min'] > $p_def_array['length_max'] )
 	) {
 		error_parameters( lang_get( 'custom_field_length_min' ) . ', ' . lang_get( 'custom_field_length_max' ));
@@ -591,11 +591,11 @@ function custom_field_delete_all_values( $p_bug_id ) {
 function custom_field_get_id_from_name( $p_field_name ) {
 	global $g_cache_name_to_id_map;
 
-	if ( is_blank( $p_field_name ) ) {
+	if( is_blank( $p_field_name ) ) {
 		return false;
 	}
 
-	if ( isset( $g_cache_name_to_id_map[$p_field_name] ) ) {
+	if( isset( $g_cache_name_to_id_map[$p_field_name] ) ) {
 		return $g_cache_name_to_id_map[$p_field_name];
 	}
 
@@ -1054,7 +1054,7 @@ function custom_field_validate( $p_field_id, $p_value ) {
 			$t_valid &= in_array( $p_value, $t_values_arr );
 			break;
 		case CUSTOM_FIELD_TYPE_EMAIL:
-			if ( $p_value !== '' ) {
+			if( $p_value !== '' ) {
 				$t_valid &= email_is_valid( $p_value );
 			}
 			break;
@@ -1132,9 +1132,9 @@ function custom_field_distinct_values( $p_field_def, $p_project_id = ALL_PROJECT
 /**
  * Convert the value to save it into the database, depending of the type
  * return value for database
- * @param mixed $p_value
+ * @param bool|int|string $p_value
  * @param int $p_type
- * @return mixed
+ * @return bool|int|string
  * @access public
  */
 function custom_field_value_to_database( $p_value, $p_type ) {
@@ -1148,9 +1148,9 @@ function custom_field_value_to_database( $p_value, $p_type ) {
 /**
  * Convert the database-value to value, depending of the type
  * return value for further operation
- * @param mixed $p_value
+ * @param bool|int|string $p_value
  * @param int $p_type
- * @return mixed
+ * @return bool|int|string
  * @access public
  */
 function custom_field_database_to_value( $p_value, $p_type ) {
@@ -1164,9 +1164,9 @@ function custom_field_database_to_value( $p_value, $p_type ) {
 /**
  * Convert the default-value to value depending on the type.  For example, in case of date, this
  * would translate 'tomorrow' to tomorrow's date.
- * @param mixed $p_value
+ * @param bool|int|string $p_value
  * @param int $p_type
- * @return mixed
+ * @return bool|int|string
  * @access public
  */
 function custom_field_default_to_value( $p_value, $p_type ) {
@@ -1185,14 +1185,14 @@ function custom_field_default_to_value( $p_value, $p_type ) {
  * @param int $p_field_id custom field id
  * @param int $p_bug_id bug id
  * @param mixed $p_value new custom field value
- * @param boolean $p_log_insert create history logs for new values
+ * @param bool $p_log_insert create history logs for new values
  * @return bool
  * @access public
  */
 function custom_field_set_value( $p_field_id, $p_bug_id, $p_value, $p_log_insert=true ) {
 	custom_field_ensure_exists( $p_field_id );
 
-	if ( !custom_field_validate( $p_field_id, $p_value ) )
+	if( !custom_field_validate( $p_field_id, $p_value ) )
 		return false;
 
 	$t_name = custom_field_get_field( $p_field_id, 'name' );
@@ -1234,7 +1234,7 @@ function custom_field_set_value( $p_field_id, $p_bug_id, $p_value, $p_log_insert
 		);
 		db_query_bound( $query, $t_params );
 		# Don't log history events for new bug reports or on other special occasions
-		if ( $p_log_insert ) {
+		if( $p_log_insert ) {
 			history_log_event_direct( $p_bug_id, $t_name, '', $p_value );
 		}
 	}

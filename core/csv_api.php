@@ -58,7 +58,7 @@ function csv_get_newline() {
  */
 function csv_get_separator() {
 	static $s_seperator = null;
-	if ( $s_seperator === null )
+	if( $s_seperator === null )
 		$s_seperator = config_get( 'csv_separator' );
 	return $s_seperator;
 }
@@ -83,28 +83,27 @@ function csv_get_default_filename() {
 
 /**
  * escape a string before writing it to csv file.
- * @param type $todo TODO
- * @return  TODO
+ * @param string $p_string string to escape
+ * @return string
  * @access public
  */
-function csv_escape_string( $p_str ) {
+function csv_escape_string( $p_string ) {
 		$t_escaped = str_split( '"' . csv_get_separator() . csv_get_newline() );
 		$t_must_escape = false;
 		while( ( $t_char = current( $t_escaped ) ) !== false && !$t_must_escape ) {
-			$t_must_escape = strpos( $p_str, $t_char ) !== false;
+			$t_must_escape = strpos( $p_string, $t_char ) !== false;
 			next( $t_escaped );
 		}
-		if ( $t_must_escape ) {
-			$p_str = '"' . str_replace( '"', '""', $p_str ) . '"';
+		if( $t_must_escape ) {
+			$p_string = '"' . str_replace( '"', '""', $p_string ) . '"';
 		}
 
-		return $p_str;
+		return $p_string;
 }
 
 /**
- * An array of column names that are used to identify  fields to include and in which order.
- * @param type $todo TODO
- * @return  TODO
+ * An array of column names that are used to identify fields to include and in which order.
+ * @return array
  * @access public
  */
 function csv_get_columns() {
@@ -152,6 +151,7 @@ function csv_format_handler_id( $p_bug ) {
 	if( $p_bug->handler_id > 0 ) {
 		return csv_escape_string( user_get_name( $p_bug->handler_id ) );
 	}
+	return '';
 }
 
 /**
@@ -242,7 +242,7 @@ function csv_format_category_id( $p_bug ) {
  */
 function csv_format_date_submitted( $p_bug ) {
 	static $s_date_format = null;
-	if ( $s_date_format === null )
+	if( $s_date_format === null )
 		$s_date_format = config_get( 'short_date_format' );
 	return date( $s_date_format, $p_bug->date_submitted );
 }
@@ -315,7 +315,7 @@ function csv_format_view_state( $p_bug ) {
  */
 function csv_format_last_updated( $p_bug ) {
 	static $s_date_format = null;
-	if ( $s_date_format === null )
+	if( $s_date_format === null )
 		$s_date_format = config_get( 'short_date_format' );
 	return date( $s_date_format, $p_bug->last_updated );
 }
@@ -408,7 +408,7 @@ function csv_format_selection( $p_bug ) {
  */
 function csv_format_due_date( $p_bug ) {
 	static $s_date_format = null;
-	if ( $s_date_format === null )
+	if( $s_date_format === null )
 		$s_date_format = config_get( 'short_date_format' );
 	return csv_escape_string( date( $s_date_format, $p_bug->due_date ) );
 }
