@@ -34,7 +34,7 @@
  * @uses print_api.php
  */
 
-if ( !defined( 'MANAGE_COLUMNS_INC_ALLOW' ) ) {
+if( !defined( 'MANAGE_COLUMNS_INC_ALLOW' ) ) {
 	return;
 }
 
@@ -56,7 +56,7 @@ $t_account_page = defined( 'ACCOUNT_COLUMNS' );
 $t_project_id = helper_get_current_project();
 
 # Calculate the user id to set the configuration for.
-if ( $t_manage_page ) {
+if( $t_manage_page ) {
 	$t_user_id = NO_USER;
 } else {
 	$t_user_id = auth_get_current_user_id();
@@ -65,16 +65,16 @@ if ( $t_manage_page ) {
 $t_columns = columns_get_all( $t_project_id );
 $t_all = implode( ', ', $t_columns );
 
-$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_CSV_PAGE, /* $p_viewable_only */ false, $t_user_id );
+$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_CSV_PAGE, false, $t_user_id );
 $t_csv = implode( ', ', $t_columns );
 
-$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_VIEW_PAGE, /* $p_viewable_only */ false, $t_user_id );
+$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_VIEW_PAGE, false, $t_user_id );
 $t_view_issues = implode( ', ', $t_columns );
 
-$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_PRINT_PAGE, /* $p_viewable_only */ false, $t_user_id );
+$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_PRINT_PAGE, false, $t_user_id );
 $t_print_issues = implode( ', ', $t_columns );
 
-$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_EXCEL_PAGE, /* $p_viewable_only */ false, $t_user_id );
+$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_EXCEL_PAGE, false, $t_user_id );
 $t_excel = implode( ', ', $t_columns );
 ?>
 
@@ -83,7 +83,7 @@ $t_excel = implode( ', ', $t_columns );
 		<fieldset class="has-required">
 			<legend><span><?php echo lang_get( 'manage_columns_config' ) ?></span></legend>
 			<?php
-			if ( $t_account_page ) {
+			if( $t_account_page ) {
 				print_account_menu( 'account_manage_columns_page.php' );
 			}
 			?>
@@ -117,8 +117,8 @@ $t_excel = implode( ', ', $t_columns );
 				<span class="label-style"></span>
 			</div>
 			<?php
-			if ( $t_account_page ) {
-				if ( $t_project_id == ALL_PROJECTS ) { ?>
+			if( $t_account_page ) {
+				if( $t_project_id == ALL_PROJECTS ) { ?>
 					<span class="submit-button"><input <?php echo helper_get_tab_index() ?> type="submit" class="button" name="update_columns_as_my_default" value="<?php echo lang_get( 'update_columns_as_my_default' ) ?>" /></span><?php
 				} else { ?>
 					<span class="submit-button"><input <?php echo helper_get_tab_index() ?> type="submit" class="button" name="update_columns_for_current_project" value="<?php echo lang_get( 'update_columns_for_current_project' ) ?>" /></span><?php
@@ -126,7 +126,7 @@ $t_excel = implode( ', ', $t_columns );
 			}
 		}
 
-		if ( $t_manage_page && current_user_is_administrator() ) { ?>
+		if( $t_manage_page && current_user_is_administrator() ) { ?>
 			<span class="submit-button"><input <?php echo helper_get_tab_index() ?> type="submit" class="button" name="update_columns_as_global_default" value="<?php echo lang_get( 'update_columns_as_global_default' ) ?>" /></span><?php
 		} ?>
 		</fieldset>
@@ -141,11 +141,11 @@ $t_excel = implode( ', ', $t_columns );
 			<input type="hidden" name="manage_page" value="<?php echo $t_manage_page ?>" />
 
 			<select name="other_project_id">
-				<?php print_project_option_list( /* project_id */ null, /* include_all_projects */ true, /* filter_project_id */ $t_project_id ); ?>
+				<?php print_project_option_list( null, true, $t_project_id ); ?>
 			</select>
 
 			<?php # Skip "Copy From" if the current project is ALL PROJECTS, the current page is management page, and the user is not administrator
-			if ( !$t_manage_page || ( $t_project_id != ALL_PROJECTS ) || current_user_is_administrator() ) { ?>
+			if( !$t_manage_page || ( $t_project_id != ALL_PROJECTS ) || current_user_is_administrator() ) { ?>
 			<input type="submit" name="copy_from" class="button" value="<?php echo lang_get( 'copy_columns_from' ) ?>" /><?php
 			} ?>
 			<input type="submit" name="copy_to" class="button" value="<?php echo lang_get( 'copy_columns_to' ) ?>" />
@@ -154,7 +154,7 @@ $t_excel = implode( ', ', $t_columns );
 </div>
 
 <?php
-if ( $t_account_page ) {
+if( $t_account_page ) {
 ?>
 <div class="form-container">
 	<form method="post" action="manage_config_columns_reset.php">

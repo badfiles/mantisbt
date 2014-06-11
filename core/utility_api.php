@@ -167,7 +167,7 @@ function multi_sort( $p_array, $p_key, $p_direction = ASCENDING ) {
 		trigger_error(ERROR_GENERIC, ERROR);
 	}
 
-	// Security measure: see http://www.mantisbt.org/bugs/view.php?id=9704 for details
+	# Security measure: see http://www.mantisbt.org/bugs/view.php?id=9704 for details
 	if( array_key_exists( $p_key, current($p_array) ) ) {
 		$t_function = create_function( '$a, $b', "return $t_factor * strnatcasecmp( \$a['" . $p_key . "'], \$b['" . $p_key . "'] );" );
 		uasort( $p_array, $t_function );
@@ -224,7 +224,7 @@ function is_windows_server() {
  * @param string $p_type property type - public/private/protected/static
  * @param bool $p_return_object whether to return array of property objects
  * @param bool $p_include_parent whether to include properties of parent classes
- * @return bool
+ * @return array
  * @access public
  */
 function getClassProperties($p_classname, $p_type='public', $p_return_object = false, $p_include_parent = false ) {
@@ -237,14 +237,14 @@ function getClassProperties($p_classname, $p_type='public', $p_return_object = f
 		if($t_prop->isPrivate() and (stripos($p_type, 'private') === FALSE)) continue;
 		if($t_prop->isProtected() and (stripos($p_type, 'protected') === FALSE)) continue;
 		if($t_prop->isStatic() and (stripos($p_type, 'static') === FALSE)) continue;
-		if ( $p_return_object )
+		if( $p_return_object )
 			$t_props_arr[$t_name] = $t_prop;
 		else
 			$t_props_arr[$t_name] = true;
 	}
-	if ( $p_include_parent ) {
+	if( $p_include_parent ) {
 		if($t_parentclass = $t_ref->getParentClass()){
-			$t_parent_props_arr = getClassProperties($t_parentclass->getName());//RECURSION
+			$t_parent_props_arr = getClassProperties($t_parentclass->getName());
 			if(count($t_parent_props_arr) > 0)
 				$t_props_arr = array_merge($t_parent_props_arr, $t_props_arr);
 		}
@@ -259,7 +259,7 @@ function getClassProperties($p_classname, $p_type='public', $p_return_object = f
 function get_font_path() {
 		$t_font_path = config_get_global( 'system_font_folder' );
 		if( $t_font_path == '' ) {
-			if ( is_windows_server() ) {
+			if( is_windows_server() ) {
 				$sroot = $_SERVER['SystemRoot'];
 				if( empty($sroot) ) {
 					return '';
@@ -281,18 +281,22 @@ function get_font_path() {
 		return $t_font_path;
 }
 
+/**
+ * Return instance of fileinfo class if enabled in php
+ * @return finfo
+ */
 function finfo_get_if_available() {
-	
-	if ( class_exists( 'finfo' ) ) {
+
+	if( class_exists( 'finfo' ) ) {
 		$t_info_file = config_get( 'fileinfo_magic_db_file' );
-	
-		if ( is_blank( $t_info_file ) ) {
+
+		if( is_blank( $t_info_file ) ) {
 			$finfo = new finfo( FILEINFO_MIME );
 		} else {
 			$finfo = new finfo( FILEINFO_MIME, $t_info_file );
 		}
-	
-		if ( $finfo ) {
+
+		if( $finfo ) {
 			return $finfo;
 		}
 	}

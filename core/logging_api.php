@@ -49,16 +49,16 @@ $g_log_levels = array(
 /**
  * Log an event
  * @param int $p_level Valid debug log level
- * @param string|array $p_msg Either a string, or an array structured as (string,execution time)
+ * @param string|array,... $p_msg Either a string, or an array structured as (string,execution time)
  * @return null
  */
-function log_event( $p_level, $p_msg /*,args*/) {
+function log_event( $p_level, $p_msg ) {
 	global $g_log_levels;
 
 	# check to see if logging is enabled
 	$t_sys_log = config_get_global( 'log_level' );
 
-	if ( 0 == ( $t_sys_log & $p_level ) ) {
+	if( 0 == ( $t_sys_log & $p_level ) ) {
 		return;
 	}
 
@@ -67,15 +67,15 @@ function log_event( $p_level, $p_msg /*,args*/) {
 		$s_msg = var_export( $p_msg, true );
 	} else {
 		$args = func_get_args();
-		array_shift($args); // skip level
-		array_shift($args); // skip message
+		array_shift($args); # skip level
+		array_shift($args); # skip message
 		$p_msg = vsprintf( $p_msg, $args);
 
 		$t_event = array( $p_msg, 0 );
 		$s_msg = $p_msg;
 	}
 
-		$t_backtrace = debug_backtrace();
+	$t_backtrace = debug_backtrace();
 	$t_caller = basename( $t_backtrace[0]['file'] );
 	$t_caller .= ":" . $t_backtrace[0]['line'];
 
@@ -91,17 +91,18 @@ function log_event( $p_level, $p_msg /*,args*/) {
 	$t_level = $g_log_levels[$p_level];
 
 	$t_plugin_event = '[' . $t_level . '] ' . $p_msg;
-	if( function_exists( 'event_signal' ) )
+	if( function_exists( 'event_signal' ) ) {
 		event_signal( 'EVENT_LOG', array( $t_plugin_event ) );
+	}
 
 	$t_log_destination = config_get_global( 'log_destination' );
 
-	if ( is_blank( $t_log_destination ) ) {
+	if( is_blank( $t_log_destination ) ) {
 		$t_destination = '';
 	} else {
 		$t_result = explode( ':', $t_log_destination, 2 );
 		$t_destination = $t_result[0];
-		if ( isset( $t_result[1] ) ) {
+		if( isset( $t_result[1] ) ) {
 			$t_modifiers = $t_result[1];
 		}
 	}
@@ -132,7 +133,7 @@ function log_event( $p_level, $p_msg /*,args*/) {
 				$firephp->log( $p_msg, $t_php_event );
 				return;
 			}
-			// if firebug is not available, fall through
+			# if firebug is not available, fall through
 		default:
 			# use default PHP error log settings
 			error_log( $t_php_event . PHP_EOL );
@@ -149,7 +150,7 @@ function log_event( $p_level, $p_msg /*,args*/) {
  * Print logging api output to bottom of html page
  */
 function log_print_to_page() {
-	if ( config_get_global( 'log_destination' ) === 'page' && auth_is_user_authenticated() && access_has_global_level( config_get( 'show_log_threshold' ) ) ) {
+	if( config_get_global( 'log_destination' ) === 'page' && auth_is_user_authenticated() && access_has_global_level( config_get( 'show_log_threshold' ) ) ) {
 		global $g_log_events, $g_log_levels;
 
 		$t_unique_queries_count = 0;
@@ -201,7 +202,7 @@ function log_print_to_page() {
 				case LOG_DATABASE:
 					$t_total_queries_count++;
 					$t_query_duplicate_class = '';
-					if ( $t_log_event[2][2] ) {
+					if( $t_log_event[2][2] ) {
 						$t_query_duplicate_class = ' class="duplicate-query"';
 					}
 					echo "\t\t<tr$t_query_duplicate_class><td>" . $t_level . '-' . $t_count[$t_log_event[1]] . "</td><td>" . $t_log_event[2][1] . "</td><td>" . string_html_specialchars ( $t_log_event[3] ) . "</td><td>" . string_html_specialchars( $t_log_event[2][0] ) . "</td></tr>\n";
@@ -212,15 +213,15 @@ function log_print_to_page() {
 		}
 
 		# output any summary data
-		if ( $t_unique_queries_count != 0 ) {
+		if( $t_unique_queries_count != 0 ) {
 			$t_unique_queries_executed = sprintf( lang_get( 'unique_queries_executed' ), $t_unique_queries_count );
 			echo "\t\t<tr><td>" . $g_log_levels[LOG_DATABASE] . '</td><td colspan="3">' . $t_unique_queries_executed . "</td></tr>\n";
 		}
-		if ( $t_total_queries_count != 0 ) {
+		if( $t_total_queries_count != 0 ) {
 			$t_total_queries_executed = sprintf( lang_get( 'total_queries_executed' ), $t_total_queries_count );
 			echo "\t\t<tr><td>" . $g_log_levels[LOG_DATABASE] . '</td><td colspan="3">' . $t_total_queries_executed . "</td></tr>\n";
 		}
-		if ( $t_total_query_execution_time != 0 ) {
+		if( $t_total_query_execution_time != 0 ) {
 			$t_total_query_time = sprintf( lang_get( 'total_query_execution_time' ), $t_total_query_execution_time );
 			echo "\t\t<tr><td>" . $g_log_levels[LOG_DATABASE] . '</td><td colspan="3">' . $t_total_query_time . "</td></tr>\n";
 		}

@@ -69,14 +69,14 @@ function project_table_empty() {
 	global $g_cache_project;
 
 	# If projects already cached, use the cache.
-	if ( isset( $g_cache_project ) && count( $g_cache_project ) > 0 ) {
+	if( isset( $g_cache_project ) && count( $g_cache_project ) > 0 ) {
 		return false;
 	}
 
 	# Otherwise, check if the projects table contains at least one project.
 	$t_project_table = db_get_table( 'project' );
 	$query = "SELECT * FROM $t_project_table";
-	$t_result = db_query_bound( $query, array(), /* limit */ 1 );
+	$t_result = db_query_bound( $query, array(), 1 );
 
 	return db_num_rows( $t_result ) == 0;
 }
@@ -160,7 +160,7 @@ function project_cache_array_rows( $p_project_id_array ) {
 	}
 
 	foreach ( $c_project_id_array as $c_project_id ) {
-		if ( !isset( $t_projects_found[$c_project_id] ) ) {
+		if( !isset( $t_projects_found[$c_project_id] ) ) {
 			$g_cache_project_missing[(int) $c_project_id] = true;
 		}
 	}
@@ -313,7 +313,7 @@ function validate_project_file_path( $p_file_path ) {
 		# If the provided path is the same as the default, make the path blank.
 		# This means that if the default upload path is changed, you don't have
 		# to update the upload path for every single project.
-		if ( !strcmp( $p_file_path, config_get( 'absolute_path_default_upload_folder' ) ) ) {
+		if( !strcmp( $p_file_path, config_get( 'absolute_path_default_upload_folder' ) ) ) {
 			$p_file_path = '';
 		} else {
 			file_ensure_valid_upload_path( $p_file_path );
@@ -552,7 +552,7 @@ function project_get_field( $p_project_id, $p_field_name, $p_trigger_errors = tr
 
 	if( isset( $row[$p_field_name] ) ) {
 		return $row[$p_field_name];
-	} else if ( $p_trigger_errors ) {
+	} else if( $p_trigger_errors ) {
 		error_parameters( $p_field_name );
 		trigger_error( ERROR_DB_FIELD_NOT_FOUND, WARNING );
 	}
@@ -659,11 +659,10 @@ function project_get_all_user_rows( $p_project_id = ALL_PROJECTS, $p_access_leve
 
 		# looking for specific project
 		if( VS_PRIVATE == project_get_field( $p_project_id, 'view_state' ) ) {
-			/** @todo (thraxisp) this is probably more complex than it needs to be
-			 * When a new project is created, those who meet 'private_project_threshold' are added
-			 *  automatically, but don't have an entry in project_user_list_table.
-			 *  if they did, you would not have to add global levels.
-			 */
+			# @todo (thraxisp) this is probably more complex than it needs to be
+			# When a new project is created, those who meet 'private_project_threshold' are added
+			# automatically, but don't have an entry in project_user_list_table.
+			#  if they did, you would not have to add global levels.
 			$t_private_project_threshold = config_get( 'private_project_threshold' );
 			if( is_array( $t_private_project_threshold ) ) {
 				if( is_array( $p_access_level ) ) {
@@ -680,7 +679,7 @@ function project_get_all_user_rows( $p_project_id = ALL_PROJECTS, $p_access_leve
 				}
 			} else {
 				if( is_array( $p_access_level ) ) {
-					// private threshold is a number, but request is an array, use values in request higher than threshold
+					# private threshold is a number, but request is an array, use values in request higher than threshold
 					$t_global_access_level = array();
 					foreach( $p_access_level as $t_threshold ) {
 						if( $t_threshold >= $t_private_project_threshold ) {
@@ -688,7 +687,7 @@ function project_get_all_user_rows( $p_project_id = ALL_PROJECTS, $p_access_leve
 						}
 					}
 				} else {
-					// both private threshold and request are numbers, use maximum
+					# both private threshold and request are numbers, use maximum
 					$t_global_access_level = max( $p_access_level, $t_private_project_threshold );
 				}
 			}
@@ -722,8 +721,7 @@ function project_get_all_user_rows( $p_project_id = ALL_PROJECTS, $p_access_leve
 	}
 
 	if( $c_project_id != ALL_PROJECTS ) {
-
-		// Get the project overrides
+		# Get the project overrides
 		$query = "SELECT u.id, u.username, u.realname, l.access_level
 				FROM $t_project_user_list_table l, $t_user_table u
 				WHERE l.user_id = u.id
@@ -889,7 +887,7 @@ function project_remove_all_users( $p_project_id, $p_access_level_limit = null )
 
 	$t_query = "DELETE FROM $t_project_user_list_table WHERE project_id = " . db_param();
 
-	if ( $p_access_level_limit !== null ) {
+	if( $p_access_level_limit !== null ) {
 		$t_query .= ' AND access_level <= ' . db_param();
 		db_query_bound( $t_query, array( $p_project_id, $p_access_level_limit ) );
 	} else {
@@ -919,7 +917,7 @@ function project_copy_users( $p_destination_id, $p_source_id, $p_access_level_li
 	for ( $i = 0; $i < $t_count; $i++ ) {
 		$t_row = $t_rows[$i];
 
-		if ( $p_access_level_limit !== null &&
+		if( $p_access_level_limit !== null &&
 			$t_row['access_level'] > $p_access_level_limit ) {
 			$t_destination_access_level = $p_access_level_limit;
 		} else {
@@ -928,7 +926,7 @@ function project_copy_users( $p_destination_id, $p_source_id, $p_access_level_li
 
 		# if there is no duplicate then add a new entry
 		# otherwise just update the access level for the existing entry
-		if ( project_includes_user( $p_destination_id, $t_row['user_id'] ) ) {
+		if( project_includes_user( $p_destination_id, $t_row['user_id'] ) ) {
 			project_update_user_access( $p_destination_id, $t_row['user_id'], $t_destination_access_level );
 		} else {
 			project_add_user( $p_destination_id, $t_row['user_id'], $t_destination_access_level );

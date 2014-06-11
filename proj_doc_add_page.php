@@ -42,7 +42,7 @@ require_api( 'lang_api.php' );
 require_api( 'utility_api.php' );
 
 # Check if project documentation feature is enabled.
-if ( OFF == config_get( 'enable_project_documentation' ) ||
+if( OFF == config_get( 'enable_project_documentation' ) ||
 	!file_is_uploading_enabled() ||
 	!file_allow_project_upload() ) {
 	access_denied();
@@ -88,7 +88,7 @@ html_page_top();
 	<td class="category">
 		<span class="required">*</span><?php echo lang_get( 'select_file' ); ?>
 		<br />
-		<?php echo print_max_filesize( $t_max_file_size ); ?>
+		<?php print_max_filesize( $t_max_file_size ); ?>
 	</td>
 	<td>
 		<input type="hidden" name="max_file_size" value="<?php echo $t_max_file_size ?>" />

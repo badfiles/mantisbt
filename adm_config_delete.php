@@ -15,6 +15,7 @@
 # along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * Handles deleting configuration settings from the configuration management page
  * @package MantisBT
  * @copyright Copyright 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
  * @copyright Copyright 2002  MantisBT Team - mantisbt-dev@lists.sourceforge.net
@@ -54,7 +55,7 @@ $f_config_option = gpc_get_string( 'config_option' );
 
 access_ensure_global_level( config_get( 'set_configuration_threshold' ) );
 
-if ( $f_project_id != ALL_PROJECTS ) {
+if( $f_project_id != ALL_PROJECTS ) {
 	project_ensure_exists( $f_project_id );
 }
 

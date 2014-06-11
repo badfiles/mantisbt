@@ -82,7 +82,6 @@ require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
 require_api( 'version_api.php' );
 
-
 /**
  * Print the headers to cause the page to redirect to $p_url
  * If $p_die is true (default), terminate the execution of the script immediately
@@ -91,10 +90,10 @@ require_api( 'version_api.php' );
  * This would be false if the URL is trusted (e.g. read from config_inc.php).
  *
  * @param string $p_url The page to redirect: has to be a relative path
- * @param boolean $p_die if true, stop the script after redirecting
- * @param boolean $p_sanitize apply string_sanitize_url to passed url
- * @param boolean $p_absolute indicate if url is absolute
- * @return boolean
+ * @param bool $p_die if true, stop the script after redirecting
+ * @param bool $p_sanitize apply string_sanitize_url to passed url
+ * @param bool $p_absolute indicate if url is absolute
+ * @return bool
  */
 function print_header_redirect( $p_url, $p_die = true, $p_sanitize = false, $p_absolute = false ) {
 	if( ON == config_get_global( 'stop_on_errors' ) && error_handled() ) {
@@ -183,7 +182,7 @@ function print_successful_redirect( $p_redirect_to ) {
  * @param int $p_size Image pixel size
  */
 function print_avatar( $p_user_id, $p_size = 80 ) {
-	if ( OFF === config_get( 'show_avatar' ) ) {
+	if( OFF === config_get( 'show_avatar' ) ) {
 		return;
 	}
 
@@ -207,7 +206,6 @@ function print_avatar( $p_user_id, $p_size = 80 ) {
  *
  * @param int $p_user_id User ID
  */
-# prints the name of the user given the id.  also makes it an email link.
 function print_user( $p_user_id ) {
 	echo prepare_user_name( $p_user_id );
 }
@@ -243,8 +241,8 @@ function print_user_with_subject( $p_user_id, $p_bug_id ) {
  * @param string $p_email Email address
  */
 function print_email_input( $p_field_name, $p_email ) {
-		echo '<input id="email-field" type="text" name="' . string_attribute( $p_field_name ) . '" size="32" maxlength="64" value="' . string_attribute( $p_email ) . '" />';
-	}
+	echo '<input id="email-field" type="text" name="' . string_attribute( $p_field_name ) . '" size="32" maxlength="64" value="' . string_attribute( $p_email ) . '" />';
+}
 
 /**
  * print out an email editing input
@@ -340,8 +338,9 @@ function print_reporter_option_list( $p_user_id, $p_project_id = null ) {
 
 /**
  * Print the entire form for attaching a tag to a bug.
- * @param integer $p_bug_id Bug ID
+ * @param int $p_bug_id Bug ID
  * @param string $p_string Default contents of the input box
+ * @return bool
  */
 function print_tag_attach_form( $p_bug_id, $p_string = '' ) {
 	?>
@@ -360,7 +359,7 @@ function print_tag_attach_form( $p_bug_id, $p_string = '' ) {
 
 /**
  * Print the separator comment, input box, and existing tag dropdown menu.
- * @param integer $p_bug_id Bug ID
+ * @param int $p_bug_id Bug ID
  * @param string $p_string Default contents of the input box
  */
 function print_tag_input( $p_bug_id = 0, $p_string = '' ) {
@@ -374,9 +373,9 @@ function print_tag_input( $p_bug_id = 0, $p_string = '' ) {
 }
 
 /**
- * Print the dropdown combo-box of existing tags.
+ * Print the drop-down combo-box of existing tags.
  * When passed a bug ID, the option list will not contain any tags attached to the given bug.
- * @param integer $p_bug_id Bug ID
+ * @param int $p_bug_id Bug ID
  */
 function print_tag_option_list( $p_bug_id = 0 ) {
 	$t_rows = tag_get_candidates_for_bug( $p_bug_id );
@@ -384,7 +383,7 @@ function print_tag_option_list( $p_bug_id = 0 ) {
 	echo '<option value="0">', string_html_specialchars( lang_get( 'tag_existing' ) ), '</option>';
 	foreach ( $t_rows as $row ) {
 		$t_string = $row['name'];
-		if ( !empty( $row['description'] ) ) {
+		if( !empty( $row['description'] ) ) {
 			$t_string .= ' - ' . utf8_substr( $row['description'], 0, 20 );
 		}
 		echo '<option value="', $row['id'], '" title="', string_attribute( $row['name'] ), '">', string_attribute( $t_string ), '</option>';
@@ -424,15 +423,15 @@ function print_news_item_option_list() {
 		$t_notes = array();
 		$t_note_string = '';
 
-		if ( 1 == $t_announcement ) {
+		if( 1 == $t_announcement ) {
 			array_push( $t_notes, lang_get( 'announcement' ) );
 		}
 
-		if ( VS_PRIVATE == $t_view_state ) {
+		if( VS_PRIVATE == $t_view_state ) {
 			array_push( $t_notes, lang_get( 'private' ) );
 		}
 
-		if ( count( $t_notes ) > 0 ) {
+		if( count( $t_notes ) > 0 ) {
 			$t_note_string = ' [' . implode( ' ', $t_notes ) . ']';
 		}
 
@@ -523,9 +522,14 @@ function print_assign_to_option_list( $p_user_id = '', $p_project_id = null, $p_
 	print_user_option_list( $p_user_id, $p_project_id, $p_threshold );
 }
 
-
+/**
+ * Print User option list for bugnote filter field
+ * @param int|string $p_user_id user id
+ * @param int $p_project_id project id
+ * @param int $p_threshold access level
+ */
 function print_note_option_list( $p_user_id = '', $p_project_id = null, $p_threshold = null ) {
-	if ( null === $p_threshold ) {
+	if( null === $p_threshold ) {
 		$p_threshold = config_get( 'add_bugnote_threshold' );
 	}
 
@@ -535,12 +539,11 @@ function print_note_option_list( $p_user_id = '', $p_project_id = null, $p_thres
 /**
  * List projects that the current user has access to.
  *
- * @param integer $p_project_id 	The current project id or null to use cookie.
+ * @param int $p_project_id 	The current project id or null to use cookie.
  * @param bool $p_include_all_projects  true: include "All Projects", otherwise false.
- * @param mixed $p_filter_project_id  The id of a project to exclude or null.
- * @param string $p_trace  The current project trace, identifies the sub-project via a path from top to bottom.
+ * @param int|null $p_filter_project_id  The id of a project to exclude or null.
+ * @param string|bool $p_trace  The current project trace, identifies the sub-project via a path from top to bottom.
  * @param bool $p_can_report_only If true, disables projects in which user can't report issues; defaults to false (all projects enabled)
- * @return void
  */
 function print_project_option_list( $p_project_id = null, $p_include_all_projects = true, $p_filter_project_id = null, $p_trace = false, $p_can_report_only = false ) {
 	$t_user_id = auth_get_current_user_id();
@@ -550,7 +553,7 @@ function print_project_option_list( $p_project_id = null, $p_include_all_project
 
 	if( $p_include_all_projects && $p_filter_project_id !== ALL_PROJECTS ) {
 		echo '<option value="' . ALL_PROJECTS . '"';
-		if ( $p_project_id !== null ) {
+		if( $p_project_id !== null ) {
 			check_selected( $p_project_id, ALL_PROJECTS, false );
 		}
 		echo '>' . lang_get( 'all_projects' ) . '</option>' . "\n";
@@ -570,8 +573,15 @@ function print_project_option_list( $p_project_id = null, $p_include_all_project
 	}
 }
 
-# --------------------
-# List projects that the current user has access to
+/**
+ * List projects that the current user has access to
+ * @param int $p_parent_id parent project id
+ * @param int $p_project_id project id
+ * @param int $p_filter_project_id filter project id
+ * @param bool $p_trace trace
+ * @param bool $p_can_report_only If true, disables projects in which user can't report issues; defaults to false (all projects enabled)
+ * @param array $p_parents array of parent projects
+ */
 function print_subproject_option_list( $p_parent_id, $p_project_id = null, $p_filter_project_id = null, $p_trace = false, $p_can_report_only = false, $p_parents = array() ) {
 	array_push( $p_parents, $p_parent_id );
 	$t_user_id = auth_get_current_user_id();
@@ -654,7 +664,7 @@ function print_profile_option_list_from_profiles( $p_profiles, $p_select_id ) {
 		$t_os_build = string_attribute( $t_profile['os_build'] );
 
 		echo '<option value="' . $t_profile['id'] . '"';
-		if ( $p_select_id !== false ) {
+		if( $p_select_id !== false ) {
 			check_selected( $p_select_id, (int)$t_profile['id'] );
 		}
 		echo '>' . $t_platform . ' ' . $t_os . ' ' . $t_os_build . '</option>';
@@ -678,7 +688,7 @@ function print_category_option_list( $p_category_id = 0, $p_project_id = null ) 
 
 	if( config_get( 'allow_no_category' ) ) {
 		echo "<option value=\"0\"", check_selected( $p_category_id, 0 ), '>';
-		echo category_full_name( 0, /* show project */ false ), '</option>';
+		echo category_full_name( 0, false ), '</option>';
 	} else {
 		if( 0 == $p_category_id ) {
 			echo "<option value=\"0\"", check_selected( $p_category_id, 0 ), '>';
@@ -686,7 +696,7 @@ function print_category_option_list( $p_category_id = 0, $p_project_id = null ) 
 		}
 	}
 
-	$cat_arr = category_get_all_rows( $t_project_id, /* inherit */ null, /* sortByProject */ true );
+	$cat_arr = category_get_all_rows( $t_project_id, null, true );
 
 	foreach( $cat_arr as $t_category_row ) {
 		$t_category_id = (int)$t_category_row['id'];
@@ -778,13 +788,9 @@ function print_version_option_list( $p_version = '', $p_project_id = null, $p_re
 	}
 
 	if( $p_with_subs ) {
-		$versions = version_get_all_rows_with_subs( $c_project_id, $p_released,
-		/* obsolete */
-		null );
+		$versions = version_get_all_rows_with_subs( $c_project_id, $p_released, null );
 	} else {
-		$versions = version_get_all_rows( $c_project_id, $p_released,
-		/* obsolete */
-		null );
+		$versions = version_get_all_rows( $c_project_id, $p_released, null );
 	}
 
 	# Ensure the selected version (if specified) is included in the list
@@ -818,7 +824,7 @@ function print_version_option_list( $p_version = '', $p_project_id = null, $p_re
 
 		$t_version = string_attribute( $version['version'] );
 
-		if ( !in_array( $t_version, $t_listed, true ) ) {
+		if( !in_array( $t_version, $t_listed, true ) ) {
 			$t_listed[] = $t_version;
 			echo '<option value="' . $t_version . '"';
 			check_selected( $p_version, $version['version'] );
@@ -915,18 +921,18 @@ function get_status_option_list( $p_user_auth = 0, $p_current_value = 0, $p_show
 	$t_enum_list = array();
 
 	foreach ( $t_enum_values as $t_enum_value ) {
-		if (   ( $p_show_current || $p_current_value != $t_enum_value )
+		if(   ( $p_show_current || $p_current_value != $t_enum_value )
 			&& access_compare_level( $p_user_auth, access_get_status_threshold( $t_enum_value, $p_project_id ) )
 		) {
 			$t_enum_list[$t_enum_value] = get_enum_element( 'status', $t_enum_value );
 		}
 	}
 
-	if ( $p_show_current ) {
+	if( $p_show_current ) {
 		$t_enum_list[$p_current_value] = get_enum_element( 'status', $p_current_value );
 	}
 
-	if ( $p_add_close && access_compare_level( $p_current_value, config_get( 'bug_resolved_status_threshold', null, null, $p_project_id ) ) ) {
+	if( $p_add_close && access_compare_level( $p_current_value, config_get( 'bug_resolved_status_threshold', null, null, $p_project_id ) ) ) {
 		$t_closed = config_get( 'bug_closed_status_threshold', null, null, $p_project_id );
 		if( $p_show_current || $p_current_value != $t_closed ) {
 			$t_enum_list[$t_closed] = get_enum_element( 'status', $t_closed );
@@ -960,7 +966,7 @@ function print_status_option_list( $p_select_label, $p_current_value = 0, $p_all
 			echo '>' . string_html_specialchars( $val ) . '</option>';
 		}
 		echo '</select>';
-	} else if ( count( $t_enum_list ) == 1 ) {
+	} else if( count( $t_enum_list ) == 1 ) {
 		echo array_pop( $t_enum_list );
 	} else {
 		echo MantisEnum::getLabel( lang_get( 'status_enum_string' ), $p_current_value );
@@ -988,7 +994,7 @@ function print_project_access_levels_option_list( $p_val, $p_project_id = null )
 	$t_enum_values = MantisEnum::getValues( $t_access_levels_enum_string );
 	foreach ( $t_enum_values as $t_enum_value ) {
 		# a user must not be able to assign another user an access level that is higher than theirs.
-		if ( $t_enum_value > $t_current_user_access_level ) {
+		if( $t_enum_value > $t_current_user_access_level ) {
 			continue;
 		}
 		$t_access_level = get_enum_element( 'access_levels', $t_enum_value );
@@ -1146,7 +1152,7 @@ function print_plugin_priority_list( $p_priority ) {
 	}
 
 	for( $i = 5;$i >= 1;$i-- ) {
-		echo '<option value="', $i, '" ', check_selected( $p_priority, (string)$i ), ' >', $i, '</option>';
+		echo '<option value="', $i, '" ', check_selected( $p_priority, $i ), ' >', $i, '</option>';
 	}
 }
 
@@ -1160,8 +1166,11 @@ function print_bug_link( $p_bug_id, $p_detail_info = true ) {
 	echo string_get_bug_view_link( $p_bug_id, null, $p_detail_info );
 }
 
-# formats the priority given the status
-# shows the priority in BOLD if the bug is NOT closed and is of significant priority
+/**
+ * formats the priority given the status
+ * shows the priority in BOLD if the bug is NOT closed and is of significant priority
+ * @param BugData $p_bug Bug Object
+ */
 function print_formatted_priority_string( $p_bug ) {
 	$t_pri_str = get_enum_element( 'priority', $p_bug->priority, auth_get_current_user_id(), $p_bug->project_id );
 	$t_priority_threshold = config_get( 'priority_significant_threshold' );
@@ -1175,8 +1184,11 @@ function print_formatted_priority_string( $p_bug ) {
 	}
 }
 
-# formats the severity given the status
-# shows the severity in BOLD if the bug is NOT closed and is of significant severity
+/**
+ * formats the severity given the status
+ * shows the severity in BOLD if the bug is NOT closed and is of significant severity
+ * @param BugData $p_bug Bug Object
+ */
 function print_formatted_severity_string( $p_bug ) {
 	$t_sev_str = get_enum_element( 'severity', $p_bug->severity, auth_get_current_user_id(), $p_bug->project_id );
 	$t_severity_threshold = config_get( 'severity_significant_threshold' );
@@ -1209,7 +1221,7 @@ function print_view_bug_sort_link( $p_string, $p_sort_field, $p_sort, $p_dir, $p
 				$p_dir = 'ASC';
 			}
 		} else {
-			# Otherwise always start with ASCending
+			# Otherwise always start with ascending
 			$p_dir = 'ASC';
 		}
 
@@ -1226,7 +1238,7 @@ function print_view_bug_sort_link( $p_string, $p_sort_field, $p_sort, $p_dir, $p
 				$p_dir = 'ASC';
 			}
 		} else {
-			# Otherwise always start with ASCending
+			# Otherwise always start with ascending
 			$p_dir = 'ASC';
 		}
 		$t_sort_field = rawurlencode( $p_sort_field );
@@ -1236,6 +1248,17 @@ function print_view_bug_sort_link( $p_string, $p_sort_field, $p_sort, $p_dir, $p
 	}
 }
 
+/**
+ * Print manage user sort link
+ * @param string $p_page page
+ * @param string $p_string string
+ * @param string $p_field sort field
+ * @param string $p_dir sort direction
+ * @param string $p_sort_by sort by
+ * @param int $p_hide_inactive hide inactive
+ * @param int $p_filter filter
+ * @param int $p_show_disabled show disabled users
+ */
 function print_manage_user_sort_link( $p_page, $p_string, $p_field, $p_dir, $p_sort_by, $p_hide_inactive = 0, $p_filter = ALL, $p_show_disabled = 0 ) {
 	if( $p_sort_by == $p_field ) {
 
@@ -1505,20 +1528,27 @@ function print_email_link_with_subject( $p_email, $p_text, $p_bug_id ) {
 	echo get_email_link_with_subject( $p_email, $p_text, $t_subject );
 }
 
-# return the mailto: href string link instead of printing it
-# add subject line
-function get_email_link_with_subject( $p_email, $p_text, $p_summary ) {
+/**
+ * return the mailto: href string link instead of printing it
+ * add subject line
+ *
+ * @param string $p_email Email Address
+ * @param string $p_text Link text to display to user
+ * @param string $p_subject email subject line
+ * @return string
+ */
+function get_email_link_with_subject( $p_email, $p_text, $p_subject ) {
 	if( !access_has_project_level( config_get( 'show_user_email_threshold' ) ) ) {
 		return $p_text;
 	}
 
 	# If we apply string_url() to the whole mailto: link then the @
-	#  gets turned into a %40 and you can't right click in browsers to
-	#  do Copy Email Address.  If we don't apply string_url() to the
-	#  summary text then an ampersand (for example) will truncate the text
-	$t_summary = string_url( $p_summary );
+	# gets turned into a %40 and you can't right click in browsers to
+	# do Copy Email Address.  If we don't apply string_url() to the
+	# subject text then an ampersand (for example) will truncate the text
+	$t_subject = string_url( $p_subject );
 	$t_email = string_url( $p_email );
-	$t_mailto = string_attribute( "mailto:$t_email?subject=$t_summary" );
+	$t_mailto = string_attribute( "mailto:$t_email?subject=$t_subject" );
 	$t_text = string_display( $p_text );
 
 	return "<a class=\"user\" href=\"$t_mailto\">$t_text</a>";
@@ -1564,21 +1594,21 @@ function print_hidden_input( $p_field_key, $p_field_val ) {
 	}
 }
 
-# =============================
-# Functions that used to be in html_api
-# =============================
-
-# This prints the little [?] link for user help
-# The $p_a_name is a link into the documentation.html file
+/**
+ * This prints the little [?] link for user help
+ * @param string $p_a_name is a link into the documentation.html file
+ */
 function print_documentation_link( $p_a_name = '' ) {
 	echo lang_get( $p_a_name ) . "\n";
 	# @@@ Disable documentation links for now.  May be re-enabled if linked to new manual.
 	# echo "<a href=\"doc/documentation.html#$p_a_name\" target=\"_info\">[?]</a>";
 }
 
-# prints the signup link
+/**
+ * prints the signup link
+ */
 function print_signup_link() {
-	if ( ( ON == config_get_global( 'allow_signup' ) ) &&
+	if( ( ON == config_get_global( 'allow_signup' ) ) &&
 		 ( LDAP != config_get_global( 'login_method' ) ) &&
 		 ( ON == config_get( 'enable_email_notification' ) )
 	   ) {
@@ -1586,15 +1616,19 @@ function print_signup_link() {
 	}
 }
 
-# prints the login link
+/**
+ * prints the login link
+ */
 function print_login_link() {
 	print_bracket_link( 'login_page.php', lang_get( 'login_title' ) );
 }
 
-# prints the lost pwd link
+/**
+ * prints the lost pwd link
+ */
 function print_lost_password_link() {
 	# lost password feature disabled or reset password via email disabled -> stop here!
-	if ( ( LDAP != config_get_global( 'login_method' ) ) &&
+	if( ( LDAP != config_get_global( 'login_method' ) ) &&
 		 ( ON == config_get( 'lost_password_feature' ) ) &&
 		 ( ON == config_get( 'send_reset_password' ) ) &&
 		 ( ON == config_get( 'enable_email_notification' ) ) ) {
@@ -1714,19 +1748,19 @@ function print_bug_attachments_list( $p_bug_id ) {
  */
 function print_bug_attachment( $p_attachment ) {
 	$t_show_attachment_preview = $p_attachment['preview'] && $p_attachment['exists'] && ( $p_attachment['type'] == 'text' || $p_attachment['type'] == 'image' );
-	if ( $t_show_attachment_preview ) {
+	if( $t_show_attachment_preview ) {
 		$t_collapse_id = 'attachment_preview_' . $p_attachment['id'];
 		global $g_collapse_cache_token;
 		$g_collapse_cache_token[$t_collapse_id] = false;
 		collapse_open( $t_collapse_id );
 	}
 	print_bug_attachment_header( $p_attachment );
-	if ( $t_show_attachment_preview ) {
+	if( $t_show_attachment_preview ) {
 		echo lang_get( 'word_separator' );
 		collapse_icon( $t_collapse_id );
-		if ( $p_attachment['type'] == 'text' ) {
+		if( $p_attachment['type'] == 'text' ) {
 			print_bug_attachment_preview_text( $p_attachment );
-		} else if ( $p_attachment['type'] === 'image' ) {
+		} else if( $p_attachment['type'] === 'image' ) {
 			print_bug_attachment_preview_image( $p_attachment );
 		}
 		collapse_closed( $t_collapse_id );
@@ -1744,20 +1778,20 @@ function print_bug_attachment( $p_attachment ) {
  */
 function print_bug_attachment_header( $p_attachment ) {
 	echo "\n";
-	if ( $p_attachment['exists'] ) {
-		if ( $p_attachment['can_download'] ) {
+	if( $p_attachment['exists'] ) {
+		if( $p_attachment['can_download'] ) {
 			echo '<a href="' . string_attribute( $p_attachment['download_url'] ) . '">';
 		}
 		print_file_icon( $p_attachment['display_name'] );
-		if ( $p_attachment['can_download'] ) {
+		if( $p_attachment['can_download'] ) {
 			echo '</a>';
 		}
 		echo lang_get( 'word_separator' );
-		if ( $p_attachment['can_download'] ) {
+		if( $p_attachment['can_download'] ) {
 			echo '<a href="' . string_attribute( $p_attachment['download_url'] ) . '">';
 		}
 		echo string_display_line( $p_attachment['display_name'] );
-		if ( $p_attachment['can_download'] ) {
+		if( $p_attachment['can_download'] ) {
 			echo '</a>';
 		}
 		echo lang_get( 'word_separator' ) . '(' . number_format( $p_attachment['size'] ) . lang_get( 'word_separator' ) . lang_get( 'bytes' ) . ')';
@@ -1768,7 +1802,7 @@ function print_bug_attachment_header( $p_attachment ) {
 		echo lang_get( 'word_separator' ) . '<span class="strike">' . string_display_line( $p_attachment['display_name'] ) . '</span>' . lang_get( 'word_separator' ) . '(' . lang_get( 'attachment_missing' ) . ')';
 	}
 
-	if ( $p_attachment['can_delete'] ) {
+	if( $p_attachment['can_delete'] ) {
 		echo lang_get( 'word_separator' ) . '[';
 		print_link( 'bug_file_delete.php?file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_delete' ), lang_get( 'delete_link' ), false, 'small' );
 		echo ']';
@@ -1780,13 +1814,13 @@ function print_bug_attachment_header( $p_attachment ) {
  * @param array $p_attachment An attachment arrray from within the array returned by the file_get_visible_attachments() function
  */
 function print_bug_attachment_preview_text( $p_attachment ) {
-	if ( !$p_attachment['exists'] ) {
+	if( !$p_attachment['exists'] ) {
 		return;
 	}
 	echo "\n<pre class=\"bug-attachment-preview-text\">";
 	switch( config_get( 'file_upload_method' ) ) {
 		case DISK:
-			if ( file_exists( $p_attachment['diskfile'] ) ) {
+			if( file_exists( $p_attachment['diskfile'] ) ) {
 				$t_content = file_get_contents( $p_attachment['diskfile'] );
 			}
 			break;
@@ -1812,12 +1846,12 @@ function print_bug_attachment_preview_text( $p_attachment ) {
 function print_bug_attachment_preview_image( $p_attachment ) {
 	$t_preview_style = 'border: 0;';
 	$t_max_width = config_get( 'preview_max_width' );
-	if ( $t_max_width > 0 ) {
+	if( $t_max_width > 0 ) {
 		$t_preview_style .= ' max-width:' . $t_max_width . 'px;';
 	}
 
 	$t_max_height = config_get( 'preview_max_height' );
-	if ( $t_max_height > 0 ) {
+	if( $t_max_height > 0 ) {
 		$t_preview_style .= ' max-height:' . $t_max_height . 'px;';
 	}
 
@@ -1835,7 +1869,7 @@ function print_bug_attachment_preview_image( $p_attachment ) {
  * @param string $p_timezone timezone
  */
 function print_timezone_option_list( $p_timezone ) {
-	if ( !function_exists( 'timezone_identifiers_list' ) ) {
+	if( !function_exists( 'timezone_identifiers_list' ) ) {
 		echo "\t<option value=\"$p_timezone\" selected=\"selected\">$p_timezone</option>\n";
 		return;
 	}

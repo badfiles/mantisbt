@@ -193,8 +193,8 @@ function history_get_raw_events_array( $p_bug_id, $p_user_id = null ) {
 	while( $t_row = db_fetch_array( $t_result ) ) {
 		extract( $t_row, EXTR_PREFIX_ALL, 'v' );
 
-		if ( $v_type == NORMAL_TYPE ) {
-			if ( !in_array( $v_field_name, $t_standard_fields ) ) {
+		if( $v_type == NORMAL_TYPE ) {
+			if( !in_array( $v_field_name, $t_standard_fields ) ) {
 				# check that the item should be visible to the user
 				$t_field_id = custom_field_get_id_from_name( $v_field_name );
 				if( false !== $t_field_id && !custom_field_has_read_access( $t_field_id, $p_bug_id, $t_user_id ) ) {
@@ -202,22 +202,22 @@ function history_get_raw_events_array( $p_bug_id, $p_user_id = null ) {
 				}
 			}
 
-			if ( ( $v_field_name == 'target_version' ) && !access_has_bug_level( $t_roadmap_view_access_level, $p_bug_id, $t_user_id ) ) {
+			if( ( $v_field_name == 'target_version' ) && !access_has_bug_level( $t_roadmap_view_access_level, $p_bug_id, $t_user_id ) ) {
 				continue;
 			}
 
-			if ( ( $v_field_name == 'due_date' ) && !access_has_bug_level( $t_due_date_view_threshold, $p_bug_id, $t_user_id ) ) {
+			if( ( $v_field_name == 'due_date' ) && !access_has_bug_level( $t_due_date_view_threshold, $p_bug_id, $t_user_id ) ) {
 				continue;
 			}
 
-			if ( ( $v_field_name == 'handler_id' ) && !access_has_bug_level( $t_show_handler_threshold, $p_bug_id, $t_user_id ) ) {
+			if( ( $v_field_name == 'handler_id' ) && !access_has_bug_level( $t_show_handler_threshold, $p_bug_id, $t_user_id ) ) {
 				continue;
 			}
 		}
 
-		// bugnotes
+		# bugnotes
 		if( $t_user_id != $v_user_id ) {
-			// bypass if user originated note
+			# bypass if user originated note
 			if(( $v_type == BUGNOTE_ADDED ) || ( $v_type == BUGNOTE_UPDATED ) || ( $v_type == BUGNOTE_DELETED ) ) {
 				if( !$t_private_bugnote_visible && ( bugnote_get_field( $v_old_value, 'view_state' ) == VS_PRIVATE ) ) {
 					continue;
@@ -231,14 +231,14 @@ function history_get_raw_events_array( $p_bug_id, $p_user_id = null ) {
 			}
 		}
 
-		// tags
+		# tags
 		if( $v_type == TAG_ATTACHED || $v_type == TAG_DETACHED || $v_type == TAG_RENAMED ) {
 			if( !access_has_bug_level( $t_tag_view_threshold, $p_bug_id, $t_user_id ) ) {
 				continue;
 			}
 		}
 
-		// monitoring
+		# monitoring
 		if( $v_type == BUG_MONITOR || $v_type == BUG_UNMONITOR ) {
 			if( !access_has_bug_level( $t_show_monitor_list_threshold, $p_bug_id, $t_user_id ) ) {
 				continue;
@@ -445,8 +445,8 @@ function history_localize_item( $p_field_name, $p_type, $p_old_value, $p_new_val
 					$t_note = lang_get( 'bugnote_edited' ) . ': ' . $p_old_value;
 					$t_old_value = (int)$p_old_value;
 					$t_new_value = (int)$p_new_value;
-					if ( $p_linkify && bug_revision_exists( $t_new_value ) ) {
-						if ( bugnote_exists( $t_old_value ) ) {
+					if( $p_linkify && bug_revision_exists( $t_new_value ) ) {
+						if( bugnote_exists( $t_old_value ) ) {
 							$t_bug_revision_view_page_argument = 'bugnote_id=' . $t_old_value . '#r' . $t_new_value;
 						} else {
 							$t_bug_revision_view_page_argument = 'rev_id=' . $t_new_value;
@@ -462,7 +462,7 @@ function history_localize_item( $p_field_name, $p_type, $p_old_value, $p_new_val
 				case DESCRIPTION_UPDATED:
 					$t_note = lang_get( 'description_updated' );
 					$t_old_value = (int)$p_old_value;
-					if ( $p_linkify && bug_revision_exists( $t_old_value ) ) {
+					if( $p_linkify && bug_revision_exists( $t_old_value ) ) {
 						$t_change = '<a href="bug_revision_view_page.php?rev_id=' . $t_old_value . '#r' . $t_old_value . '">' .
 							lang_get( 'view_revisions' ) . '</a>';
 						$t_raw = false;
@@ -471,7 +471,7 @@ function history_localize_item( $p_field_name, $p_type, $p_old_value, $p_new_val
 				case ADDITIONAL_INFO_UPDATED:
 					$t_note = lang_get( 'additional_information_updated' );
 					$t_old_value = (int)$p_old_value;
-					if ( $p_linkify && bug_revision_exists( $t_old_value ) ) {
+					if( $p_linkify && bug_revision_exists( $t_old_value ) ) {
 						$t_change = '<a href="bug_revision_view_page.php?rev_id=' . $t_old_value . '#r' . $t_old_value . '">' .
 							lang_get( 'view_revisions' ) . '</a>';
 						$t_raw = false;
@@ -480,7 +480,7 @@ function history_localize_item( $p_field_name, $p_type, $p_old_value, $p_new_val
 				case STEP_TO_REPRODUCE_UPDATED:
 					$t_note = lang_get( 'steps_to_reproduce_updated' );
 					$t_old_value = (int)$p_old_value;
-					if ( $p_linkify && bug_revision_exists( $t_old_value ) ) {
+					if( $p_linkify && bug_revision_exists( $t_old_value ) ) {
 						$t_change = '<a href="bug_revision_view_page.php?rev_id=' . $t_old_value . '#r' . $t_old_value . '">' .
 							lang_get( 'view_revisions' ) . '</a>';
 						$t_raw = false;

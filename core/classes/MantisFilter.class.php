@@ -14,7 +14,8 @@
 # You should have received a copy of the GNU General Public License
 # along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
-/*
+/**
+ * Filter functionality class
  * @copyright Copyright 2002  MantisBT Team - mantisbt-dev@lists.sourceforge.net
  * @link http://www.mantisbt.org
  * @package MantisBT
@@ -63,7 +64,7 @@ abstract class MantisFilter {
 	 * valid, or returning false if invalid.  Invalid inputs will
 	 * be replaced with the filter's default value.
 	 * @param mixed $p_filter_input Filter field input
-	 * @return boolean Input valid (true) or invalid (false)
+	 * @return bool Input valid (true) or invalid (false)
 	 */
 	public function validate( $p_filter_input ) {
 		return true;

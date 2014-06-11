@@ -15,6 +15,7 @@
 # along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
+ * MantisBT Enumeration Handling
  * @package MantisBT
  * @copyright Copyright 2002  MantisBT Team - mantisbt-dev@lists.sourceforge.net
  * @link http://www.mantisbt.org
@@ -56,7 +57,7 @@ class MantisEnum {
 		$assocArray = MantisEnum::getAssocArrayIndexedByValues( $enumString );
 		$valueAsInteger = (int)$value;
 
-		if ( isset( $assocArray[$valueAsInteger] ) ) {
+		if( isset( $assocArray[$valueAsInteger] ) ) {
 			return $assocArray[$valueAsInteger];
 		}
 
@@ -70,12 +71,12 @@ class MantisEnum {
 	 *
 	 * @param string $enumString The standard enum string.
 	 * @param string $localizedEnumString  The localized enum string.
-	 * @param integer $value  The value to lookup.
+	 * @param int $value  The value to lookup.
 	 *
-	 * @return the label or the decorated value to represent not found.
+	 * @return string the label or the decorated value to represent not found.
 	 */
 	public static function getLocalizedLabel( $enumString, $localizedEnumString, $value ) {
-		if ( !MantisEnum::hasValue( $enumString, $value ) ) {
+		if( !MantisEnum::hasValue( $enumString, $value ) ) {
 			return MantisEnum::getLabelForUnknownValue( $value );
 		}
 
@@ -87,12 +88,12 @@ class MantisEnum {
 	 *
 	 * @param string $enumString  The enumerated string.
 	 * @param string $label       The label to map.
-	 * @return integer value of the enum or false if not found.
+	 * @return int value of the enum or false if not found.
 	 */
 	public static function getValue( $enumString, $label ) {
 		$assocArrayByLabels = MantisEnum::getAssocArrayIndexedByLabels( $enumString );
 
-		if ( isset( $assocArrayByLabels[$label] ) ) {
+		if( isset( $assocArrayByLabels[$label] ) ) {
 			return $assocArrayByLabels[$label];
 		}
 
@@ -104,7 +105,7 @@ class MantisEnum {
 	 * are the array indices and the labels are the array values.
 	 *
 	 * @param string $enumString
-	 * @return associate array indexed by labels.
+	 * @return array associate array indexed by labels.
 	 */
 	public static function getAssocArrayIndexedByValues( $enumString ) {
 		if( isset( self::$_cacheAssocArrayIndexedByValues[$enumString] ) ) {
@@ -119,14 +120,14 @@ class MantisEnum {
 			$tupleTokens = MantisEnum::getArrayForTuple( $tuple );
 
 			# if not a proper tuple, skip.
-			if ( count( $tupleTokens ) != 2 ) {
+			if( count( $tupleTokens ) != 2 ) {
 				continue;
 			}
 
 			$value = (int) trim( $tupleTokens[0] );
 
 			# if already set, skip.
-			if ( isset( $assocArray[ $value ] ) ) {
+			if( isset( $assocArray[ $value ] ) ) {
 				continue;
 			}
 
@@ -145,7 +146,7 @@ class MantisEnum {
 	 * are the array indices and the values are the array values.
 	 *
 	 * @param string $enumString
-	 * @return associate array indexed by labels.
+	 * @return array associate array indexed by labels.
 	 */
 	public static function getAssocArrayIndexedByLabels( $enumString ) {
 		return array_flip( MantisEnum::getAssocArrayIndexedByValues( $enumString ) );
@@ -155,7 +156,7 @@ class MantisEnum {
 	 * Gets an array with all values in the enum.
 	 *
 	 * @param $enumString
-	 * @return array of unique values.
+	 * @return array array of unique values.
 	 */
 	public static function getValues( $enumString ) {
 		return array_unique( array_keys( MantisEnum::getAssocArrayIndexedByValues( $enumString ) ) );
@@ -165,7 +166,7 @@ class MantisEnum {
 	 * Checks if the specified enum string contains the specified value.
 	 *
 	 * @param string $enumString  The enumeration string.
-	 * @param integer $value      The value to chec,
+	 * @param int $value      The value to chec,
 	 * @return bool true if found, false otherwise.
 	 */
 	public static function hasValue( $enumString, $value ) {
@@ -181,7 +182,7 @@ class MantisEnum {
 	 * @return array array of num:value elements
 	 */
 	private static function getArrayOfTuples( $enumString ) {
-		if ( strlen( trim( $enumString ) ) == 0 ) {
+		if( strlen( trim( $enumString ) ) == 0 ) {
 			return array();
 		}
 
@@ -209,11 +210,11 @@ class MantisEnum {
 	/**
 	 * Given a value it decorates it and returns it as the label.
 	 *
-	 * @param integer The value (e.g. 50).
-	 * @return The decorated value (e.g. @50@).
+	 * @param int $p_value The value (e.g. 50).
+	 * @return string The decorated value (e.g. @50@).
 	 */
-	private static function getLabelForUnknownValue( $value ) {
-		$valueAsInteger = (int)$value;
+	private static function getLabelForUnknownValue( $p_value ) {
+		$valueAsInteger = (int)$p_value;
 		return '@' . $valueAsInteger . '@';
 	}
 }

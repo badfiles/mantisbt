@@ -55,7 +55,7 @@ if( OFF == plugin_config_get( 'eczlibrary' ) ) {
 function graph_get_font() {
 	$t_font = plugin_config_get( 'font', 'arial' );
 
-	if ( plugin_config_get( 'eczlibrary' ) == ON ) {
+	if( plugin_config_get( 'eczlibrary' ) == ON ) {
 		$t_font_map = array(
 			'arial' => 'arial.ttf',
 			'verdana' => 'verdana.ttf',
@@ -116,7 +116,7 @@ function graph_bar( $p_metrics, $p_title = '', $p_graph_width = 350, $p_graph_he
 
 	error_check( is_array( $p_metrics ) ? array_sum( $p_metrics ) : 0, $p_title );
 
-	if ( plugin_config_get( 'eczlibrary' ) == ON ) {
+	if( plugin_config_get( 'eczlibrary' ) == ON ) {
 		$graph = new ezcGraphBarChart();
 		$graph->title = $p_title;
 		$graph->background->color = '#FFFFFF';
@@ -131,7 +131,7 @@ function graph_bar( $p_metrics, $p_title = '', $p_graph_width = 350, $p_graph_he
 		$graph->xAxis->axisLabelRenderer->angle = 45;
 
 		$graph->driver = new ezcGraphGdDriver();
-		//$graph->driver->options->supersampling = 1;
+		# $graph->driver->options->supersampling = 1;
 		$graph->driver->options->jpegQuality = 100;
 		$graph->driver->options->imageFormat = IMG_JPEG;
 
@@ -207,7 +207,7 @@ function graph_group( $p_metrics, $p_title = '', $p_graph_width = 350, $p_graph_
 	# calculate totals
 	$total = graph_total_metrics( $p_metrics );
 
-	if ( plugin_config_get( 'eczlibrary' ) == ON ) {
+	if( plugin_config_get( 'eczlibrary' ) == ON ) {
 		$graph = new ezcGraphBarChart();
 		$graph->title = $p_title;
 		$graph->background->color = '#FFFFFF';
@@ -219,14 +219,14 @@ function graph_group( $p_metrics, $p_title = '', $p_graph_width = 350, $p_graph_
 			$graph->data[$t_label] = new ezcGraphArrayDataSet( $p_metrics[$t_label] );
 		}
 		$graph->data['total'] = new ezcGraphArrayDataSet( $total );
-		//$graph->data['total']->displayType = ezcGraph::LINE;
-		//$graph->data['total']->barMargin = -20;
+		# $graph->data['total']->displayType = ezcGraph::LINE;
+		# $graph->data['total']->barMargin = -20;
 		$graph->options->fillLines = 210;
 		$graph->xAxis->axisLabelRenderer = new ezcGraphAxisRotatedLabelRenderer();
 		$graph->xAxis->axisLabelRenderer->angle = 45;
 
 		$graph->driver = new ezcGraphGdDriver();
-		//$graph->driver->options->supersampling = 1;
+		# $graph->driver->options->supersampling = 1;
 		$graph->driver->options->jpegQuality = 100;
 		$graph->driver->options->imageFormat = IMG_JPEG;
 
@@ -289,7 +289,7 @@ function graph_group( $p_metrics, $p_title = '', $p_graph_width = 350, $p_graph_
 			$graph->subtitle->Set( db_count_queries() . ' queries (' . db_time_queries() . 'sec)' );
 			$graph->subtitle->SetFont( $t_graph_font, FS_NORMAL, 8 );
 		}
-	$graph->Stroke();
+		$graph->Stroke();
 	}
 }
 
@@ -309,7 +309,7 @@ function graph_pie( $p_metrics, $p_title = '', $p_graph_width = 500, $p_graph_he
 
 	error_check( is_array( $p_metrics ) ? array_sum( $p_metrics ) : 0, $p_title );
 
-	if ( plugin_config_get( 'eczlibrary' ) == ON ) {
+	if( plugin_config_get( 'eczlibrary' ) == ON ) {
 		$graph = new ezcGraphPieChart();
 		$graph->title = $p_title;
 		$graph->background->color = '#FFFFFF';
@@ -328,7 +328,7 @@ function graph_pie( $p_metrics, $p_title = '', $p_graph_width = 500, $p_graph_he
 		$graph->renderer->options->legendSymbolGleam = .5;
 
 		$graph->driver = new ezcGraphGdDriver();
-		//$graph->driver->options->supersampling = 1;
+		# $graph->driver->options->supersampling = 1;
 		$graph->driver->options->jpegQuality = 100;
 		$graph->driver->options->imageFormat = IMG_JPEG;
 
@@ -349,7 +349,7 @@ function graph_pie( $p_metrics, $p_title = '', $p_graph_width = 500, $p_graph_he
 
 		$p1 = new PiePlot3d( array_values( $p_metrics ) );
 
-		// should be reversed?
+		# should be reversed?
 		$p1->SetTheme( 'earth' );
 
 		# $p1->SetTheme("sand");
@@ -383,7 +383,7 @@ function graph_cumulative_bydate( $p_metrics, $p_graph_width = 300, $p_graph_hei
 	$t_graph_font = graph_get_font();
 	error_check( is_array( $p_metrics ) ? count( $p_metrics ) : 0, plugin_lang_get( 'cumulative' ) . ' ' . lang_get( 'by_date' ) );
 
-	if ( plugin_config_get( 'eczlibrary' ) == ON ) {
+	if( plugin_config_get( 'eczlibrary' ) == ON ) {
 		$graph = new ezcGraphLineChart();
 
 		$graph->background->color = '#FFFFFF';
@@ -417,7 +417,7 @@ function graph_cumulative_bydate( $p_metrics, $p_graph_width = 300, $p_graph_hei
 		$graph->legend->background    = '#FFFFFF80';
 
 		$graph->driver = new ezcGraphGdDriver();
-		//$graph->driver->options->supersampling = 1;
+		# $graph->driver->options->supersampling = 1;
 		$graph->driver->options->jpegQuality = 100;
 		$graph->driver->options->imageFormat = IMG_JPEG;
 
@@ -506,13 +506,13 @@ function graph_bydate( $p_metrics, $p_labels, $p_title, $p_graph_width = 300, $p
 	$t_graph_font = graph_get_font();
 	error_check( is_array( $p_metrics ) ? count( $p_metrics ) : 0, lang_get( 'by_date' ) );
 
-	if ( plugin_config_get( 'eczlibrary' ) == ON ) {
+	if( plugin_config_get( 'eczlibrary' ) == ON ) {
 		$t_metrics = array();
-		$t_dates = array_shift($p_metrics); //[0];
+		$t_dates = array_shift($p_metrics); # [0];
 		$t_cnt = count($p_metrics);
 
 		foreach( $t_dates as $i => $val ) {
-				//$t_metrics[$val]
+				# $t_metrics[$val]
 				for($j = 0; $j < $t_cnt; $j++ ) {
 					$t_metrics[$j][$val] = $p_metrics[$j][$i];
 				}
@@ -536,7 +536,7 @@ function graph_bydate( $p_metrics, $p_labels, $p_title, $p_graph_width = 300, $p
 		$graph->legend->background    = '#FFFFFF80';
 
 		$graph->driver = new ezcGraphGdDriver();
-		//$graph->driver->options->supersampling = 1;
+		# $graph->driver->options->supersampling = 1;
 		$graph->driver->options->jpegQuality = 100;
 		$graph->driver->options->imageFormat = IMG_JPEG;
 
@@ -576,13 +576,13 @@ function graph_bydate( $p_metrics, $p_labels, $p_title, $p_graph_width = 300, $p
 		$graph->xaxis->SetLabelFormatCallback( 'graph_date_format' );
 		$graph->xaxis->SetFont( $t_graph_font );
 
-/*		$t_line_colours = plugin_config_get( 'jpgraph_colors' );
-		$t_count_colours = count( $t_line_colours );*/
+		# $t_line_colours = plugin_config_get( 'jpgraph_colors' );
+		# $t_count_colours = count( $t_line_colours );
 		$t_lines = count( $p_metrics ) - 1;
 		$t_line = array();
 		for( $i = 1;$i <= $t_lines;$i++ ) {
 			$t_line[$i] = new LinePlot( $p_metrics[$i], $p_metrics[0] );
-			//$t_line[$i]->SetColor( $t_line_colours[$i % $t_count_colours] );
+			# $t_line[$i]->SetColor( $t_line_colours[$i % $t_count_colours] );
 			$t_line[$i]->SetCenter();
 			$t_line[$i]->SetLegend( $p_labels[$i] );
 			$graph->Add( $t_line[$i] );
@@ -679,7 +679,6 @@ function enum_bug_group( $p_enum_string, $p_enum ) {
 						status>=" . db_param() . " $specific_where";
 		$t_result2 = db_query_bound( $query, array( $t_value, $t_clo_val ) );
 		$t_metrics['closed'][$t_label] = db_result( $t_result2, 0, 0 );
-
 
 		# Calculates the number of bugs resolved and puts the results in a table
 		$query = "SELECT COUNT(*)
@@ -828,10 +827,10 @@ function create_category_summary() {
 					FROM $t_bug_table
 					WHERE category_id=" . db_param() . " AND $specific_where";
 		$t_result2 = db_query_bound( $query, array( $t_cat_id ) );
-		if ( isset($t_metrics[$t_cat_name]) ) {
+		if( isset($t_metrics[$t_cat_name]) ) {
 			$t_metrics[$t_cat_name] = $t_metrics[$t_cat_name] + db_result( $t_result2, 0, 0 );
 		} else {
-            if (db_result( $t_result2, 0, 0 ) > 0)
+			if (db_result( $t_result2, 0, 0 ) > 0)
 			    $t_metrics[$t_cat_name] = db_result( $t_result2, 0, 0 );
 		}
 	}
@@ -957,9 +956,9 @@ function graph_date_format( $p_date ) {
  * @param int $p_bug_count bug count
  * @param string $p_title title
  */
-function error_check( $bug_count, $title ) {
-	if( 0 == $bug_count ) {
-		error_text( $title, plugin_lang_get( 'not_enough_data' ) );
+function error_check( $p_bug_count, $p_title ) {
+	if( 0 == $p_bug_count ) {
+		error_text( $p_title, plugin_lang_get( 'not_enough_data' ) );
 	}
 }
 
@@ -971,25 +970,25 @@ function error_check( $bug_count, $title ) {
  * @todo check error graphs do not support utf8
  */
 function error_text( $p_title, $p_text ) {
-		if( OFF == plugin_config_get( 'eczlibrary' ) ) {
-			$graph = new CanvasGraph( 300, 380 );
-            $t_graph_font = graph_get_font();
+	if( OFF == plugin_config_get( 'eczlibrary' ) ) {
+		$graph = new CanvasGraph( 300, 380 );
+		$t_graph_font = graph_get_font();
 
-			$txt = new Text( $p_text, 150, 100 );
-			$txt->Align( "center", "center", "center" );
-			$txt->SetFont( $t_graph_font, FS_BOLD );
-			$graph->title->Set( $p_title );
-			$graph->title->SetFont( $t_graph_font, FS_BOLD );
-			$graph->AddText( $txt );
-			$graph->Stroke();
-		} else {
-			$im = imagecreate(300, 300);
-			$bg = imagecolorallocate($im, 255, 255, 255);
-			$t_text_color = imagecolorallocate($im, 0, 0, 0);
-			imagestring($im, 5, 0, 0, $p_text, $t_text_color);
-			header('Content-type: image/png');
-			imagepng($im);
-			imagedestroy($im);
-		}
+		$txt = new Text( $p_text, 150, 100 );
+		$txt->Align( "center", "center", "center" );
+		$txt->SetFont( $t_graph_font, FS_BOLD );
+		$graph->title->Set( $p_title );
+		$graph->title->SetFont( $t_graph_font, FS_BOLD );
+		$graph->AddText( $txt );
+		$graph->Stroke();
+	} else {
+		$im = imagecreate(300, 300);
+		$bg = imagecolorallocate($im, 255, 255, 255);
+		$t_text_color = imagecolorallocate($im, 0, 0, 0);
+		imagestring($im, 5, 0, 0, $p_text, $t_text_color);
+		header('Content-type: image/png');
+		imagepng($im);
+		imagedestroy($im);
+	}
 	die;
 }

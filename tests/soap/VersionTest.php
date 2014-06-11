@@ -27,6 +27,9 @@ require_once 'SoapBase.php';
 
 /**
  * Test fixture for version methods
+ *
+ * @requires extension soap
+ * @group SOAP
  */
 class VersionTest extends SoapBase {
 
@@ -98,7 +101,7 @@ class VersionTest extends SoapBase {
 		$this->assertEquals(1, count($versions) - $initialVersions);
 
 		foreach ( $versions as $version ) {
-			if ( $version->id == $versionId ) {
+			if( $version->id == $versionId ) {
 				$versDate = $this->dateToUTC($version->date_order);
 
 				$this->assertEquals('1.1', $version->name);

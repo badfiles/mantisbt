@@ -249,7 +249,7 @@ function summary_print_by_enum( $p_enum ) {
 function summary_new_bug_count_by_date( $p_num_days = 1 ) {
 	$t_mantis_bug_table = db_get_table( 'bug' );
 
-	$_time_length = (int) $p_num_days * SECONDS_PER_DAY;
+	$c_time_length = (int) $p_num_days * SECONDS_PER_DAY;
 
 	$t_project_id = helper_get_current_project();
 
@@ -373,7 +373,7 @@ function summary_print_by_activity() {
 	$t_summarybugs = array();
 	while( $row = db_fetch_array( $t_result ) ) {
 
-		// Skip private bugs unless user has proper permissions
+		# Skip private bugs unless user has proper permissions
 		if(( VS_PRIVATE == $row['view_state'] ) && ( false == access_has_bug_level( $t_private_bug_threshold, $row['id'] ) ) ) {
 			continue;
 		}
@@ -426,10 +426,10 @@ function summary_print_by_age() {
 	$t_private_bug_threshold = config_get( 'private_bug_threshold' );
 	while( $row = db_fetch_array( $t_result ) ) {
 
-		// as we select all from bug_table, inject into the cache.
+		# as we select all from bug_table, inject into the cache.
 		bug_cache_database_result( $row );
 
-		// Skip private bugs unless user has proper permissions
+		# Skip private bugs unless user has proper permissions
 		if(( VS_PRIVATE == bug_get_field( $row['id'], 'view_state' ) ) && ( false == access_has_bug_level( $t_private_bug_threshold, $row['id'] ) ) ) {
 			continue;
 		}
@@ -783,20 +783,20 @@ function summary_print_by_project( $p_projects = null, $p_level = 0, $p_cache = 
 			$t_status = $row['status'];
 			$t_bugcount = $row['bugcount'];
 
-			if ( $t_closed_val <= $t_status ) {
-				if ( isset( $p_cache[$t_project_id]['closed'] ) ) {
+			if( $t_closed_val <= $t_status ) {
+				if( isset( $p_cache[$t_project_id]['closed'] ) ) {
 					$p_cache[$t_project_id]['closed'] += $t_bugcount;
 				} else {
 					$p_cache[$t_project_id]['closed'] = $t_bugcount;
 				}
-			} else if ( $t_resolved_val <= $t_status ) {
-				if ( isset( $p_cache[$t_project_id]['resolved'] ) ) {
+			} else if( $t_resolved_val <= $t_status ) {
+				if( isset( $p_cache[$t_project_id]['resolved'] ) ) {
 					$p_cache[$t_project_id]['resolved'] += $t_bugcount;
 				} else {
 					$p_cache[$t_project_id]['resolved'] = $t_bugcount;
 				}
 			} else {
-				if ( isset( $p_cache[$t_project_id]['open'] ) ) {
+				if( isset( $p_cache[$t_project_id]['open'] ) ) {
 					$p_cache[$t_project_id]['open'] += $t_bugcount;
 				} else {
 					$p_cache[$t_project_id]['open'] = $t_bugcount;
@@ -820,7 +820,7 @@ function summary_print_by_project( $p_projects = null, $p_level = 0, $p_cache = 
 			$t_bugs_open, $t_bugs_resolved, $t_bugs_closed, $t_bugs_total
 		);
 
-		if ( count( project_hierarchy_get_subprojects ( $t_project ) ) > 0 ) {
+		if( count( project_hierarchy_get_subprojects ( $t_project ) ) > 0 ) {
 			$t_subprojects = current_user_get_accessible_subprojects( $t_project );
 
 			if( count( $t_subprojects ) > 0 ) {
@@ -914,7 +914,7 @@ function summary_print_developer_resolution( $p_resolution_enum_string ) {
 				echo "</td>\n";
 
 				if( $c_res_s[$j] >= config_get( 'bug_resolution_fixed_threshold' ) ) {
-					if ( $c_res_s[$j] < config_get( 'bug_resolution_not_fixed_threshold' ) ) {
+					if( $c_res_s[$j] < config_get( 'bug_resolution_not_fixed_threshold' ) ) {
 						# Count bugs with a resolution between fixed and not fixed thresholds
 						$t_bugs_fixed += $res_bug_count;
 					} else {
@@ -1029,7 +1029,7 @@ function summary_print_reporter_resolution( $p_resolution_enum_string ) {
 				echo "</td>\n";
 
 				if( $c_res_s[$j] >= config_get( 'bug_resolution_fixed_threshold' ) ) {
-					if ( $c_res_s[$j] < config_get( 'bug_resolution_not_fixed_threshold' ) ) {
+					if( $c_res_s[$j] < config_get( 'bug_resolution_not_fixed_threshold' ) ) {
 						# Count bugs with a resolution between fixed and not fixed thresholds
 						$t_bugs_fixed += $res_bug_count;
 					} else {

@@ -27,6 +27,9 @@ require_once 'SoapBase.php';
 
 /**
  * Test fixture for issue creation webservice methods.
+ *
+ * @requires extension soap
+ * @group SOAP
  */
 class IssueAddTest extends SoapBase {
 	/**
@@ -72,13 +75,13 @@ class IssueAddTest extends SoapBase {
 			$this->password,
 			$issueId);
 
-		// explicitly specified fields
+		# explicitly specified fields
 		$this->assertEquals( $issueToAdd['category'], $issue->category );
 		$this->assertEquals( $issueToAdd['summary'], $issue->summary );
 		$this->assertEquals( $issueToAdd['description'], $issue->description );
 		$this->assertEquals( $issueToAdd['project']['id'], $issue->project->id );
 
-		// defaulted fields
+		# defaulted fields
 		$this->assertEquals( $issueId, $issue->id );
 		$this->assertEquals( 10, $issue->view_state->id );
 		$this->assertEquals( 'public', $issue->view_state->name );
@@ -124,7 +127,7 @@ class IssueAddTest extends SoapBase {
 			$this->password,
 			$issueId);
 
-		// explicitly specified fields
+		# explicitly specified fields
 		$this->assertEquals( $issueToAdd['summary'], $issue->summary );
 		$this->assertEquals( $issueToAdd['description'], $issue->description );
 
@@ -142,10 +145,10 @@ class IssueAddTest extends SoapBase {
 	public function testCreateIssueWithRareFields() {
 		$issueToAdd = $this->getIssueToAdd( 'IssueAddTest.testCreateIssueWithRareFields' );
 
-		$issueToAdd['projection'] = array( 'id' => 90 );    // redesign
-		$issueToAdd['eta'] = array( 'id' => 60 );           // > 1 month
-		$issueToAdd['resolution'] = array( 'id' => 80 );    // suspended
-		$issueToAdd['status'] = array( 'id' => 40 );        // confirmed
+		$issueToAdd['projection'] = array( 'id' => 90 );    # redesign
+		$issueToAdd['eta'] = array( 'id' => 60 );           # > 1 month
+		$issueToAdd['resolution'] = array( 'id' => 80 );    # suspended
+		$issueToAdd['status'] = array( 'id' => 40 );        # confirmed
 		$issueToAdd['fixed_in_version'] = 'fixed version';
 		$issueToAdd['target_version'] = 'target version';
 		$issueToAdd['sticky'] = true;
@@ -162,7 +165,7 @@ class IssueAddTest extends SoapBase {
 			$this->password,
 			$issueId);
 
-		// explicitly specified fields
+		# explicitly specified fields
 		$this->assertEquals( $issueToAdd['projection']['id'], $issue->projection->id );
 		$this->assertEquals( $issueToAdd['eta']['id'], $issue->eta->id );
 		$this->assertEquals( $issueToAdd['resolution']['id'], $issue->resolution->id );
@@ -236,7 +239,6 @@ class IssueAddTest extends SoapBase {
 			$this->password,
 			$issueId);
 
-
 		$this->assertEquals( $this->dateToUTC($date), $this->dateToUTC($issue->due_date), "due_date" );
 	}
 
@@ -301,7 +303,7 @@ class IssueAddTest extends SoapBase {
 	}
 
 	/**
-	 *
+	 * Reads a due date out of the soap response
 	 * @param string $issueDataXml
 	 * @return string the xsi:null value
 	 */
@@ -313,7 +315,7 @@ class IssueAddTest extends SoapBase {
 			switch ( $reader->nodeType ) {
 
 				case XMLReader::ELEMENT:
-					if ( $reader->name == 'due_date') {
+					if( $reader->name == 'due_date') {
 						return $reader->getAttribute( 'xsi:nil' );
 					}
 					break;
@@ -348,7 +350,7 @@ class IssueAddTest extends SoapBase {
 			$this->password,
 			$issueId);
 
-		// verify note existence and time tracking data
+		# verify note existence and time tracking data
 		$this->assertEquals( 1, count( $issue->notes ) );
 
 		$note = $issue->notes[0];
@@ -445,15 +447,15 @@ class IssueAddTest extends SoapBase {
 	public function testGetBiggestId() {
 
 	    $firstIssueId = $this->client->mc_issue_add( $this->userName, $this->password, $this->getIssueToAdd( 'IssueAddTest.testGetBiggestId1'));
-        $this->deleteAfterRun( $firstIssueId );
+		$this->deleteAfterRun( $firstIssueId );
 
 	    $secondIssueId = $this->client->mc_issue_add( $this->userName, $this->password, $this->getIssueToAdd( 'IssueAddTest.testGetBiggestId2'));
 	    $this->deleteAfterRun( $secondIssueId );
 
 	    $firstIssue = $this->client->mc_issue_get( $this->userName, $this->password, $firstIssueId );
 
-	    // this update should trigger this issue's id to be returned as the biggest
-	    // reported as bug #12887
+	    # this update should trigger this issue's id to be returned as the biggest
+	    # reported as bug #12887
 		$this->client->mc_issue_update( $this->userName, $this->password, $firstIssueId, $firstIssue);
 
 		$this->assertEquals( $secondIssueId, $this->client->mc_issue_get_biggest_id( $this->userName, $this->password, $this->getProjectId() ));
@@ -486,7 +488,7 @@ class IssueAddTest extends SoapBase {
 			$this->password,
 			$issueId);
 
-		// verify note existence and time tracking data
+		# verify note existence and time tracking data
 		$this->assertEquals( 1, count( $issue->notes ) );
 
 		$note = $issue->notes[0];
@@ -495,9 +497,11 @@ class IssueAddTest extends SoapBase {
 		$this->assertEquals( 'attr_value', $note->note_attr );
 	}
 
+	/**
+	 * A test cases that tests the creation of issues with a tag
+	 */
 	public function testCreateIssueWithTags() {
-
-		// initialise tags
+		# initialise tags
 		$tagId1 = $this->client->mc_tag_add( $this->userName, $this->password, array (
 					'name' => 'IssueCreateTest.createIssueWithTags'
 		));
@@ -508,7 +512,7 @@ class IssueAddTest extends SoapBase {
 		));
 		$this->deleteTagAfterRun( $tagId2 );
 
-		// create issue
+		# create issue
 		$issueToAdd = $this->getIssueToAdd( 'IssueCreateTest.createIssueWithTags' );
 		$issueToAdd['tags'] = array ( array( 'id' => $tagId1), array('id' => $tagId2 ) );
 		$issueId = $this->client->mc_issue_add( $this->userName, $this->password, $issueToAdd);
@@ -553,8 +557,8 @@ class IssueAddTest extends SoapBase {
 	public function testCreateIssueWithNonLatinText() {
 		$issueToAdd = $this->getIssueToAdd( 'IssueAddTest.testCreateIssueWithNonLatinText' );
 
-		$issueToAdd['summary'] = "Здравствуйте!"; // Russian, hello
-		$issueToAdd['description'] = "你好";// Mandarin Chinese, hello
+		$issueToAdd['summary'] = "Здравствуйте!"; # Russian, hello
+		$issueToAdd['description'] = "你好"; # Mandarin Chinese, hello
 
 		$issueId = $this->client->mc_issue_add(
 				$this->userName,
@@ -568,7 +572,7 @@ class IssueAddTest extends SoapBase {
 				$this->password,
 				$issueId);
 
-		// explicitly specified fields
+		# explicitly specified fields
 		$this->assertEquals( $issueToAdd['summary'], $issue->summary , 'summary is not correct');
 		$this->assertEquals( $issueToAdd['description'], $issue->description , 'description is not correct');
 	}

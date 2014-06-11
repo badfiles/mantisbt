@@ -57,22 +57,22 @@ class UserPreferences {
 	 * Default Project for user
 	 */
 	protected $default_project = NULL;
-	
+
 	/**
 	 * Automatic Refresh delay
 	 */
 	protected $refresh_delay = NULL;
-	
+
 	/**
 	 * Automatic Redirect delay
-	 */	
+	 */
 	protected $redirect_delay = NULL;
 
 	/**
 	 * Bugnote order - oldest/newest first
 	 */
 	protected $bugnote_order = NULL;
-	
+
 	/**
 	 * Receive email on new bugs
 	 */
@@ -82,7 +82,7 @@ class UserPreferences {
 	 * Receive email on assigned bugs
 	 */
 	protected $email_on_assigned = NULL;
-	
+
 	/**
 	 * Receive email on feedback
 	 */
@@ -117,50 +117,50 @@ class UserPreferences {
 	 * Receive email on bug priority change
 	 */
 	protected $email_on_priority = NULL;
-	
+
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_new_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_assigned_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_feedback_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_resolved_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_closed_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_reopened_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_bugnote_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_status_min_severity = NULL;
 
 	/**
 	 * Minimum Severity on which to trigger email if set to receive
-	 */	
+	 */
 	protected $email_on_priority_min_severity = NULL;
 
 	/**
@@ -253,6 +253,7 @@ class UserPreferences {
 	 * Overloaded function
 	 * @param string $p_string Property name
 	 * @access private
+	 * @return mixed
 	 */
 	public function __get( $p_string ) {
 		if( is_null( $this->$p_string ) ) {
@@ -269,6 +270,7 @@ class UserPreferences {
 	/**
 	 * Public Get() function
 	 * @param string $p_string Property
+	 * @return mixed
 	 */
 	function Get( $p_string ) {
 		if( is_null( $this->$p_string ) ) {
@@ -346,7 +348,7 @@ function user_pref_cache_array_rows( $p_user_id_array, $p_project_id = ALL_PROJE
 	}
 
 	# if all users are already cached, then return
-	if ( empty( $c_user_id_array ) ) {
+	if( empty( $c_user_id_array ) ) {
 		return;
 	}
 
@@ -359,7 +361,7 @@ function user_pref_cache_array_rows( $p_user_id_array, $p_project_id = ALL_PROJE
 	$t_result = db_query_bound( $query, array( (int)$p_project_id ) );
 
 	while( $row = db_fetch_array( $t_result ) ) {
-		if ( !isset( $g_cache_user_pref[(int) $row['user_id']] ) ) {
+		if( !isset( $g_cache_user_pref[(int) $row['user_id']] ) ) {
 			$g_cache_user_pref[(int) $row['user_id']] = array();
 		}
 
@@ -430,9 +432,9 @@ function user_pref_insert( $p_user_id, $p_project_id, $p_prefs ) {
 
 	$t_values = array();
 
-	$t_params[] = db_param(); // user_id
+	$t_params[] = db_param(); # user_id
 	$t_values[] = $c_user_id;
-	$t_params[] = db_param(); // project_id
+	$t_params[] = db_param(); # project_id
 	$t_values[] = $c_project_id;
 	foreach( $t_vars as $var => $val ) {
 		array_push( $t_params, db_param());
@@ -562,7 +564,7 @@ function user_pref_get( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 	static $t_vars;
 	global $g_cache_current_user_pref;
 
-	if ( isset( $g_cache_current_user_pref[(int)$p_project_id] ) &&
+	if( isset( $g_cache_current_user_pref[(int)$p_project_id] ) &&
 		auth_is_user_authenticated() &&
 		auth_get_current_user_id() == $p_user_id ) {
 		return $g_cache_current_user_pref[(int)$p_project_id];
@@ -600,7 +602,7 @@ function user_pref_get( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 			$t_prefs->$var = $t_row[$var];
 		}
 	}
-	if ( auth_is_user_authenticated() && auth_get_current_user_id() == $p_user_id ) {
+	if( auth_is_user_authenticated() && auth_get_current_user_id() == $p_user_id ) {
 		$g_cache_current_user_pref[ (int)$p_project_id ] = $t_prefs;
 	}
 	return $t_prefs;
@@ -643,7 +645,7 @@ function user_pref_get_pref( $p_user_id, $p_pref_name, $p_project_id = ALL_PROJE
 function user_pref_get_language( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 	$t_prefs = user_pref_get( $p_user_id, $p_project_id );
 
-	// ensure the language is a valid one
+	# ensure the language is a valid one
 	$t_lang = $t_prefs->language;
 	if( !lang_language_exists( $t_lang ) ) {
 		$t_lang = null;
@@ -662,11 +664,12 @@ function user_pref_get_language( $p_user_id, $p_project_id = ALL_PROJECTS ) {
  * @param string $p_pref_name
  * @param string $p_pref_value
  * @param int $p_project_id
+ * @return bool
  */
 function user_pref_set_pref( $p_user_id, $p_pref_name, $p_pref_value, $p_project_id = ALL_PROJECTS ) {
 	$t_prefs = user_pref_get( $p_user_id, $p_project_id );
 
-	if ( $t_prefs->$p_pref_name != $p_pref_value ) {
+	if( $t_prefs->$p_pref_name != $p_pref_value ) {
 		$t_prefs->$p_pref_name = $p_pref_value;
 		user_pref_set( $p_user_id, $t_prefs, $p_project_id );
 	}
@@ -680,6 +683,7 @@ function user_pref_set_pref( $p_user_id, $p_pref_name, $p_pref_value, $p_project
  * @param int $p_user_id
  * @param UserPreferences $p_prefs
  * @param int $p_project_id
+ * @return null
  */
 function user_pref_set( $p_user_id, $p_prefs, $p_project_id = ALL_PROJECTS ) {
 	if( user_pref_exists( $p_user_id, $p_project_id ) ) {

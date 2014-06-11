@@ -37,62 +37,61 @@ require_once ( $t_root_path . DIRECTORY_SEPARATOR . 'core/constant_inc.php' );
  */
 class SoapBase extends PHPUnit_Framework_TestCase {
 	/**
-	 * Soap Client
+	 * @var SoapClient Soap Client
 	 */
 	protected $client;
 
 	/**
-	 * Username
+	 * @var string Username
 	 */
 	protected $userName = 'administrator';
 
 	/**
-	 * Password
+	 * @var string Password
 	 */
 	protected $password = 'root';
 
 	/**
-	 * Email address
+	 * @var string Email address
 	 */
 	protected $email = 'root@localhost';
 
 	/**
-	 * User ID
+	 * @var int User ID
 	 */
 	protected $userId = '1';
 
 	/**
-	 * MantisBT Path
+	 * @var string MantisBT Path
 	 */
 	protected $mantisPath;
 
 	/**
-	 * Project ID
+	 * @var int Project ID
 	 */
 	protected $projectId = 1;
 
 	/**
-	 * Array of Issue IDs to delete
+	 * @var array Array of Issue IDs to delete
 	 */
 	private   $issueIdsToDelete = array();
 
 	/**
-	 * Array of Version IDs to delete
+	 * @var array Array of Version IDs to delete
 	 */
 	private   $versionIdsToDelete = array();
 
 	/**
-	 * Array of Tag IDs to delete
+	 * @var array Array of Tag IDs to delete
 	 */
 	private   $tagIdsToDelete = array();
 
 	/**
-	 * Soal Client Options Array
+	 * @var array Soap Client Options Array
 	 */
 	private   $defaultSoapClientOptions = array(  'trace'      => true,
 												  'exceptions' => true,
-												  'cache_wsdl' => WSDL_CACHE_NONE,
-												  'trace'      => true
+												  'cache_wsdl' => WSDL_CACHE_NONE
 											   );
 
 	/**
@@ -144,7 +143,8 @@ class SoapBase extends PHPUnit_Framework_TestCase {
 	}
 
 	/**
-	 * @return an array of extra options to be passed to the SoapClient constructor
+	 * Returns an array of extra options to be passed to the Soap Client
+	 * @return array an array of extra options to be passed to the SoapClient constructor
 	 */
 	protected function extraSoapClientFlags() {
 
@@ -190,15 +190,16 @@ class SoapBase extends PHPUnit_Framework_TestCase {
 	 * Skip if time tracking is not enabled
 	 */
 	protected function skipIfTimeTrackingIsNotEnabled() {
-
 		$timeTrackingEnabled = $this->client->mc_config_get_string($this->userName, $this->password, 'time_tracking_enabled');
-		if ( !$timeTrackingEnabled ) {
+		if( !$timeTrackingEnabled ) {
 			$this->markTestSkipped('Time tracking is not enabled');
 		}
 	}
 
 	/**
 	 * getIssueToAdd
+	 * @param string $testCase
+	 * @return array
 	 */
 	protected function getIssueToAdd( $testCase ) {
 		return array(
@@ -237,7 +238,6 @@ class SoapBase extends PHPUnit_Framework_TestCase {
 	 * @return void
 	 */
 	protected function deleteTagAfterRun ( $tagId ) {
-
 		$this->tagIdsToDelete[] = $tagId;
 	}
 
@@ -245,8 +245,7 @@ class SoapBase extends PHPUnit_Framework_TestCase {
 	 * Skip if due date thesholds are too high
 	 */
 	protected function skipIfDueDateIsNotEnabled() {
-
-		if ( $this->client->mc_config_get_string( $this->userName, $this->password, 'due_date_view_threshold' ) > 90  ||
+		if( $this->client->mc_config_get_string( $this->userName, $this->password, 'due_date_view_threshold' ) > 90  ||
 			 $this->client->mc_config_get_string( $this->userName, $this->password, 'due_date_update_threshold' ) > 90 ) {
 			 	$this->markTestSkipped('Due date thresholds are too high.');
 			 }
@@ -256,7 +255,7 @@ class SoapBase extends PHPUnit_Framework_TestCase {
 	 * Skip if no category is not on
 	 */
 	protected function skipIfAllowNoCategoryIsDisabled() {
-		if ( $this->client->mc_config_get_string($this->userName, $this->password, 'allow_no_category' ) != true ) {
+		if( $this->client->mc_config_get_string($this->userName, $this->password, 'allow_no_category' ) != true ) {
 			$this->markTestSkipped( 'g_allow_no_category is not ON.' );
 		}
 	}
@@ -272,7 +271,7 @@ class SoapBase extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Converts date to UTC
-	 * @param $p_date date string
+	 * @param string $p_date date string
 	 * @return DateTime object
 	 * Tests creating a new version
 	 */
