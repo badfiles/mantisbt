@@ -88,7 +88,7 @@ if( $t_bug->project_id != $t_selected_project ) {
 	$g_project_override = $t_bug->project_id;
 }
 
-access_ensure_bug_level( VIEWER, $f_bug_id );
+access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
 
 $t_fields = config_get( 'bug_print_page_fields' );
 $t_fields = columns_filter_disabled( $t_fields );
@@ -144,7 +144,7 @@ $t_priority = string_display_line( get_enum_element( 'priority', $t_bug->priorit
 $t_resolution = string_display_line( get_enum_element( 'resolution', $t_bug->resolution ) );
 $t_product_build = string_display_line( $t_bug->build );
 $t_projection = string_display_line( get_enum_element( 'projection', $t_bug->projection ) );
-$t_eta = string_display_line ( get_enum_element( 'eta', $t_bug->eta ) );
+$t_eta = string_display_line( get_enum_element( 'eta', $t_bug->eta ) );
 $t_summary = string_display_line_links( bug_format_summary( $f_bug_id, SUMMARY_FIELD ) );
 $t_description = string_display_links( $t_bug->description );
 $t_steps_to_reproduce = string_display_links( $t_bug->steps_to_reproduce );
@@ -496,16 +496,16 @@ if( $t_show_additional_information ) {
 
 # Tagging
 if( $t_show_tags ) {
-	echo "<tr class=\"print\">";
+	echo '<tr class="print">';
 	echo '<th class="print-category">', lang_get( 'tags' ), '</th>';
 	echo '<td class="print" colspan="5">';
 	tag_display_attached( $f_bug_id );
 	echo '</td></tr>';
 }
 
-echo "<tr class=\"print\">";
-echo "<td class=\"print-category\">" . lang_get( 'bug_relationships' ) . "</td>";
-echo "<td class=\"print\" colspan=\"5\">" . relationship_get_summary_html_preview( $f_bug_id ) . "</td></tr>";
+echo '<tr class="print">';
+echo '<td class="print-category">' . lang_get( 'bug_relationships' ) . '</td>';
+echo '<td class="print" colspan="5">' . relationship_get_summary_html_preview( $f_bug_id ) . '</td></tr>';
 
 if( $t_show_attachments ) {
 	echo '<tr class="print">';
@@ -516,7 +516,7 @@ if( $t_show_attachments ) {
 	$t_first_attachment = true;
 	$t_path = config_get_global( 'path' );
 
-	foreach ( $t_attachments as $t_attachment  ) {
+	foreach ( $t_attachments as $t_attachment ) {
 		if( $t_first_attachment ) {
 			$t_first_attachment = false;
 		} else {
@@ -531,7 +531,7 @@ if( $t_show_attachments ) {
 			echo '<img src="', $t_attachment['icon']['url'], '" alt="', $t_attachment['icon']['alt'], '" />&#160;';
 		}
 
-		echo "$c_filename ($c_filesize) <span class=\"italic\">$c_date_added</span><br />$c_download_url";
+		echo $c_filename . ' (' .$c_filesize . ') <span class="italic">' . $c_date_added . '</span><br />' . $c_download_url;
 
 		if( $t_attachment['preview'] && $t_attachment['type'] == 'image' ) {
 			echo '<br /><img src="', $t_attachment['download_url'], '" alt="', $t_attachment['alt'], '" /><br />';

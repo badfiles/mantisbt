@@ -62,28 +62,16 @@ require_api( 'tokens_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
 
-/**
- *
- * @global array $g_script_login_cookie
- */
+# @global array $g_script_login_cookie
 $g_script_login_cookie = null;
 
-/**
- *
- * @global array $g_cache_anonymous_user_cookie_string
- */
+# @global array $g_cache_anonymous_user_cookie_string
 $g_cache_anonymous_user_cookie_string = null;
 
-/**
- *
- * @global array $g_cache_cookie_valid
- */
+# @global array $g_cache_cookie_valid
 $g_cache_cookie_valid = null;
 
-/**
- *
- * @global int $g_cache_current_user_id
- */
+# @global int $g_cache_current_user_id
 $g_cache_current_user_id = null;
 
 /**
@@ -92,8 +80,9 @@ $g_cache_current_user_id = null;
  * If there is no user logged in, redirect to the login page
  * If parameter is given it is used as a URL to redirect to following
  * successful login.  If none is given, the URL of the current page is used
- * @param string $p_return_page Page to redirect to following successful logon, defaults to current page
+ * @param string $p_return_page Page to redirect to following successful logon, defaults to current page.
  * @access public
+ * @return void
  */
 function auth_ensure_user_authenticated( $p_return_page = '' ) {
 	# if logged in
@@ -119,8 +108,7 @@ function auth_ensure_user_authenticated( $p_return_page = '' ) {
 /**
  * Return true if there is a currently logged in and authenticated user, false otherwise
  *
- * @param bool auto-login anonymous user
- * @return bool
+ * @return boolean
  * @access public
  */
 function auth_is_user_authenticated() {
@@ -135,7 +123,7 @@ function auth_is_user_authenticated() {
 /**
  * prepare/override the username provided from logon form (if necessary)
  * @todo when we rewrite authentication api for plugins, this should be merged with prepare_password and return some object
- * @param string $p_username
+ * @param string $p_username Username.
  * @return string|null prepared username
  * @access public
  */
@@ -167,7 +155,7 @@ function auth_prepare_username( $p_username ) {
 /**
  * prepare/override the password provided from logon form (if necessary)
  * @todo when we rewrite authentication api for plugins, this should be merged with prepare_username and return some object
- * @param string $p_password
+ * @param string $p_password Password.
  * @return string prepared password
  * @access public
  */
@@ -199,49 +187,59 @@ function auth_prepare_password( $p_password ) {
 }
 
 /**
+ * In the case where a user is attempting to authenticate but doesn't exist.
+ * Check if the authentication provider supports auto-creation of users and
+ * whether the password matches.
+ *
+ * @param string  $p_username   A prepared username.
+ * @param string  $p_password   A prepared password.
+ * @return int|boolean user id or false in case of failure.
+ * @access private
+ */
+function auth_auto_create_user( $p_username, $p_password ) {
+	$t_login_method = config_get( 'login_method' );
+
+	if( $t_login_method == BASIC_AUTH ) {
+		$t_auto_create = true;
+	} else if( $t_login_method == LDAP && ldap_authenticate_by_username( $p_username, $p_password ) ) {
+		$t_auto_create = true;
+	} else {
+		$t_auto_create = false;
+	}
+
+	if( $t_auto_create ) {
+		# attempt to create the user
+		$t_cookie_string = user_create( $p_username, md5( $p_password ) );
+		if( $t_cookie_string === false ) {
+			# it didn't work
+			return false;
+		}
+
+		# ok, we created the user, get the row again
+		return user_get_id_by_name( $p_username );
+	}
+
+	return false;
+}
+
+/**
  * Attempt to login the user with the given password
  * If the user fails validation, false is returned
  * If the user passes validation, the cookies are set and
  * true is returned.  If $p_perm_login is true, the long-term
  * cookie is created.
- * @param string $p_username a prepared username
- * @param string $p_password a prepared password
- * @param bool $p_perm_login whether to create a long-term cookie
- * @return bool indicates if authentication was successful
+ * @param string  $p_username   A prepared username.
+ * @param string  $p_password   A prepared password.
+ * @param boolean $p_perm_login Whether to create a long-term cookie.
+ * @return boolean indicates if authentication was successful
  * @access public
  */
 function auth_attempt_login( $p_username, $p_password, $p_perm_login = false ) {
 	$t_user_id = user_get_id_by_name( $p_username );
 
-	$t_login_method = config_get( 'login_method' );
-
-	if( false === $t_user_id ) {
-		if( BASIC_AUTH == $t_login_method ) {
-			$t_auto_create = true;
-		} else if( LDAP == $t_login_method && ldap_authenticate_by_username( $p_username, $p_password ) ) {
-			$t_auto_create = true;
-		} else {
-			$t_auto_create = false;
-		}
-
-		if( $t_auto_create ) {
-			# attempt to create the user
-			$t_cookie_string = user_create( $p_username, md5( $p_password ) );
-
-			if( false === $t_cookie_string ) {
-				# it didn't work
-				return false;
-			}
-
-			# ok, we created the user, get the row again
-			$t_user_id = user_get_id_by_name( $p_username );
-
-			if( false === $t_user_id ) {
-				# uh oh, something must be really wrong
-				# @@@ trigger an error here?
-				return false;
-			}
-		} else {
+	if( $t_user_id === false ) {
+		$t_user_id = auth_auto_create_user( $p_username, $p_password );
+		if( $t_user_id === false ) {
 			return false;
 		}
 	}
@@ -291,9 +289,9 @@ function auth_attempt_login( $p_username, $p_password, $p_perm_login = false ) {
  *   is specified but password is null.
  * - Standard authentication with username and password specified.
  *
- * @param string $p_username username
- * @param string $p_password username
- * @return bool indicates if authentication was successful
+ * @param string $p_username Username.
+ * @param string $p_password Password.
+ * @return boolean indicates if authentication was successful
  * @access public
  */
 function auth_attempt_script_login( $p_username, $p_password = null ) {
@@ -322,9 +320,11 @@ function auth_attempt_script_login( $p_username, $p_password = null ) {
 	}
 
 	$t_user_id = user_get_id_by_name( $t_username );
-
-	if( false === $t_user_id ) {
-		return false;
+	if( $t_user_id === false ) {
+		$t_user_id = auth_auto_create_user( $t_username, $p_password );
+		if( $t_user_id === false ) {
+			return false;
+		}
 	}
 
 	$t_user = user_get_row( $t_user_id );
@@ -359,6 +359,7 @@ function auth_attempt_script_login( $p_username, $p_password = null ) {
  * Logout the current user and remove any remaining cookies from their browser
  * Returns true on success, false otherwise
  * @access public
+ * @return void
  */
 function auth_logout() {
 	global $g_cache_current_user_id, $g_cache_cookie_valid;
@@ -381,8 +382,8 @@ function auth_logout() {
 }
 
 /**
- * Identicates whether to bypass logon form e.g. when using http auth
- * @return bool
+ * Identicates whether to bypass logon form e.g. when using http authentication
+ * @return boolean
  * @access public
  */
 function auth_automatic_logon_bypass_form() {
@@ -396,7 +397,7 @@ function auth_automatic_logon_bypass_form() {
 /**
  * Return the user's password maximum length for the current login method
  *
- * @return int
+ * @return integer
  * @access public
  */
 function auth_get_password_max_size() {
@@ -416,9 +417,9 @@ function auth_get_password_max_size() {
 /**
  * Return true if the password for the user id given matches the given
  * password (taking into account the global login method)
- * @param int $p_user_id User id to check password against
- * @param string $p_test_password Password
- * @return bool indicating whether password matches given the user id
+ * @param integer $p_user_id       User id to check password against.
+ * @param string  $p_test_password Password.
+ * @return boolean indicating whether password matches given the user id
  * @access public
  */
 function auth_does_password_match( $p_user_id, $p_test_password ) {
@@ -433,22 +434,23 @@ function auth_does_password_match( $p_user_id, $p_test_password ) {
 		MD5,
 		CRYPT,
 		PLAIN,
+		BASIC_AUTH,
 	);
-	foreach( $t_login_methods as $t_login_method ) {
 
+	foreach( $t_login_methods as $t_login_method ) {
 		# pass the stored password in as the salt
 		if( auth_process_plain_password( $p_test_password, $t_password, $t_login_method ) == $t_password ) {
-
 			# Do not support migration to PLAIN, since this would be a crazy thing to do.
 			# Also if we do, then a user will be able to login by providing the MD5 value
 			# that is copied from the database.  See #8467 for more details.
-			if( $t_configured_login_method != PLAIN && $t_login_method == PLAIN ) {
+			if( ( $t_configured_login_method != PLAIN && $t_login_method == PLAIN ) ||
+				( $t_configured_login_method != BASIC_AUTH && $t_login_method == BASIC_AUTH ) ) {
 				continue;
 			}
 
 			# Check for migration to another login method and test whether the password was encrypted
-			# with our previously insecure implemention of the CRYPT method
-			if(( $t_login_method != $t_configured_login_method ) || (( CRYPT == $t_configured_login_method ) && utf8_substr( $t_password, 0, 2 ) == utf8_substr( $p_test_password, 0, 2 ) ) ) {
+			# with our previously insecure implementation of the CRYPT method
+			if( ( $t_login_method != $t_configured_login_method ) || (( CRYPT == $t_configured_login_method ) && utf8_substr( $t_password, 0, 2 ) == utf8_substr( $p_test_password, 0, 2 ) ) ) {
 				user_set_password( $p_user_id, $p_test_password, true );
 			}
 
@@ -465,12 +467,12 @@ function auth_does_password_match( $p_user_id, $p_test_password ) {
  *
  * When generating a new password, no salt should be passed in.
  * When encrypting a password to compare to a stored password, the stored
- *  password should be passed in as salt.  If the auth method is CRYPT then
+ *  password should be passed in as salt.  If the authentication method is CRYPT then
  *  crypt() will extract the appropriate portion of the stored password as its salt
  *
- * @param string $p_password
- * @param string $p_salt salt, defaults to null
- * @param string $p_method logon method, defaults to null (use config login method)
+ * @param string $p_password Password.
+ * @param string $p_salt     Salt, defaults to null.
+ * @param string $p_method   Logon method, defaults to null (use configuration login method).
  * @return string processed password, maximum DB_FIELD_SIZE_PASSWORD chars in length
  * @access public
  */
@@ -513,7 +515,7 @@ function auth_generate_random_password() {
 
 /**
  * Generate a confirmation code to validate password reset requests.
- * @param int $p_user_id User ID to generate a confirmation code for
+ * @param integer $p_user_id User ID to generate a confirmation code for.
  * @return string Confirmation code (384bit) encoded according to the base64 with URI safe alphabet approach described in RFC4648
  * @access public
  */
@@ -533,9 +535,10 @@ function auth_generate_confirm_hash( $p_user_id ) {
 /**
  * Set login cookies for the user
  * If $p_perm_login is true, a long-term cookie is created
- * @param int $p_user_id user id
- * @param bool $p_perm_login indicates whether to generate a long-term cookie
+ * @param integer $p_user_id    An user identifier.
+ * @param boolean $p_perm_login Indicates whether to generate a long-term cookie.
  * @access public
+ * @return void
  */
 function auth_set_cookies( $p_user_id, $p_perm_login = false ) {
 	$t_cookie_string = user_get_field( $p_user_id, 'cookie_string' );
@@ -553,7 +556,7 @@ function auth_set_cookies( $p_user_id, $p_perm_login = false ) {
 
 /**
  * Clear login cookies, return true if they were cleared
- * @return bool indicating whether cookies were cleared
+ * @return boolean indicating whether cookies were cleared
  * @access public
  */
 function auth_clear_cookies() {
@@ -584,22 +587,20 @@ function auth_clear_cookies() {
 function auth_generate_unique_cookie_string() {
 	do {
 		$t_cookie_string = crypto_generate_uri_safe_nonce( 64 );
-	}
-	while( !auth_is_cookie_string_unique( $t_cookie_string ) );
+	} while( !auth_is_cookie_string_unique( $t_cookie_string ) );
 
 	return $t_cookie_string;
 }
 
 /**
  * Return true if the cookie login identifier is unique, false otherwise
- * @param string $p_cookie_string
- * @return bool indicating whether cookie string is unique
+ * @param string $p_cookie_string Cookie string.
+ * @return boolean indicating whether cookie string is unique
  * @access public
  */
 function auth_is_cookie_string_unique( $p_cookie_string ) {
-	$t_user_table = db_get_table( 'user' );
-	$t_query = "SELECT COUNT(*) FROM $t_user_table WHERE cookie_string=" . db_param();
-	$t_result = db_query_bound( $t_query, array( $p_cookie_string ) );
+	$t_query = 'SELECT COUNT(*) FROM {user} WHERE cookie_string=' . db_param();
+	$t_result = db_query( $t_query, array( $p_cookie_string ) );
 
 	$t_count = db_result( $t_result );
 
@@ -620,11 +621,11 @@ function auth_is_cookie_string_unique( $p_cookie_string ) {
  * if no user is logged in and anonymous login is enabled, returns cookie for anonymous user
  * otherwise returns '' (an empty string)
  *
- * @param bool $p_login_anonymous auto-login anonymous user
+ * @param boolean $p_login_anonymous Auto-login anonymous user.
  * @return string current user login cookie string
  * @access public
  */
-function auth_get_current_user_cookie( $p_login_anonymous=true ) {
+function auth_get_current_user_cookie( $p_login_anonymous = true ) {
 	global $g_script_login_cookie, $g_cache_anonymous_user_cookie_string;
 
 	# if logging in via a script, return that cookie
@@ -643,8 +644,8 @@ function auth_get_current_user_cookie( $p_login_anonymous=true ) {
 				if( function_exists( 'db_is_connected' ) && db_is_connected() ) {
 
 					# get anonymous information if database is available
-					$t_query = 'SELECT id, cookie_string FROM ' . db_get_table( 'user' ) . ' WHERE username = ' . db_param();
-					$t_result = db_query_bound( $t_query, array( config_get( 'anonymous_account' ) ) );
+					$t_query = 'SELECT id, cookie_string FROM {user} WHERE username = ' . db_param();
+					$t_result = db_query( $t_query, array( config_get( 'anonymous_account' ) ) );
 
 					if( $t_row = db_fetch_array( $t_result ) ) {
 						$t_cookie = $t_row['cookie_string'];
@@ -664,8 +665,9 @@ function auth_get_current_user_cookie( $p_login_anonymous=true ) {
 
 /**
  * Set authentication tokens for secure session.
- * @param int $p_user_id User ID
+ * @param integer $p_user_id User identifier.
  * @access public
+ * @return void
  */
 function auth_set_tokens( $p_user_id ) {
 	$t_auth_token = token_get( TOKEN_AUTHENTICATED, $p_user_id );
@@ -681,7 +683,7 @@ function auth_set_tokens( $p_user_id ) {
  * Currently, if using BASIC or HTTP authentication methods, or if logged in anonymously,
  * this function will always "authenticate" the user (do nothing).
  *
- * @return bool
+ * @return boolean
  * @access public
  */
 function auth_reauthenticate() {
@@ -711,9 +713,9 @@ function auth_reauthenticate() {
 
 /**
  * Generate the intermediate authentication page.
- * @param int $p_user_id User ID
- * @param string $p_username Username
- * @return bool
+ * @param integer $p_user_id  User ID.
+ * @param string  $p_username Username.
+ * @return boolean
  * @access public
  */
 function auth_reauthenticate_page( $p_user_id, $p_username ) {
@@ -776,8 +778,8 @@ function auth_reauthenticate_page( $p_user_id, $p_username ) {
 
 /**
  * is cookie valid?
- * @param string $p_cookie_string
- * @return bool
+ * @param string $p_cookie_string Cookie string.
+ * @return boolean
  * @access public
  */
 function auth_is_cookie_valid( $p_cookie_string ) {
@@ -803,12 +805,8 @@ function auth_is_cookie_valid( $p_cookie_string ) {
 	}
 
 	# look up cookie in the database to see if it is valid
-	$t_user_table = db_get_table( 'user' );
-
-	$query = "SELECT *
-				  FROM $t_user_table
-				  WHERE cookie_string=" . db_param();
-	$t_result = db_query_bound( $query, array( $p_cookie_string ) );
+	$t_query = 'SELECT * FROM {user} WHERE cookie_string=' . db_param();
+	$t_result = db_query( $t_query, array( $p_cookie_string ) );
 
 	# return true if a matching cookie was found
 	if( 1 == db_num_rows( $t_result ) ) {
@@ -821,7 +819,7 @@ function auth_is_cookie_valid( $p_cookie_string ) {
 
 /**
  * Retrieve user id of current user
- * @return int user id
+ * @return integer user id
  * @access public
  */
 function auth_get_current_user_id() {
@@ -834,20 +832,16 @@ function auth_get_current_user_id() {
 	$t_cookie_string = auth_get_current_user_cookie();
 
 	if( $t_result = user_search_cache( 'cookie_string', $t_cookie_string ) ) {
-		$t_user_id = (int) $t_result['id'];
+		$t_user_id = (int)$t_result['id'];
 		$g_cache_current_user_id = $t_user_id;
 		return $t_user_id;
 	}
 
-	$t_user_table = db_get_table( 'user' );
+	# @todo error with an error saying they aren't logged in? Or redirect to the login page maybe?
+	$t_query = 'SELECT id FROM {user} WHERE cookie_string=' . db_param();
+	$t_result = db_query( $t_query, array( $t_cookie_string ) );
 
-	/** @todo error with an error saying they aren't logged in? Or redirect to the login page maybe? */
-	$t_query = "SELECT id
-				  FROM $t_user_table
-				  WHERE cookie_string=" . db_param();
-	$t_result = db_query_bound( $t_query, array( $t_cookie_string ) );
-
-	$t_user_id = (int) db_result( $t_result );
+	$t_user_id = (int)db_result( $t_result );
 
 	# The cookie was invalid. Clear the cookie (to allow people to log in again)
 	# and give them an Access Denied message.
@@ -866,6 +860,7 @@ function auth_get_current_user_id() {
 /**
  * Generate HTTP 401 Access Denied header and page for user, prompting for BASIC authentication
  *
+ * @return void
  * @access public
  */
 function auth_http_prompt() {
@@ -882,8 +877,9 @@ function auth_http_prompt() {
 /**
  * Update Cookies to reflect pending logout
  *
- * @param bool $p_pending
+ * @param boolean $p_pending Whether pending.
  * @access public
+ * @return void
  */
 function auth_http_set_logout_pending( $p_pending ) {
 	$t_cookie_name = config_get( 'logout_cookie' );
@@ -899,7 +895,7 @@ function auth_http_set_logout_pending( $p_pending ) {
 /**
  * Check cookie values to see if Logout is pending
  *
- * @return bool
+ * @return boolean
  * @access public
  */
 function auth_http_is_logout_pending() {

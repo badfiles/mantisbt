@@ -42,9 +42,10 @@ $g_database_upgrade = false;
 /**
  * Print Test result
  *
- * @param int $p_result Result - BAD|GOOD
- * @param bool $p_hard_fail Fail installation or soft warning
- * @param string $p_message Message to display to user
+ * @param integer $p_result    Result - BAD|GOOD.
+ * @param boolean $p_hard_fail Fail installation or soft warning.
+ * @param string  $p_message   Message to display to user.
+ * @return void
  */
 function print_test_result( $p_result, $p_hard_fail = true, $p_message = '' ) {
 	global $g_failed;
@@ -70,16 +71,16 @@ function print_test_result( $p_result, $p_hard_fail = true, $p_message = '' ) {
 /**
  * Print Test result
  *
- * @param string $p_test_description Test Description
- * @param int $p_result Result - BAD|GOOD
- * @param bool $p_hard_fail Fail installation or soft warning
- * @param string $p_message Message to display to user
+ * @param string  $p_test_description Test Description.
+ * @param integer $p_result           Result - BAD|GOOD.
+ * @param boolean $p_hard_fail        Fail installation or soft warning.
+ * @param string  $p_message          Message to display to user.
+ * @return void
  */
 function print_test( $p_test_description, $p_result, $p_hard_fail = true, $p_message = '' ) {
-
-	echo "\n<tr><td bgcolor=\"#ffffff\">$p_test_description</td>";
+	echo '<tr><td bgcolor="#ffffff">' . $p_test_description . '</td>';
 	print_test_result( $p_result, $p_hard_fail, $p_message );
-	echo "</tr>\n";
+	echo '</tr>' . "\n";
 }
 
 # install_state
@@ -98,7 +99,7 @@ html_head_begin();
 html_css_link( 'admin.css' );
 html_content_type();
 html_title( 'Administration - Installation' );
-html_javascript_link( 'jquery-1.9.1.min.js' );
+html_javascript_link( 'jquery-1.11.1.min.js' );
 html_javascript_link( 'install.js' );
 html_head_end();
 ?>
@@ -113,26 +114,26 @@ html_head_end();
 		<?php
 switch( $t_install_state ) {
 	case 6:
-		echo "Post Installation Checks";
+		echo 'Post Installation Checks';
 		break;
 	case 5:
-		echo "Install Configuration File";
+		echo 'Install Configuration File';
 		break;
 	case 4:
-		echo "Additional Configuration Information";
+		echo 'Additional Configuration Information';
 		break;
 	case 3:
-		echo "Install Database";
+		echo 'Install Database';
 		break;
 	case 2:
-		echo "Check and Install Database";
+		echo 'Check and Install Database';
 		break;
 	case 1:
-		echo "Database Parameters";
+		echo 'Database Parameters';
 		break;
 	case 0:
 	default:
-		echo "Pre-Installation Check";
+		echo 'Pre-Installation Check';
 		break;
 }
 ?>
@@ -214,7 +215,7 @@ $f_db_exists      = gpc_get_bool( 'db_exists', false );
 
 if( $t_config_exists ) {
 	if( 0 == $t_install_state ) {
-		print_test( "Config File Exists - Upgrade", true );
+		print_test( 'Config File Exists - Upgrade', true );
 
 		print_test( 'Setting Database Type', '' !== $f_db_type, true, 'database type is blank?' );
 
@@ -229,18 +230,16 @@ if( $t_config_exists ) {
 		print_test( 'Checking Database connection settings exist',
 			$t_db_conn_exists,
 			true,
-			'database connection settings do not exist?'
-		);
+			'database connection settings do not exist?' );
 
 		print_test( 'Checking PHP support for database type',
 			db_check_database_support( $f_db_type ), true,
-			'database is not supported by PHP. Check that it has been compiled into your server.'
-		);
+			'database is not supported by PHP. Check that it has been compiled into your server.' );
+
 		if( $f_db_type == 'mssql' ) {
 			print_test( 'Checking PHP support for Microsoft SQL Server driver',
 				version_compare( phpversion(), '5.3' ) < 0, true,
-				'mssql driver is no longer supported in PHP >= 5.3, please use mssqlnative instead'
-			);
+				'mssql driver is no longer supported in PHP >= 5.3, please use mssqlnative instead' );
 		}
 	}
 
@@ -280,7 +279,7 @@ if( 0 == $t_install_state ) {
 <!-- Check Safe Mode -->
 <?php
 print_test( 'Checking if safe mode is enabled for install script',
-	! ini_get ( 'SAFE_MODE' ),
+	!ini_get( 'SAFE_MODE' ),
 	true,
 	'Disable safe_mode in php.ini before proceeding' ) ?>
 
@@ -317,7 +316,7 @@ if( 2 == $t_install_state ) {
 	# PostgreSQL, Oracle and MSSQL require at least 5.19. MySQL should be fine
 	# with 5.10 but to simplify we align to the requirement of the others.
 	$t_adodb_version = substr( $ADODB_vers, 1, strpos( $ADODB_vers, ' ' ) - 1 );
-	print_test( "Checking ADOdb Library version is at least " . DB_MIN_VERSION_ADODB,
+	print_test( 'Checking ADOdb Library version is at least ' . DB_MIN_VERSION_ADODB,
 		version_compare( $t_adodb_version, DB_MIN_VERSION_ADODB, '>=' ),
 		true,
 		'Current version: ' . $ADODB_vers
@@ -326,7 +325,7 @@ if( 2 == $t_install_state ) {
 	print_test( 'Setting Database Hostname', '' !== $f_hostname, true, 'host name is blank' );
 	print_test( 'Setting Database Username', '' !== $f_db_username, true, 'database username is blank' );
 	print_test( 'Setting Database Password', '' !== $f_db_password, false, 'database password is blank' );
-	print_test( 'Setting Database Name', '' !== $f_database_name || $f_db_type == 'oci8' , true, 'database name is blank' );
+	print_test( 'Setting Database Name', '' !== $f_database_name || $f_db_type == 'oci8', true, 'database name is blank' );
 
 	if( $f_db_type == 'db2' ) {
 		print_test( 'Setting Database Schema', !is_blank( $f_db_schema ), true, 'must have a schema name for AS400 in the form of DBNAME/SCHEMA' );
@@ -455,7 +454,7 @@ if( 2 == $t_install_state ) {
 				break;
 		}
 
-		print_test_result(( '' == $t_error ) && ( '' == $t_warning ), ( '' != $t_error ), $t_error . ' ' . $t_warning );
+		print_test_result( ( '' == $t_error ) && ( '' == $t_warning ), ( '' != $t_error ), $t_error . ' ' . $t_warning );
 		?>
 </tr>
 <?php
@@ -609,7 +608,7 @@ if( !$g_database_upgrade ) {
 	</td>
 	<td>
 		<input name="admin_password" type="password" value="<?php
-			echo !is_blank( $f_admin_password) && $f_admin_password == $f_db_password
+			echo !is_blank( $f_admin_password ) && $f_admin_password == $f_db_password
 				? CONFIGURED_PASSWORD
 				: $f_admin_password;
 		?>">
@@ -626,7 +625,7 @@ if( !$g_database_upgrade ) {
 	);
 	foreach( $t_prefix_defaults[$t_prefix_type] as $t_key => $t_value ) {
 		echo "<tr>\n\t<td>\n";
-		echo "\t\t${t_prefix_labels[$t_key]}\n";
+		echo "\t\t" . $t_prefix_labels[$t_key] . "\n";
 		echo "\t</td>\n\t<td>\n\t\t";
 		echo '<input id="' . $t_key . '" name="' . $t_key . '" type="textbox" value="' . $f_db_table_prefix . '">';
 		echo "\n\t</td>\n</tr>\n\n";
@@ -694,12 +693,12 @@ if( 3 == $t_install_state ) {
 		$t_result = @$g_db->Connect( $f_hostname, $f_admin_username, $f_admin_password, $f_database_name );
 
 		if( $f_db_type == 'db2' ) {
-			$rs = $g_db->Execute( "select * from SYSIBM.SCHEMATA WHERE SCHEMA_NAME = '" . $f_db_schema . "' AND SCHEMA_OWNER = '" . $f_db_username . "'" );
-			if( $rs === false ) {
-				echo "<br />false";
+			$t_rs = $g_db->Execute( "select * from SYSIBM.SCHEMATA WHERE SCHEMA_NAME = '" . $f_db_schema . "' AND SCHEMA_OWNER = '" . $f_db_username . "'" );
+			if( $t_rs === false ) {
+				echo '<br />false';
 			}
 
-			if( $rs->EOF ) {
+			if( $t_rs->EOF ) {
 				$t_result = false;
 				echo $g_db->errorMsg();
 			} else {
@@ -717,12 +716,12 @@ if( 3 == $t_install_state ) {
 			$g_db = ADONewConnection( $f_db_type );
 			$t_result = $g_db->Connect( $f_hostname, $f_admin_username, $f_admin_password );
 
-			$dict = NewDataDictionary( $g_db );
+			$t_dict = NewDataDictionary( $g_db );
 
 			if( $f_db_type == 'db2' ) {
-				$rs = $g_db->Execute( "CREATE SCHEMA " . $f_db_schema );
+				$t_rs = $g_db->Execute( 'CREATE SCHEMA ' . $f_db_schema );
 
-				if( !$rs ) {
+				if( !$t_rs ) {
 					$t_result = false;
 					print_test_result( BAD, true, 'Does administrative user have access to create the database? ( ' . db_error_msg() . ' )' );
 					$t_install_state--; # db creation failed, allow user to re-enter user/password info
@@ -731,9 +730,9 @@ if( 3 == $t_install_state ) {
 					$t_db_open = true;
 				}
 			} else {
-				$sqlarray = $dict->CreateDatabase( $f_database_name, array( 'mysql' => 'DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci' ) );
-				$ret = $dict->ExecuteSQLArray( $sqlarray, false );
-				if( $ret == 2 ) {
+				$t_sqlarray = $t_dict->CreateDatabase( $f_database_name, array( 'mysql' => 'DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci' ) );
+				$t_ret = $t_dict->ExecuteSQLArray( $t_sqlarray, false );
+				if( $t_ret == 2 ) {
 					print_test_result( GOOD );
 					$t_db_open = true;
 				} else {
@@ -807,7 +806,7 @@ if( 3 == $t_install_state ) {
 			# fake out database access routines used by config_get
 		}
 		$t_last_update = config_get( 'database_version', -1, ALL_USERS, ALL_PROJECTS );
-		$lastid = count( $upgrade ) - 1;
+		$t_last_id = count( $g_upgrade ) - 1;
 		$i = $t_last_update + 1;
 		if( $f_log_queries ) {
 			echo '<tr><td bgcolor="#ffffff" col_span="2"> Database Creation Suppressed, SQL Queries follow <pre>';
@@ -825,7 +824,7 @@ if( 3 == $t_install_state ) {
 			}
 		}
 
-		$dict = NewDataDictionary( $g_db );
+		$t_dict = NewDataDictionary( $g_db );
 
 		# Special processing for specific schema versions
 		# This allows execution of additional install steps, which are
@@ -845,8 +844,7 @@ if( 3 == $t_install_state ) {
 						$t_msg,
 						count( $t_bool_columns ) == 0,
 						false,
-						count( $t_bool_columns ) . ' columns must be converted to BOOLEAN'
-					);
+						count( $t_bool_columns ) . ' columns must be converted to BOOLEAN' );
 				} else {
 					# We did not get an array => error occured
 					print_test( $t_msg, false, true, $t_bool_columns );
@@ -857,16 +855,14 @@ if( 3 == $t_install_state ) {
 					extract( $t_row, EXTR_PREFIX_ALL, 'v' );
 					$t_null = $v_is_nullable ? 'NULL' : 'NOT NULL';
 					$t_default = is_null( $v_column_default ) ? 'NULL' : $v_column_default;
-					$t_sqlarray = $dict->AlterColumnSQL(
+					$t_sqlarray = $t_dict->AlterColumnSQL(
 						$v_table_name,
-						"$v_column_name L $t_null DEFAULT $t_default"
-					);
+						$v_column_name . ' L ' . $t_null . ' DEFAULT ' . $t_default );
 					print_test(
-						"Converting column $v_table_name.$v_column_name to BOOLEAN",
-						2 == $dict->ExecuteSQLArray( $t_sqlarray, false ),
+						'Converting column ' . $v_table_name . '.' . $v_column_name . ' to BOOLEAN',
+						2 == $t_dict->ExecuteSQLArray( $t_sqlarray, false ),
 						true,
-						print_r( $t_sqlarray, true )
-					);
+						print_r( $t_sqlarray, true ) );
 					if( $g_failed ) {
 						# Error occured, bail out
 						break;
@@ -876,95 +872,95 @@ if( 3 == $t_install_state ) {
 		}
 		# End of special processing for specific schema versions
 
-		while(( $i <= $lastid ) && !$g_failed ) {
+		while( ( $i <= $t_last_id ) && !$g_failed ) {
 			if( !$f_log_queries ) {
 				echo '<tr><td bgcolor="#ffffff">';
 			}
 
 			$t_sql = true;
-			$t_target = $upgrade[$i][1][0];
+			$t_target = $g_upgrade[$i][1][0];
 
-			switch ($upgrade[$i][0]) {
-
+			switch( $g_upgrade[$i][0] ) {
 				case 'InsertData':
-					$sqlarray = call_user_func_array( $upgrade[$i][0], $upgrade[$i][1] );
+					$t_sqlarray = call_user_func_array( $g_upgrade[$i][0], $g_upgrade[$i][1] );
 					break;
 
 				case 'UpdateSQL':
-					$sqlarray = array(
-						$upgrade[$i][1],
+					$t_sqlarray = array(
+						$g_upgrade[$i][1],
 					);
-					$t_target = $upgrade[$i][1];
+					$t_target = $g_upgrade[$i][1];
 					break;
 
 				case 'UpdateFunction':
-					$sqlarray = array(
-						$upgrade[$i][1],
+					$t_sqlarray = array(
+						$g_upgrade[$i][1],
 					);
-					if( isset( $upgrade[$i][2] ) ) {
-						$sqlarray[] = $upgrade[$i][2];
+					if( isset( $g_upgrade[$i][2] ) ) {
+						$t_sqlarray[] = $g_upgrade[$i][2];
 					}
 					$t_sql = false;
-					$t_target = $upgrade[$i][1];
+					$t_target = $g_upgrade[$i][1];
 					break;
 
-				case NULL:
+				case null:
 					# No-op upgrade step - required for oci8
 					break;
 
 				default:
-						$sqlarray = call_user_func_array( array( $dict, $upgrade[$i][0] ), $upgrade[$i][1] );
+					$t_sqlarray = call_user_func_array( array( $t_dict, $g_upgrade[$i][0] ), $g_upgrade[$i][1] );
 
 					# 0: function to call, 1: function params, 2: function to evaluate before calling upgrade, if false, skip upgrade.
-					if( isset( $upgrade[$i][2] ) ) {
-						if( call_user_func_array( $upgrade[$i][2][0], $upgrade[$i][2][1] ) ) {
-							$sqlarray = call_user_func_array( array( $dict, $upgrade[$i][0] ), $upgrade[$i][1] );
+					if( isset( $g_upgrade[$i][2] ) ) {
+						if( call_user_func_array( $g_upgrade[$i][2][0], $g_upgrade[$i][2][1] ) ) {
+							$t_sqlarray = call_user_func_array( array( $t_dict, $g_upgrade[$i][0] ), $g_upgrade[$i][1] );
 						} else {
-							$sqlarray = array();
+							$t_sqlarray = array();
 						}
 					} else {
-						$sqlarray = call_user_func_array( array( $dict, $upgrade[$i][0] ), $upgrade[$i][1] );
+						$t_sqlarray = call_user_func_array( array( $t_dict, $g_upgrade[$i][0] ), $g_upgrade[$i][1] );
 					}
 					break;
 			}
 			if( $f_log_queries ) {
 				if( $t_sql ) {
-					foreach( $sqlarray as $sql ) {
+					foreach( $t_sqlarray as $t_sql ) {
 						# "CREATE OR REPLACE TRIGGER" statements must end with "END;\n/" for Oracle sqlplus
-						if( $f_db_type == 'oci8' && stripos( $sql, 'CREATE OR REPLACE TRIGGER' ) === 0 ) {
-							$t_sql_end = PHP_EOL . "/";
+						if( $f_db_type == 'oci8' && stripos( $t_sql, 'CREATE OR REPLACE TRIGGER' ) === 0 ) {
+							$t_sql_end = PHP_EOL . '/';
 						} else {
-							$t_sql_end = ";";
+							$t_sql_end = ';';
 						}
-						echo htmlentities( $sql ) . $t_sql_end . PHP_EOL . PHP_EOL;
+						echo htmlentities( $t_sql ) . $t_sql_end . PHP_EOL . PHP_EOL;
 					}
 				}
 			} else {
-				echo "Schema step $i: ";
-				if( is_null( $upgrade[$i][0]) ) {
+				echo 'Schema step ' . $i . ': ';
+				if( is_null( $g_upgrade[$i][0] ) ) {
 					echo 'No operation';
-					$ret = 2;
+					$t_ret = 2;
 				} else {
-					echo $upgrade[$i][0] . " ( $t_target )";
+					echo $g_upgrade[$i][0] . ' ( ' . $t_target . ' )';
 					if( $t_sql ) {
-						$ret = $dict->ExecuteSQLArray( $sqlarray, false );
+						$t_ret = $t_dict->ExecuteSQLArray( $t_sqlarray, false );
 					} else {
-						if( isset( $sqlarray[1] ) ) {
-							$ret = call_user_func( 'install_' . $sqlarray[0], $sqlarray[1] );
+						if( isset( $t_sqlarray[1] ) ) {
+							$t_ret = call_user_func( 'install_' . $t_sqlarray[0], $t_sqlarray[1] );
 						} else {
-							$ret = call_user_func( 'install_' . $sqlarray[0] );
+							$t_ret = call_user_func( 'install_' . $t_sqlarray[0] );
 						}
 					}
 				}
 				echo '</td>';
-				if( $ret == 2 ) {
+				if( $t_ret == 2 ) {
 					print_test_result( GOOD );
 					config_set( 'database_version', $i );
 				} else {
-					$all_sql = '';
-					foreach ( $sqlarray as $single_sql )
-						$all_sql .= $single_sql . '<br />';
-					print_test_result( BAD, true, $all_sql  . $g_db->ErrorMsg() );
+					$t_all_sql = '';
+					foreach ( $t_sqlarray as $t_single_sql ) {
+						$t_all_sql .= $t_single_sql . '<br />';
+					}
+					print_test_result( BAD, true, $t_all_sql  . $g_db->ErrorMsg() );
 				}
 				echo '</tr>';
 			}
@@ -972,7 +968,7 @@ if( 3 == $t_install_state ) {
 		}
 		if( $f_log_queries ) {
 			# add a query to set the database version
-			echo 'INSERT INTO ' . db_get_table( 'config' ) . ' ( value, type, access_reqd, config_id, project_id, user_id ) VALUES (\'' . $lastid . '\', 1, 90, \'database_version\', 0, 0 );' . PHP_EOL;
+			echo 'INSERT INTO ' . db_get_table( 'config' ) . ' ( value, type, access_reqd, config_id, project_id, user_id ) VALUES (\'' . $t_last_id . '\', 1, 90, \'database_version\', 0, 0 );' . PHP_EOL;
 			echo '</pre><br /><p style="color:red">Your database has not been created yet. Please create the database, then install the tables and data using the information above before proceeding.</p></td></tr>';
 		}
 	}
@@ -1044,21 +1040,21 @@ if( 5 == $t_install_state ) {
 	# cryptographic purposes. If a strong source of randomness is not
 	# available the user will have to manually set this value post
 	# installation.
-	$t_crypto_master_salt = crypto_generate_random_string(32);
+	$t_crypto_master_salt = crypto_generate_random_string( 32 );
 	if( $t_crypto_master_salt !== null ) {
 		$t_crypto_master_salt = base64_encode( $t_crypto_master_salt );
 	}
 
 	$t_config = '<?php' . PHP_EOL
-		. "\$g_hostname               = '$f_hostname';" . PHP_EOL
-		. "\$g_db_type                = '$f_db_type';" . PHP_EOL
-		. "\$g_database_name          = '" . addslashes( $f_database_name ) . "';" . PHP_EOL
-		. "\$g_db_username            = '" . addslashes( $f_db_username ) . "';" . PHP_EOL
-		. "\$g_db_password            = '" . addslashes( $f_db_password ) . "';" . PHP_EOL;
+		. '$g_hostname               = \'' . $f_hostname . '\';' . PHP_EOL
+		. '$g_db_type                = \'' . $f_db_type . '\';' . PHP_EOL
+		. '$g_database_name          = \'' . addslashes( $f_database_name ) . '\';' . PHP_EOL
+		. '$g_db_username            = \'' . addslashes( $f_db_username ) . '\';' . PHP_EOL
+		. '$g_db_password            = \'' . addslashes( $f_db_password ) . '\';' . PHP_EOL;
 
 	switch( $f_db_type ) {
 		case 'db2':
-			$t_config .=  "\$g_db_schema              = '$f_db_schema';" . PHP_EOL;
+			$t_config .=  '$g_db_schema              = \'' . $f_db_schema . '\';' . PHP_EOL;
 			break;
 		default:
 			break;
@@ -1070,7 +1066,7 @@ if( 5 == $t_install_state ) {
 	foreach( $t_prefix_defaults['other'] as $t_key => $t_value ) {
 		$t_new_value = ${'f_' . $t_key};
 		if( $t_new_value != $t_value ) {
-			$t_config .= '$g_' . str_pad( $t_key, 25 ) . "= '" . ${'f_' . $t_key} . "';" . PHP_EOL;
+			$t_config .= '$g_' . str_pad( $t_key, 25 ) . '= \'' . ${'f_' . $t_key} . '\';' . PHP_EOL;
 			$t_insert_line = true;
 		}
 	}
@@ -1079,16 +1075,16 @@ if( 5 == $t_install_state ) {
 	}
 
 	$t_config .=
-		  "\$g_default_timezone       = '$f_timezone';" . PHP_EOL
+		  '$g_default_timezone       = \'' . $f_timezone . '\';' . PHP_EOL
 		. PHP_EOL
 		. "\$g_crypto_master_salt     = '" . addslashes( $t_crypto_master_salt ) . "';" . PHP_EOL;
 
 	$t_write_failed = true;
 
 	if( !$t_config_exists ) {
-		if( $fd = @fopen( $t_config_filename, 'w' ) ) {
-			fwrite( $fd, $t_config );
-			fclose( $fd );
+		if( $t_fd = @fopen( $t_config_filename, 'w' ) ) {
+			fwrite( $t_fd, $t_config );
+			fclose( $t_fd );
 		}
 
 		if( file_exists( $t_config_filename ) ) {
@@ -1101,8 +1097,8 @@ if( 5 == $t_install_state ) {
 		# already exists, see if the information is the same
 		if( ( $f_hostname != config_get( 'hostname', '' ) ) ||
 			( $f_db_type != config_get( 'db_type', '' ) ) ||
-			( $f_database_name != config_get( 'database_name', '') ) ||
-			( $f_db_schema != config_get( 'db_schema', '') ) ||
+			( $f_database_name != config_get( 'database_name', '' ) ) ||
+			( $f_db_schema != config_get( 'db_schema', '' ) ) ||
 			( $f_db_username != config_get( 'db_username', '' ) ) ||
 			( $f_db_password != config_get( 'db_password', '' ) ) ) {
 			print_test_result( BAD, false, 'file ' . $g_config_path . 'config_inc.php' . ' already exists and has different settings' );
@@ -1115,7 +1111,7 @@ if( 5 == $t_install_state ) {
 </tr>
 <?php
 	if( $t_crypto_master_salt === null ) {
-		print_test( 'Setting Cryptographic salt in config file', false , false,
+		print_test( 'Setting Cryptographic salt in config file', false, false,
 					'Unable to find a random number source for cryptographic purposes. You will need to edit ' .
 					$g_config_path . 'config_inc.php' . ' and set a value for $g_crypto_master_salt manually' );
 	}
@@ -1179,7 +1175,7 @@ if( 6 == $t_install_state ) {
 	if( $t_result == true ) {
 		print_test_result( GOOD );
 	} else {
-		print_test_result( BAD, false, 'Database user doesn\'t have access to the database ( ' . db_error_msg() . ' )' );
+		print_test_result( BAD, false, 'Database user does not have access to the database ( ' . db_error_msg() . ' )' );
 	}
 
 	if( $f_db_type == 'db2' ) {
@@ -1195,14 +1191,13 @@ if( 6 == $t_install_state ) {
 		checking ability to SELECT records
 	</td>
 	<?php
-		$t_mantis_config_table = db_get_table( 'config' );
-	$t_query = "SELECT COUNT(*) FROM $t_mantis_config_table";
+	$t_query = 'SELECT COUNT(*) FROM ' . db_get_table( 'config' );
 	$t_result = @$g_db->Execute( $t_query );
 
 	if( $t_result != false ) {
 		print_test_result( GOOD );
 	} else {
-		print_test_result( BAD, true, 'Database user doesn\'t have SELECT access to the database ( ' . db_error_msg() . ' )' );
+		print_test_result( BAD, true, 'Database user does not have SELECT access to the database ( ' . db_error_msg() . ' )' );
 	}
 	?>
 </tr>
@@ -1211,13 +1206,13 @@ if( 6 == $t_install_state ) {
 		checking ability to INSERT records
 	</td>
 	<?php
-		$t_query = "INSERT INTO $t_mantis_config_table ( value, type, access_reqd, config_id, project_id, user_id ) VALUES ('test', 1, 90, 'database_test', 20, 0 )";
+		$t_query = 'INSERT INTO ' . db_get_table( 'config' ) . ' ( value, type, access_reqd, config_id, project_id, user_id ) VALUES (\'test\', 1, 90, \'database_test\', 20, 0 )';
 	$t_result = @$g_db->Execute( $t_query );
 
 	if( $t_result != false ) {
 		print_test_result( GOOD );
 	} else {
-		print_test_result( BAD, true, 'Database user doesn\'t have INSERT access to the database ( ' . db_error_msg() . ' )' );
+		print_test_result( BAD, true, 'Database user does not have INSERT access to the database ( ' . db_error_msg() . ' )' );
 	}
 	?>
 </tr>
@@ -1226,13 +1221,13 @@ if( 6 == $t_install_state ) {
 		checking ability to UPDATE records
 	</td>
 	<?php
-		$t_query = "UPDATE $t_mantis_config_table SET value='test_update' WHERE config_id='database_test'";
+		$t_query = 'UPDATE ' . db_get_table( 'config' ) . ' SET value=\'test_update\' WHERE config_id=\'database_test\'';
 	$t_result = @$g_db->Execute( $t_query );
 
 	if( $t_result != false ) {
 		print_test_result( GOOD );
 	} else {
-		print_test_result( BAD, true, 'Database user doesn\'t have UPDATE access to the database ( ' . db_error_msg() . ' )' );
+		print_test_result( BAD, true, 'Database user does not have UPDATE access to the database ( ' . db_error_msg() . ' )' );
 	}
 	?>
 </tr>
@@ -1241,13 +1236,13 @@ if( 6 == $t_install_state ) {
 		checking ability to DELETE records
 	</td>
 	<?php
-		$t_query = "DELETE FROM $t_mantis_config_table WHERE config_id='database_test'";
+		$t_query = 'DELETE FROM ' . db_get_table( 'config' ) . ' WHERE config_id=\'database_test\'';
 	$t_result = @$g_db->Execute( $t_query );
 
 	if( $t_result != false ) {
 		print_test_result( GOOD );
 	} else {
-		print_test_result( BAD, true, 'Database user doesn\'t have DELETE access to the database ( ' . db_error_msg() . ' )' );
+		print_test_result( BAD, true, 'Database user does not have DELETE access to the database ( ' . db_error_msg() . ' )' );
 	}
 	?>
 </tr>

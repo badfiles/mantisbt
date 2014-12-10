@@ -36,13 +36,13 @@ echo '<br />';
 print_summary_submenu();
 
 $t_width = plugin_config_get( 'window_width' );
-$t_graph_width = (int) ( ( $t_width - 50 ) * 0.6 );
+$t_graph_width = (int)( ( $t_width - 50 ) * 0.6 );
 
 # gather the data for the graphs
 $t_metrics = create_category_summary();
-$t_token = token_set( TOKEN_GRAPH, serialize( $t_metrics ) );
-?>
 
+$t_token = token_set( TOKEN_GRAPH, json_encode( $t_metrics ) );
+?>
 <br />
 <table class="width100" cellspacing="1">
 <tr>
@@ -51,7 +51,7 @@ $t_token = token_set( TOKEN_GRAPH, serialize( $t_metrics ) );
 	</td>
 </tr>
 <tr>
-	<td width="100%" class="center">
+	<td class="center">
 		<img src="<?php echo plugin_page( 'summary_graph_bycategory.php' )?>&amp;width=<?php echo $t_graph_width?>" alt="" />
 	</td>
 </tr>

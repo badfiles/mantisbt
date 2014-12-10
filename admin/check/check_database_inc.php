@@ -32,9 +32,7 @@ if( !defined( 'CHECK_DATABASE_INC_ALLOW' ) ) {
 	return;
 }
 
-/**
- * MantisBT Check API
- */
+# MantisBT Check API
 require_once( 'check_api.php' );
 require_api( 'config_api.php' );
 require_api( 'database_api.php' );
@@ -59,7 +57,7 @@ if( isset( $ADODB_vers ) ) {
 	check_print_test_row(
 		'Checking use of the <a href="http://adodb.sourceforge.net/#extension">ADOdb extension</a>',
 		!extension_loaded( 'ADOdb' ),
-		"The ADOdb extension is not supported and must be disabled"
+		'The ADOdb extension is not supported and must be disabled'
 	);
 }
 check_print_test_row(
@@ -170,7 +168,7 @@ if( !db_is_connected() ) {
 
 $t_database_server_info = $g_db->ServerInfo();
 $t_db_version = $t_database_server_info['version'];
-preg_match('/^[0-9]+\.[0-9+]/', $t_db_version, $t_matches );
+preg_match( '/^[0-9]+\.[0-9+]/', $t_db_version, $t_matches );
 $t_db_major_version = $t_matches[0];
 
 # MantisBT minimum version
@@ -194,7 +192,7 @@ check_print_test_row(
 	array(
 		true => 'You are using version ' . htmlentities( $t_db_version ) . '.',
 		false => 'The database version you are using is ' . htmlentities( $t_db_version )
-			. ". The minimum requirement for MantisBT on your database platform is $t_db_min_version."
+			. '. The minimum requirement for MantisBT on your database platform is ' . $t_db_min_version . '.'
 	)
 );
 
@@ -228,8 +226,7 @@ if( db_is_mysql() ) {
 			array(
 				false => 'Release information for MySQL ' . $t_db_major_version
 					. ' series is not available, unable to perform the lifecycle checks.'
-			)
-		);
+			) );
 	} else {
 		if( 'GA' == $t_versions[$t_db_major_version][0] ) {
 			$t_mysql_ga_release = version_compare( $t_database_server_info['version'], $t_versions[$t_db_major_version][1], '>=' );
@@ -251,41 +248,36 @@ if( db_is_mysql() ) {
 					. '. This is a development or pre-GA version which '
 					. ( $t_versions[$t_db_major_version][0] == 'Discontinued' ? 'has been discontinued and ' : '' )
 					. 'is not recommended for Production use. You should upgrade to a supported GA release.'
-			)
-		);
+			) );
 
 		# Within lifecycle 'Extended' support
 		check_print_test_row(
 			'MySQL version is within the <a href="' . $t_support_url . '">Extended Support</a> period (GA + 8 years)',
 			date_create( $t_date_extended_end ) > date_create( 'now' ),
 			array(
-				true => "Extended support for MySQL $t_db_major_version series ends on " . $t_date_extended_end,
+				true => 'Extended support for MySQL ' . $t_db_major_version . ' series ends on ' . $t_date_extended_end,
 				false => 'Support for the release of MySQL you are using ('
 					. htmlentities( $t_db_version )
 					. ') ended on ' . $t_date_extended_end
 					. '. It should not be used, as security flaws discovered in this version will not be fixed.'
-			)
-		);
+			) );
 
 		# Within lifecycle 'Premier' support
 		check_print_test_warn_row(
 			'Version of MySQL being used is within the <a href="' . $t_support_url . '">Premier Support</a> period (GA + 5 years)',
 			date_create( $t_date_premier_end ) > date_create( 'now' ),
 			array(
-				true => "Premier support for MySQL $t_db_major_version series ends on " . $t_date_premier_end,
+				true => 'Premier support for MySQL ' . $t_db_major_version . ' series ends on ' . $t_date_premier_end,
 				false => 'Premier Support for the release of MySQL you are using ('
 					. htmlentities( $t_db_version )
 					. ') ended on ' . $t_date_premier_end
 					. '. The release is in its Extended support period, which ends on '
 					. $t_date_extended_end
 					. '. You should upgrade to a newer version of MySQL which is still within its Premier support period to benefit from bug fixes and security patches.'
-			)
-		);
+			) );
 	}
-}
-
-# PostgreSQL support checking
-elseif( db_is_pgsql() ) {
+} else if( db_is_pgsql() ) {
+	# PostgreSQL support checking
 
 	# Version support information
 	$t_versions = array(
@@ -294,7 +286,6 @@ elseif( db_is_pgsql() ) {
 		'9.2' => '2017-09-30',
 		'9.1' => '2016-09-30',
 		'9.0' => '2015-09-30',
-		'8.4' => '2014-07-31',
 	);
 	$t_support_url = 'http://www.postgresql.org/support/versioning/';
 
@@ -303,7 +294,7 @@ elseif( db_is_pgsql() ) {
 		$t_date_eol = $t_versions[$t_db_major_version];
 	} else {
 		$t_version = key( $t_versions );
-		if( version_compare( $t_db_major_version, $t_version , '>' ) ) {
+		if( version_compare( $t_db_major_version, $t_version, '>' ) ) {
 			# Major version is higher than the most recent in array - assume we're supported
 			$t_date_eol = new DateTime;
 			$t_date_eol = $t_date_eol->add( new DateInterval( 'P1Y' ) )->format( $t_date_format );
@@ -319,15 +310,11 @@ elseif( db_is_pgsql() ) {
 			'PostgreSQL version support information availability',
 			false,
 			array(
-				false => "Release information for version $t_db_major_version is not available. "
-					. vsprintf(
-						'Since it is %s than %s, we assume it is %s. ',
-						$t_assume
-					)
+				false => 'Release information for version ' . $t_db_major_version . ' is not available. '
+					. vsprintf( 'Since it is %s than %s, we assume it is %s. ', $t_assume )
 					. 'Please refer to the <a href="' . $t_support_url
 					. '">PostgreSQL release support policy</a> to make sure.'
-			)
-		);
+			) );
 	}
 
 	check_print_test_row(
@@ -336,8 +323,7 @@ elseif( db_is_pgsql() ) {
 		array(
 			false => 'PostgreSQL version ' . htmlentities( $t_db_version )
 				. ' is no longer supported and should not be used, as security flaws discovered in this version will not be fixed.'
-		)
-	);
+		) );
 }
 
 $t_table_prefix = config_get_global( 'db_table_prefix' );
@@ -360,14 +346,13 @@ check_print_info_row(
 
 check_print_test_warn_row(
 	'Plugin table prefix should not be empty',
-	!empty($t_table_plugin_prefix),
+	!empty( $t_table_plugin_prefix ),
 	array(
 		false => 'Defining $g_db_table_plugin_prefix allows easy identification of plugin-specific vs MantisBT core tables',
 	)
 );
 
 if( db_is_mysql() ) {
-
 	$t_table_prefix_regex_safe = preg_quote( $t_table_prefix, '/' );
 	$t_table_suffix_regex_safe = preg_quote( $t_table_suffix, '/' );
 
@@ -391,24 +376,23 @@ if( db_is_mysql() ) {
 			break;
 	}
 
-	$t_result = db_query_bound( 'SHOW TABLE STATUS' );
+	$t_result = db_query( 'SHOW TABLE STATUS' );
 	while( $t_row = db_fetch_array( $t_result ) ) {
 		if( $t_row[$t_field_comment] !== 'VIEW' &&
-		    preg_match( "/^$t_table_prefix_regex_safe.+?$t_table_suffix_regex_safe\$/", $t_row[$t_field_name] )
+		    preg_match( '/^' . $t_table_prefix_regex_safe . '.+?' . $t_table_suffix_regex_safe . '$/', $t_row[$t_field_name] )
 		) {
 			check_print_test_row(
 				'Table <em>' . htmlentities( $t_row[$t_field_name] ) . '</em> is using UTF-8 collation',
 				substr( $t_row[$t_field_collation], 0, 5 ) === 'utf8_',
 				array( false => 'Table ' . htmlentities( $t_row[$t_field_name] )
 					. ' is using ' . htmlentities( $t_row[$t_field_collation] )
-					. ' collation where UTF-8 collation is required.' )
-			);
+					. ' collation where UTF-8 collation is required.' ) );
 		}
 	}
 
 	foreach( db_get_table_list() as $t_table ) {
-		if( preg_match( "/^$t_table_prefix_regex_safe.+?$t_table_suffix_regex_safe\$/", $t_table ) ) {
-			$t_result = db_query_bound( 'SHOW FULL FIELDS FROM ' . $t_table );
+		if( preg_match( '/^' . $t_table_prefix_regex_safe . '.+?' . $t_table_suffix_regex_safe . '$/', $t_table ) ) {
+			$t_result = db_query( 'SHOW FULL FIELDS FROM ' . $t_table );
 			while( $t_row = db_fetch_array( $t_result ) ) {
 				if( $t_row[$t_field_collation] === null ) {
 					continue;
@@ -423,10 +407,8 @@ if( db_is_mysql() ) {
 						. ' of type ' . $t_row[$t_field_type]
 						. ' on table ' . htmlentities( $t_table )
 						. ' is using ' . htmlentities( $t_row[$t_field_collation] )
-						. ' collation where UTF-8 collation is required.' )
-				);
+						. ' collation where UTF-8 collation is required.' ) );
 			}
 		}
 	}
-
 }

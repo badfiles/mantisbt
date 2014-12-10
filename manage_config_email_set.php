@@ -49,7 +49,7 @@ require_api( 'html_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'print_api.php' );
 
-form_security_validate('manage_config_email_set');
+form_security_validate( 'manage_config_email_set' );
 
 auth_reauthenticate();
 
@@ -153,9 +153,10 @@ foreach ( $t_valid_actions as $t_action ) {
 		if( !isset( $t_default_flags[$t_flag] ) ) {
 			$t_default_flags[$t_flag] = OFF;
 		}
-		if( isset( $t_flags[$t_action][$t_flag] ) <> $t_default_flags[$t_flag] ) {
-			$t_notify_flags[$t_action][$t_flag] = isset( $t_flags[$t_action][$t_flag] ) ? ON : OFF;
-		}
+
+		# Always generate a complete set of flag to have a full override that can be compared
+		# against defaults later in the manage_config_email_page.php rendering.
+		$t_notify_flags[$t_action][$t_flag] = isset( $t_flags[$t_action][$t_flag] ) ? ON : OFF;
 	}
 	if( $t_default_flags['threshold_min'] <> $t_thresholds_min[$t_action] ) {
 		$t_notify_flags[$t_action]['threshold_min'] = $t_thresholds_min[$t_action];
@@ -173,7 +174,7 @@ if( isset( $t_notify_flags ) ) {
 	}
 }
 
-form_security_purge('manage_config_email_set');
+form_security_purge( 'manage_config_email_set' );
 
 html_operation_successful( $t_redirect_url );
 

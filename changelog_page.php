@@ -69,8 +69,8 @@ require_api( 'version_api.php' );
 
 /**
  * Print header for the specified project version.
- * @param int $p_version_id a valid version id
- * @return null
+ * @param integer $p_version_id A valid version identifier.
+ * @return void
  */
 function print_version_header( $p_version_id ) {
 	$t_project_id   = version_get_field( $p_version_id, 'project_id' );
@@ -83,8 +83,8 @@ function print_version_header( $p_version_id ) {
 		$t_version_released = version_get_field( $p_version_id, 'released' );
 		$t_release_timestamp = version_get_field( $p_version_id, 'date_order' );
 
-		if( (bool) $t_version_released ) {
-			$t_release_date = ' (' . lang_get('released') . ' ' . string_display_line( date( config_get( 'short_date_format' ), $t_release_timestamp ) ) . ')';
+		if( (bool)$t_version_released ) {
+			$t_release_date = ' (' . lang_get( 'released' ) . ' ' . string_display_line( date( config_get( 'short_date_format' ), $t_release_timestamp ) ) . ')';
 		} else {
 			$t_release_date = ' (' . lang_get( 'not_released' ) . ')';
 		}
@@ -100,14 +100,15 @@ function print_version_header( $p_version_id ) {
 
 /**
  * Print header for the specified project
- * @param string $p_project_name project name to display
- * @return null
+ * @param string $p_project_name Project name to display.
+ * @return void
  */
 function print_project_header_changelog ( $p_project_name ) {
 	echo '<br /><span class="pagetitle">', string_display_line( $p_project_name ), ' - ', lang_get( 'changelog' ), '</span><br />';
 	echo '<tt>';
 }
 
+$t_issues_found = false;
 $t_user_id = auth_get_current_user_id();
 
 $f_project = gpc_get_string( 'project', '' );
@@ -153,12 +154,7 @@ if( is_blank( $f_version ) ) {
 }
 
 if( ALL_PROJECTS == $t_project_id ) {
-	$t_topprojects = $t_project_ids = user_get_accessible_projects( $t_user_id );
-	foreach ( $t_topprojects as $t_project ) {
-		$t_project_ids = array_merge( $t_project_ids, user_get_all_accessible_subprojects( $t_user_id, $t_project ) );
-	}
-
-	$t_project_ids_to_check = array_unique( $t_project_ids );
+	$t_project_ids_to_check = user_get_all_accessible_projects( $t_user_id, ALL_PROJECTS );
 	$t_project_ids = array();
 
 	foreach ( $t_project_ids_to_check as $t_project_id ) {
@@ -173,9 +169,9 @@ if( ALL_PROJECTS == $t_project_id ) {
 	array_unshift( $t_project_ids, $t_project_id );
 }
 
-html_page_top( lang_get( 'changelog' ) );
+$t_project_id_for_access_check = $t_project_id;
 
-$t_project_index = 0;
+html_page_top( lang_get( 'changelog' ) );
 
 version_cache_array_rows( $t_project_ids );
 category_cache_array_rows_by_project( $t_project_ids );
@@ -185,11 +181,9 @@ foreach( $t_project_ids as $t_project_id ) {
 	$t_can_view_private = access_has_project_level( config_get( 'private_bug_threshold' ), $t_project_id );
 
 	$t_limit_reporters = config_get( 'limit_reporters' );
-	$t_user_access_level_is_reporter = ( REPORTER == access_get_project_level( $t_project_id ) );
+	$t_user_access_level_is_reporter = ( config_get( 'report_bug_threshold', null, null, $t_project_id ) == access_get_project_level( $t_project_id ) );
 
 	$t_resolved = config_get( 'bug_resolved_status_threshold' );
-	$t_bug_table	= db_get_table( 'bug' );
-	$t_relation_table = db_get_table( 'bug_relationship' );
 
 	# grab version info for later use
 	$t_version_rows = version_get_all_rows( $t_project_id, null, false );
@@ -210,14 +204,14 @@ foreach( $t_project_ids as $t_project_id ) {
 			continue;
 		}
 
-		$query = "SELECT sbt.*, dbt.fixed_in_version AS parent_version, rt.source_bug_id
-			FROM $t_bug_table AS sbt
-			LEFT JOIN $t_relation_table AS rt
-				ON sbt.id=rt.destination_bug_id AND rt.relationship_type=" . BUG_DEPENDANT . "
-			LEFT JOIN $t_bug_table AS dbt ON dbt.id=rt.source_bug_id
-			WHERE sbt.project_id=" . db_param() . "
-			  AND sbt.fixed_in_version=" . db_param() . "
-			ORDER BY sbt.status ASC, sbt.last_updated DESC";
+		$t_query = 'SELECT sbt.*, dbt.fixed_in_version AS parent_version, rt.source_bug_id
+			FROM {bug} sbt
+			LEFT JOIN {bug_relationship} rt
+				ON sbt.id=rt.destination_bug_id AND rt.relationship_type=' . BUG_DEPENDANT . '
+			LEFT JOIN {bug} dbt ON dbt.id=rt.source_bug_id
+			WHERE sbt.project_id=' . db_param() . '
+			  AND sbt.fixed_in_version=' . db_param() . '
+			ORDER BY sbt.status ASC, sbt.last_updated DESC';
 
 		$t_description = version_get_field( $t_version_id, 'description' );
 
@@ -226,9 +220,9 @@ foreach( $t_project_ids as $t_project_id ) {
 		$t_issue_parents = array();
 		$t_issue_handlers = array();
 
-		$t_result = db_query_bound( $query, array( $t_project_id, $t_version ) );
+		$t_result = db_query( $t_query, array( $t_project_id, $t_version ) );
 
-		while ( $t_row = db_fetch_array( $t_result ) ) {
+		while( $t_row = db_fetch_array( $t_result ) ) {
 			# hide private bugs if user doesn't have access to view them.
 			if( !$t_can_view_private && ( $t_row['view_state'] == VS_PRIVATE ) ) {
 				continue;
@@ -278,7 +272,7 @@ foreach( $t_project_ids as $t_project_id ) {
 			}
 
 			if( !is_blank( $t_description ) ) {
-				echo string_display( "<br />$t_description<br /><br />" );
+				echo string_display( '<br />' . $t_description . '<br /><br />' );
 			}
 		} else {
 			continue;
@@ -291,7 +285,7 @@ foreach( $t_project_ids as $t_project_id ) {
 		$t_cycle = false;
 		$t_cycle_ids = array();
 
-		while ( !empty( $t_issue_ids ) ) {
+		while( !empty( $t_issue_ids ) ) {
 			$t_issue_id = $t_issue_ids[$k];
 			$t_issue_parent = $t_issue_parents[$k];
 
@@ -305,7 +299,7 @@ foreach( $t_project_ids as $t_project_id ) {
 			if( $t_cycle || !in_array( $t_issue_parent, $t_issue_ids ) ) {
 				$l = array_search( $t_issue_parent, $t_issue_set_ids );
 				if( $l !== false ) {
-					for ( $m = $l+1; $m < count( $t_issue_set_ids ) && $t_issue_set_levels[$m] > $t_issue_set_levels[$l]; $m++ ) {
+					for( $m = $l+1; $m < count( $t_issue_set_ids ) && $t_issue_set_levels[$m] > $t_issue_set_levels[$l]; $m++ ) {
 						#do nothing
 					}
 					$t_issue_set_ids_end = array_splice( $t_issue_set_ids, $m );
@@ -330,25 +324,32 @@ foreach( $t_project_ids as $t_project_id ) {
 			}
 		}
 
-		for ( $j = 0; $j < count( $t_issue_set_ids ); $j++ ) {
+		for( $j = 0; $j < count( $t_issue_set_ids ); $j++ ) {
 			$t_issue_set_id = $t_issue_set_ids[$j];
 			$t_issue_set_level = $t_issue_set_levels[$j];
 
 			helper_call_custom_function( 'changelog_print_issue', array( $t_issue_set_id, $t_issue_set_level ) );
+
+			$t_issues_found = true;
 		}
 
 		$t_bug_string = $t_issues_resolved == 1 ? 'bug' : 'bugs';
-		echo "<br />[$t_issues_resolved " . lang_get( $t_bug_string ) . ']<br />';
+		echo '<br />[' . $t_issues_resolved . ' ' . lang_get( $t_bug_string ) . ']<br />';
 
 	}
 	if( $t_project_header_printed ) {
 		echo '</tt>';
 	}
-
-	$t_project_index++;
 }
 
-if( $t_project_index == 0 ) {
-	echo '<br /><span class="pagetitle">' . lang_get('changelog_empty') . '</span>';
+if( !$t_issues_found ) {
+	if( access_has_project_level( config_get( 'manage_project_threshold' ), $t_project_id_for_access_check ) ) {
+		$t_string = 'changelog_empty_manager';
+	} else {
+		$t_string = 'changelog_empty';
+	}
+
+	echo '<p>' . lang_get( $t_string ) . '</p>';
 }
+
 html_page_bottom();

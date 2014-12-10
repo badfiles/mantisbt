@@ -41,20 +41,21 @@ require_api( 'tokens_api.php' );
 /**
  * Determine if last visited feature is enabled
  *
- * @return bool true: enabled; false: otherwise.
+ * @return boolean true: enabled; false: otherwise.
  * @access public
  */
 function last_visited_enabled() {
-	return !( OFF == config_get( 'recently_visited' ) || current_user_is_anonymous() );
+	return !( 0 == config_get( 'recently_visited_count' ) || current_user_is_anonymous() );
 }
 
 /**
  * This method should be called from view, update, print pages for issues,
  * mantisconnect.
  *
- * @param int $p_issue_id	The issue id that was justed visited.
- * @param int $p_user_id	The user id that visited the issue, or null for current logged in user.
+ * @param integer $p_issue_id The issue id that was just visited.
+ * @param integer $p_user_id  The user id that visited the issue, or null for current logged in user.
  * @access public
+ * @return void
  */
 function last_visited_issue( $p_issue_id, $p_user_id = null ) {
 	if( !last_visited_enabled() ) {
@@ -78,11 +79,15 @@ function last_visited_issue( $p_issue_id, $p_user_id = null ) {
  * Get an array of the last visited bug ids.  We intentionally don't check
  * if the ids still exists to avoid performance degradation.
  *
- * @param int $p_user_id The user id to get the last visited issues for, or null for current logged in user.
+ * @param integer $p_user_id The user id to get the last visited issues for, or null for current logged in user.
  * @return array An array of issue ids or an empty array if none found.
  * @access public
  */
 function last_visited_get_array( $p_user_id = null ) {
+	if( !last_visited_enabled() ) {
+		return array();
+	}
+
 	$t_value = token_get_value( TOKEN_LAST_VISITED, $p_user_id );
 
 	if( is_null( $t_value ) ) {

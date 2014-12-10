@@ -46,6 +46,8 @@
  * @uses version_api.php
  */
 
+$g_allow_browser_cache = 1;
+
 require_once( 'core.php' );
 require_api( 'access_api.php' );
 require_api( 'authentication_api.php' );
@@ -71,8 +73,6 @@ require_api( 'version_api.php' );
 
 require_css( 'status_config.php' );
 
-$g_allow_browser_cache = 1;
-
 $f_bug_id = gpc_get_int( 'bug_id' );
 
 $t_bug = bug_get( $f_bug_id, true );
@@ -81,9 +81,6 @@ if( $t_bug->project_id != helper_get_current_project() ) {
 	# in case the current project is not the same project of the bug we are viewing...
 	# ... override the current project. This to avoid problems with categories and handlers lists etc.
 	$g_project_override = $t_bug->project_id;
-	$t_changed_project = true;
-} else {
-	$t_changed_project = false;
 }
 
 if( bug_is_readonly( $f_bug_id ) ) {
@@ -171,21 +168,18 @@ print_recently_visited();
 ?>
 <br />
 <div id="bug-update" class="form-container">
-
-	<form name="update_bug_form" method="post" action="bug_update.php">
+	<form id="update_bug_form" method="post" action="bug_update.php">
 		<?php echo form_security_field( 'bug_update' ); ?>
 		<table>
 			<thead>
 				<tr>
 					<td class="form-title" colspan="3">
 						<input type="hidden" name="bug_id" value="<?php echo $t_bug_id ?>" />
+						<input type="hidden" name="last_updated" value="<?php echo $t_bug->last_updated ?>" />
 						<?php echo lang_get( 'updating_bug_advanced_title' ); ?>
 					</td>
 					<td class="right" colspan="3">
-						<?php print_bracket_link(
-							string_get_bug_view_url( $t_bug_id ),
-							lang_get( 'back_to_bug_link' )
-							);
+						<?php print_bracket_link( string_get_bug_view_url( $t_bug_id ), lang_get( 'back_to_bug_link' ) );
 						?>
 					</td>
 				</tr>
@@ -196,9 +190,9 @@ if( $t_top_buttons_enabled ) {
 ?>
 				<tr>
 					<td class="center" colspan="6">
-						<input ', helper_get_tab_index(), '
+						<input <?php helper_get_tab_index(); ?>
 							type="submit" class="button"
-							value="', lang_get( 'update_information_button' ), '" />
+							value="<?php echo lang_get( 'update_information_button' ); ?>" />
 					</td>
 				</tr>
 			</thead>
@@ -252,7 +246,7 @@ if( $t_show_id || $t_show_project || $t_show_category || $t_show_view_state || $
 
 	if( $t_can_change_view_state ) {
 		echo '<select ' . helper_get_tab_index() . ' id="view_state" name="view_state">';
-		print_enum_string_option_list( 'view_state', (int)$t_bug->view_state);
+		print_enum_string_option_list( 'view_state', (int)$t_bug->view_state );
 		echo '</select>';
 	} else if( $t_show_view_state ) {
 		echo $t_view_state;
@@ -290,7 +284,7 @@ if( $t_show_reporter ) {
 		# Do not allow the bug's reporter to edit the Reporter field
 		# when limit_reporters is ON
 		if( ON == config_get( 'limit_reporters' )
-		&&  !access_has_project_level( REPORTER + 1, $t_bug->project_id )
+		&&  !access_has_project_level( config_get( 'report_bug_threshold', null, null, $t_bug->project_id ) + 1, $t_bug->project_id )
 		) {
 			echo string_attribute( user_get_name( $t_bug->reporter_id ) );
 		} else {
@@ -349,10 +343,10 @@ if( $t_show_handler || $t_show_due_date ) {
 			if( !date_is_null( $t_bug->due_date ) ) {
 				$t_date_to_display = date( config_get( 'calendar_date_format' ), $t_bug->due_date );
 			}
-			echo "<input " . helper_get_tab_index() . " type=\"text\" id=\"due_date\" name=\"due_date\" class=\"datetime\" size=\"20\" maxlength=\"16\" value=\"" . $t_date_to_display . "\" />";
+			echo '<input ' . helper_get_tab_index() . ' type="text" id="due_date" name="due_date" class="datetime" size="20" maxlength="16" value="' . $t_date_to_display . '" />';
 		} else {
 			if( !date_is_null( $t_bug->due_date ) ) {
-				echo date( config_get( 'short_date_format' ), $t_bug->due_date  );
+				echo date( config_get( 'short_date_format' ), $t_bug->due_date );
 			}
 		}
 
@@ -428,13 +422,12 @@ if( $t_show_status || $t_show_resolution ) {
 		echo '<th class="category"><label for="status">' . lang_get( 'status' ) . '</label></th>';
 
 		# choose color based on status
-		$status_label = html_get_status_css_class( $t_bug->status );
+		$t_status_label = html_get_status_css_class( $t_bug->status );
 
-		echo '<td class="' . $status_label .  '">';
+		echo '<td class="' . $t_status_label .  '">';
 		print_status_option_list( 'status', $t_bug->status,
 			access_can_close_bug( $t_bug ),
-			$t_bug->project_id
-		);
+			$t_bug->project_id );
 		echo '</td>';
 	} else {
 		$t_spacer += 2;
@@ -733,7 +726,7 @@ if( access_has_bug_level( config_get( 'private_bugnote_threshold' ), $t_bug_id )
 }
 
 # Time Tracking (if permitted)
-if( config_get('time_tracking_enabled') ) {
+if( config_get( 'time_tracking_enabled' ) ) {
 	if( access_has_bug_level( config_get( 'time_tracking_edit_threshold' ), $t_bug_id ) ) {
 		echo '<tr>';
 		echo '<th class="category"><label for="time_tracking">' . lang_get( 'time_tracking' ) . '</label></th>';

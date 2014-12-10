@@ -29,9 +29,7 @@ if( !defined( 'CHECK_CONFIG_INC_ALLOW' ) ) {
 	return;
 }
 
-/**
- * MantisBT Check API
- */
+# MantisBT Check API
 require_once( 'check_api.php' );
 
 check_print_section_header_row( 'Configuration' );
@@ -93,10 +91,14 @@ check_print_test_warn_row( 'MantisBT Application Errors should halt execution',
 );
 
 check_print_test_warn_row( 'Email debugging should be OFF',
-	empty($g_debug_email),
-	array( false => "All notification e-mails will be sent to: $g_debug_email" )
+	empty( $g_debug_email ),
+	array( false => 'All notification e-mails will be sent to: ' . $g_debug_email )
 );
 
+check_print_test_row( 'Default move category must exists ("default_category_for_moves")',
+	category_exists( config_get( 'default_category_for_moves' ) ),
+	array( false => 'Issues moved may end up with invalid category id.' )
+);
 
 # Obsolete Settings
 require_api( 'obsolete.php' );

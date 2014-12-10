@@ -59,7 +59,7 @@ require_api( 'utility_api.php' );
 
 auth_ensure_user_authenticated();
 
-$f_search		= gpc_get_string( FILTER_PROPERTY_SEARCH, false ); /** @todo need a better default */
+$f_search		= gpc_get_string( FILTER_PROPERTY_SEARCH, false ); # @todo need a better default
 $f_offset		= gpc_get_int( 'offset', 0 );
 
 $t_cookie_value_id = gpc_get_cookie( config_get( 'view_all_cookie' ), '' );
@@ -82,11 +82,11 @@ if( !is_blank( $t_cookie_value ) ) {
 	}
 
 	$t_setting_arr = explode( '#', $t_cookie_value, 2 );
-	$t_filter_cookie_arr = unserialize( $t_setting_arr[1] );
+	$t_filter_cookie_arr = json_decode( $t_setting_arr[1], true );
 
-	$f_highlight_changed 	= $t_filter_cookie_arr[ FILTER_PROPERTY_HIGHLIGHT_CHANGED ];
-	$f_sort 				= $t_filter_cookie_arr[ FILTER_PROPERTY_SORT_FIELD_NAME ];
-	$f_dir		 			= $t_filter_cookie_arr[ FILTER_PROPERTY_SORT_DIRECTION ];
+	$f_highlight_changed 	= $t_filter_cookie_arr[FILTER_PROPERTY_HIGHLIGHT_CHANGED];
+	$f_sort 				= $t_filter_cookie_arr[FILTER_PROPERTY_SORT_FIELD_NAME];
+	$f_dir		 			= $t_filter_cookie_arr[FILTER_PROPERTY_SORT_DIRECTION];
 	$t_project_id 			= helper_get_current_project();
 }
 
@@ -97,7 +97,7 @@ $t_bug_count = null;
 $t_page_count = null;
 
 $t_result = filter_get_bug_rows( $f_page_number, $t_per_page, $t_page_count, $t_bug_count );
-$row_count = count( $t_result );
+$t_row_count = count( $t_result );
 
 # pre-cache custom column data
 columns_plugin_cache_issue_data( $t_result );
@@ -105,9 +105,7 @@ columns_plugin_cache_issue_data( $t_result );
 # for export
 $t_show_flag = gpc_get_int( 'show_flag', 0 );
 
-html_page_top1();
-html_head_end();
-html_body_begin();
+html_page_top();
 ?>
 
 <table class="width100"><tr><td class="form-title">
@@ -120,12 +118,13 @@ html_body_begin();
 
 <form method="post" action="view_all_set.php">
 <?php # CSRF protection not required here - form does not result in modifications ?>
-<input type="hidden" name="type" value="1" />
-<input type="hidden" name="print" value="1" />
-<input type="hidden" name="offset" value="0" />
-<input type="hidden" name="<?php echo FILTER_PROPERTY_SORT_FIELD_NAME; ?>" value="<?php echo $f_sort ?>" />
-<input type="hidden" name="<?php echo FILTER_PROPERTY_SORT_DIRECTION; ?>" value="<?php echo $f_dir ?>" />
-
+<fieldset style="display: none">
+	<input type="hidden" name="type" value="1" />
+	<input type="hidden" name="print" value="1" />
+	<input type="hidden" name="offset" value="0" />
+	<input type="hidden" name="<?php echo FILTER_PROPERTY_SORT_FIELD_NAME; ?>" value="<?php echo $f_sort ?>" />
+	<input type="hidden" name="<?php echo FILTER_PROPERTY_SORT_DIRECTION; ?>" value="<?php echo $f_dir ?>" />
+</fieldset>
 <table class="width100" cellpadding="2px">
 <?php
 #<SQLI> Excel & Print export
@@ -134,12 +133,12 @@ html_body_begin();
 #$f_export is a string for the word and excel pages
 
 $f_bug_arr = gpc_get_int_array( 'bug_arr', array() );
-$f_bug_arr[$row_count]=-1;
+$f_bug_arr[$t_row_count]=-1;
 
-for( $i=0; $i < $row_count; $i++ ) {
+for( $i=0; $i < $t_row_count; $i++ ) {
 	if( isset( $f_bug_arr[$i] ) ) {
-		$index = $f_bug_arr[$i];
-		$t_bug_arr_sort[$index]=1;
+		$t_index = $f_bug_arr[$i];
+		$t_bug_arr_sort[$t_index]=1;
 	}
 }
 $f_export = implode( ',', $f_bug_arr );
@@ -159,19 +158,18 @@ $t_icon_path = config_get( 'icon_path' );
 	$t_search = urlencode( $f_search );
 
 	$t_icons = array(
-		array( 'print_all_bug_page_word', 'word', '', 'fileicons/doc.gif', 'Word 2000' ),
-		array( 'print_all_bug_page_word', 'html', 'target="_blank"', 'ie.gif', 'Word View' ) );
+		array( 'print_all_bug_page_word', 'word', 'fileicons/doc.gif', 'Word 2000' ),
+		array( 'print_all_bug_page_word', 'html', 'ie.gif', 'Word View' ) );
 
 	foreach ( $t_icons as $t_icon ) {
-		echo '<a href="' . $t_icon[0] . '.php' .
-			'?' . FILTER_PROPERTY_SEARCH. "=$t_search" .
-			'&amp;' . FILTER_PROPERTY_SORT_FIELD_NAME . "=$f_sort" .
-			'&amp;' . FILTER_PROPERTY_SORT_DIRECTION . "=$t_new_dir" .
+		echo '<a href="' . $t_icon[0] . '.php?' . FILTER_PROPERTY_SEARCH. '=' . $t_search .
+			'&amp;' . FILTER_PROPERTY_SORT_FIELD_NAME . '=' . $f_sort .
+			'&amp;' . FILTER_PROPERTY_SORT_DIRECTION . '=' . $t_new_dir .
 			'&amp;type_page=' . $t_icon[1] .
-			"&amp;export=$f_export" .
-			"&amp;show_flag=$t_show_flag" .
-			'" ' . $t_icon[2] . '>' .
-			'<img src="' . $t_icon_path . $t_icon[3] . '" alt="' . $t_icon[4] . '" /></a> ';
+			'&amp;export=' . $f_export .
+			'&amp;show_flag=' . $t_show_flag .
+			'">' .
+			'<img src="' . $t_icon_path . $t_icon[2] . '" alt="' . $t_icon[3] . '" /></a> ';
 	}
 ?>
 	</td>
@@ -191,14 +189,14 @@ $t_icon_path = config_get( 'icon_path' );
 		<?php
 			echo lang_get( 'viewing_bugs_title' );
 
-			if( $row_count > 0 ) {
+			if( $t_row_count > 0 ) {
 				$v_start = $f_offset+1;
-				$v_end   = $f_offset+$row_count;
+				$v_end   = $f_offset+$t_row_count;
 			} else {
 				$v_start = 0;
 				$v_end   = 0;
 			}
-			echo "( $v_start - $v_end )";
+			echo '( ' . $v_start . ' - ' . $v_end . ' )';
 		?>
 	</td>
 	<td class="right" colspan="<?php echo $t_num_of_columns / 2 ?>">
@@ -224,14 +222,14 @@ $t_icon_path = config_get( 'icon_path' );
 	<td colspan="9"></td>
 </tr>
 <?php
-	for( $i=0; $i < $row_count; $i++ ) {
+	for( $i=0; $i < $t_row_count; $i++ ) {
 		$t_row = $t_result[$i];
 
 		# alternate row colors
-		$status_color = helper_alternate_colors( $i, '#ffffff', '#dddddd' );
-		if( isset( $t_bug_arr_sort[ $t_row->id ] ) || ( $t_show_flag==0 ) ) {
+		$t_status_color = helper_alternate_colors( $i, '#ffffff', '#dddddd' );
+		if( isset( $t_bug_arr_sort[$t_row->id] ) || ( $t_show_flag==0 ) ) {
 ?>
-<tr bgcolor="<?php echo $status_color ?>">
+<tr bgcolor="<?php echo $t_status_color ?>">
 <?php
 		foreach( $t_columns as $t_column ) {
 			$t_column_value_function = 'print_column_value';
@@ -243,14 +241,15 @@ $t_icon_path = config_get( 'icon_path' );
 	} # isset_loop
 } # for_loop
 ?>
-<input type="hidden" name="show_flag" value="1" />
 </table>
 
-<br />
-
-<input type="submit" class="button" value="<?php echo lang_get( 'hide_button' ) ?>" />
+<fieldset style="display: none">
+	<input type="hidden" name="show_flag" value="1" />
+</fieldset>
+<p>
+	<input type="submit" class="button" value="<?php echo lang_get( 'hide_button' ) ?>" />
+</p>
 </form>
 
 <?php
-html_body_end();
-html_end();
+html_page_bottom();

@@ -66,10 +66,9 @@ $t_user_id = auth_get_current_user_id();
 
 access_ensure_bug_level( config_get( 'tag_attach_threshold' ), $f_bug_id, $t_user_id );
 
-/** @todo The handling of tag strings which can include multiple tags should be moved
- *     to the APIs.  This is to allow other clients of the API to support such
- *     functionality.  The access level checks should also be moved to the API.
- */
+# @todo The handling of tag strings which can include multiple tags should be moved
+#     to the APIs.  This is to allow other clients of the API to support such
+#     functionality.  The access level checks should also be moved to the API.
 $t_tags = tag_parse_string( $f_tag_string );
 $t_can_create = access_has_global_level( config_get( 'tag_create_threshold' ) );
 
@@ -106,7 +105,7 @@ if( count( $t_tags_failed ) > 0 ) {
 	</tr>
 	<tr class="spacer"><td colspan="2"></td></tr>
 <?php
-	$t_tag_string = "";
+	$t_tag_string = '';
 	foreach( $t_tags_attach as $t_tag_row ) {
 		if( !is_blank( $t_tag_string ) ) {
 			$t_tag_string .= config_get( 'tag_separator' );

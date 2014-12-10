@@ -54,13 +54,10 @@ require_api( 'lang_api.php' );
 require_api( 'print_api.php' );
 
 $t_filter = current_user_get_bug_filter();
-# NOTE: this check might be better placed in current_user_get_bug_filter()
-if( $t_filter === false ) {
-	$t_filter = filter_get_default();
-}
+filter_init( $t_filter );
 
-list( $t_sort, ) = explode( ',', $t_filter['sort'] );
-list( $t_dir, ) = explode( ',', $t_filter['dir'] );
+list( $t_sort, ) = explode( ',', $g_filter['sort'] );
+list( $t_dir, ) = explode( ',', $g_filter['dir'] );
 
 $g_checkboxes_exist = false;
 
@@ -71,14 +68,14 @@ if( helper_get_current_project() > 0 ) {
 	category_get_all_rows( helper_get_current_project() );
 } else {
 	$t_categories = array();
-	foreach ($rows as $t_row) {
+	foreach ( $t_rows as $t_row ) {
 		$t_categories[] = $t_row->category_id;
 	}
 	category_cache_array_rows( array_unique( $t_categories ) );
 }
-$t_columns = helper_get_columns_to_view( COLUMNS_TARGET_VIEW_PAGE );
+$g_columns = helper_get_columns_to_view( COLUMNS_TARGET_VIEW_PAGE );
 
-$col_count = count( $t_columns );
+$t_col_count = count( $g_columns );
 
 $t_filter_position = config_get( 'filter_position' );
 
@@ -98,26 +95,25 @@ if( $t_status_legend_position == STATUS_LEGEND_POSITION_TOP || $t_status_legend_
 }
 ?>
 <br />
-<form name="bug_action" method="get" action="bug_actiongroup_page.php">
+<form id="bug_action" method="get" action="bug_actiongroup_page.php">
 <?php # CSRF protection not required here - form does not result in modifications ?>
 <table id="buglist" class="width100" cellspacing="1">
 <thead>
 <tr class="buglist-nav">
-	<td class="form-title" colspan="<?php echo $col_count; ?>">
+	<td class="form-title" colspan="<?php echo $t_col_count; ?>">
 		<span class="floatleft">
 		<?php
 			# -- Viewing range info --
-
 			$v_start = 0;
 			$v_end   = 0;
 
-			if( count( $rows ) > 0 ) {
-				$v_start = $t_filter['per_page'] * ($f_page_number - 1) + 1;
-				$v_end = $v_start + count( $rows ) - 1;
+			if( count( $t_rows ) > 0 ) {
+				$v_start = $g_filter['per_page'] * ($f_page_number - 1) + 1;
+				$v_end = $v_start + count( $t_rows ) - 1;
 			}
 
 			echo lang_get( 'viewing_bugs_title' );
-			echo " ($v_start - $v_end / $t_bug_count)";
+			echo ' (' . $v_start . ' - ' . $v_end . ' / ' . $t_bug_count . ')';
 		?> </span>
 
 		<span class="floatleft small">
@@ -149,7 +145,7 @@ if( $t_status_legend_position == STATUS_LEGEND_POSITION_TOP || $t_status_legend_
 
 		<span class="floatright small"><?php
 			# -- Page number links --
-			$f_filter	= gpc_get_int( 'filter', 0);
+			$f_filter	= gpc_get_int( 'filter', 0 );
 			print_page_links( 'view_all_bug_page.php', 1, $t_page_count, (int)$f_page_number, $f_filter );
 		?> </span>
 	</td>
@@ -158,7 +154,7 @@ if( $t_status_legend_position == STATUS_LEGEND_POSITION_TOP || $t_status_legend_
 <tr class="buglist-headers row-category">
 <?php
 	$t_title_function = 'print_column_title';
-	foreach( $t_columns as $t_column ) {
+	foreach( $g_columns as $t_column ) {
 		helper_call_custom_function( $t_title_function, array( $t_column ) );
 	}
 ?>
@@ -166,7 +162,7 @@ if( $t_status_legend_position == STATUS_LEGEND_POSITION_TOP || $t_status_legend_
 
 <?php # -- Spacer row -- ?>
 <tr class="spacer">
-	<td colspan="<?php echo $col_count; ?>"></td>
+	<td colspan="<?php echo $t_col_count; ?>"></td>
 </tr>
 </thead><tbody>
 
@@ -174,13 +170,13 @@ if( $t_status_legend_position == STATUS_LEGEND_POSITION_TOP || $t_status_legend_
 /**
  * Output Bug Rows
  *
- * @param array $p_rows array of bug objects
+ * @param array $p_rows An array of bug objects.
+ * @return void
  */
-function write_bug_rows ( $p_rows )
-{
-	global $t_columns, $t_filter;
+function write_bug_rows( array $p_rows ) {
+	global $g_columns, $g_filter;
 
-	$t_in_stickies = ( $t_filter && ( 'on' == $t_filter[FILTER_PROPERTY_STICKY] ) );
+	$t_in_stickies = ( $g_filter && ( 'on' == $g_filter[FILTER_PROPERTY_STICKY] ) );
 
 	# pre-cache custom column data
 	columns_plugin_cache_issue_data( $p_rows );
@@ -197,19 +193,19 @@ function write_bug_rows ( $p_rows )
 		if( ( 0 == $t_row->sticky ) && $t_in_stickies ) {	# demarcate stickies, if any have been shown
 ?>
 		   <tr>
-				   <td class="left" colspan="<?php echo count( $t_columns ); ?>" bgcolor="#999999">&#160;</td>
+				   <td class="left sticky-header" colspan="<?php echo count( $g_columns ); ?>">&#160;</td>
 		   </tr>
 <?php
 			$t_in_stickies = false;
 		}
 
 		# choose color based on status
-		$status_label = html_get_status_css_class( $t_row->status, auth_get_current_user_id(), $t_row->project_id );
+		$t_status_label = html_get_status_css_class( $t_row->status, auth_get_current_user_id(), $t_row->project_id );
 
-		echo '<tr class="' . $status_label . '">';
+		echo '<tr class="' . $t_status_label . '">';
 
 		$t_column_value_function = 'print_column_value';
-		foreach( $t_columns as $t_column ) {
+		foreach( $g_columns as $t_column ) {
 			helper_call_custom_function( $t_column_value_function, array( $t_column, $t_row ) );
 		}
 
@@ -218,17 +214,17 @@ function write_bug_rows ( $p_rows )
 }
 
 
-write_bug_rows($rows);
+write_bug_rows( $t_rows );
 # -- ====================== end of BUG LIST ========================= --
 
 # -- ====================== MASS BUG MANIPULATION =================== --
 # @@@ ideally buglist-footer would be in <tfoot>, but that's not possible due to global g_checkboxes_exist set via write_bug_rows()
 ?>
 	<tr class="buglist-footer">
-		<td class="left" colspan="<?php echo $col_count; ?>">
+		<td class="left" colspan="<?php echo $t_col_count; ?>">
 			<span class="floatleft">
 <?php
-		if( $g_checkboxes_exist && ON == config_get( 'use_javascript' ) ) {
+		if( $g_checkboxes_exist ) {
 			echo '<input type="checkbox" id="bug_arr_all" name="bug_arr_all" value="all" class="check_all" />';
 			echo '<label for="bug_arr_all">' . lang_get( 'select_all' ) . '</label>';
 		}
@@ -246,7 +242,7 @@ write_bug_rows($rows);
 ?>			</span>
 			<span class="floatright small">
 				<?php
-					$f_filter	= gpc_get_int( 'filter', 0);
+					$f_filter	= gpc_get_int( 'filter', 0 );
 					print_page_links( 'view_all_bug_page.php', 1, $t_page_count, (int)$f_page_number, $f_filter );
 				?>
 			</span>

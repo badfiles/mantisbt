@@ -38,6 +38,7 @@
  * @ingroup Language
  * @file
  *
+ * @author Bithunter
  * @author Fitoschido
  * @author McDutchie
  * @author Toliño
@@ -859,7 +860,7 @@ $s_updated = 'Actualizado';
 $s_sticky = 'Mostrar os problemas fixos';
 $s_sticky_label = 'Mostrar os problemas fixos:';
 $s_sort_label = 'Ordenar por:';
-$s_issue_id = 'Problema #';
+$s_issue_id = 'Incidencia nº';
 $s_recently_visited = 'Visitados recentemente';
 $s_note_user_id_label = 'Por nota:';
 $s_filter_match_type = 'Tipo de coincidencia';
@@ -952,7 +953,7 @@ $s_link_custom_field_to_project_button = 'Ligar o campo personalizado';
 $s_linked_projects_label = 'Proxectos ligados:';
 $s_custom_field_sequence = 'Secuencia';
 $s_custom_field_sequence_label = 'Secuencia:';
-$s_custom_field_type_enum_string = '0:Corda,1:Numérico,2:Flutuar,3:Enumeración,4:Correo electrónico,5:Caixa de verificación,6:Lista,7:Lista de selección múltiple,8:Data,9:Radio, 10:Textarea';
+$s_custom_field_type_enum_string = '0:Corda,1:Numérico,2:Flotante,3:Enumeración,4:Correo electrónico,5:Caixa de verificación,6:Lista,7:Lista de selección múltiple,8:Data,9:Radio,10:Zona de texto';
 $s_confirm_used_custom_field_deletion = 'Este campo está actualmente ligado a, polo menos, un proxecto. Se continúa, todos os valores deste campo serán eliminados permanentemente. Esta acción non poderá ser desfeita. Se non desexa borrar este campo, prema no botón "Volver" do seu navegador. Para continuar, prema no botón de embaixo';
 $s_confirm_custom_field_deletion = 'Está seguro de querer eliminar este campo personalizado e todos os valores asociados?';
 $s_field_delete_button = 'Borrar o campo';
@@ -987,7 +988,7 @@ $s_changelog_empty = 'Non hai dispoñible ningunha información do rexistro de c
 $s_roadmap = 'Roteiro';
 $s_resolved_progress = '%1$d problema(s) de %2$d resolto(s). Progreso (%3$d%%).';
 $s_http_auth_realm = 'Rexistro MantisBT';
-$s_bug = 'problema';
+$s_bug = 'incidencia';
 $s_bugs = 'problemas';
 $s_add_new_relationship = 'Nova relación';
 $s_add_new_relationship_button = 'Engadir';
@@ -1132,8 +1133,6 @@ $s_time_tracking_stopwatch_start = 'Iniciar';
 $s_time_tracking_stopwatch_stop = 'Deter';
 $s_time_tracking_stopwatch_reset = 'Restablecer';
 $s_access_denied = 'Acceso rexeitado.';
-$s_twitter_resolved = '%1$d: [%2$s] %3$s (resolto por %4$s o %5$s)';
-$s_twitter_resolved_no_version = '%1$d: [%2$s] %3$s (resolto por %4$s)';
 $s_development_team = 'Equipo de desenvolvemento';
 $s_manage_columns_config = 'Xestionar as columnas';
 $s_all_columns_title = 'Todas as columnas dispoñibles';

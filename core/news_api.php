@@ -48,13 +48,13 @@ require_api( 'utility_api.php' );
 /**
  * Add a news item
  *
- * @param int $p_project_id project id
- * @param int $p_poster_id user id of poster
- * @param int $p_view_state View state
- * @param bool $p_announcement annoucement
- * @param string $p_headline News Headline
- * @param string $p_body News Body
- * @return int news article id
+ * @param integer $p_project_id   A project identifier.
+ * @param integer $p_poster_id    The user id of poster.
+ * @param integer $p_view_state   View state.
+ * @param boolean $p_announcement Whether article is an announcement.
+ * @param string  $p_headline     News Headline.
+ * @param string  $p_body         News Body.
+ * @return integer news article id
  */
 function news_create( $p_project_id, $p_poster_id, $p_view_state, $p_announcement, $p_headline, $p_body ) {
 	if( is_blank( $p_headline ) ) {
@@ -67,25 +67,22 @@ function news_create( $p_project_id, $p_poster_id, $p_view_state, $p_announcemen
 		trigger_error( ERROR_EMPTY_FIELD, ERROR );
 	}
 
-	$t_news_table = db_get_table( 'news' );
-
-	$t_query = "INSERT
-				INTO $t_news_table
+	$t_query = 'INSERT INTO {news}
 	    		  ( project_id, poster_id, date_posted, last_modified,
 	    		    view_state, announcement, headline, body )
 				VALUES
-				    ( " . db_param() . ",
-				      " . db_param() . ",
-				      " . db_param() . ",
-				      " . db_param() . ",
-				      " . db_param() . ",
-				      " . db_param() . ",
-				      " . db_param() . ",
-				      " . db_param() . "
-					)";
-	db_query_bound( $t_query, array( (int)$p_project_id, (int)$p_poster_id, db_now(), db_now(), (int)$p_view_state, $p_announcement, $p_headline, $p_body ) );
+				    ( ' . db_param() . ',
+				      ' . db_param() . ',
+				      ' . db_param() . ',
+				      ' . db_param() . ',
+				      ' . db_param() . ',
+				      ' . db_param() . ',
+				      ' . db_param() . ',
+				      ' . db_param() . '
+					)';
+	db_query( $t_query, array( (int)$p_project_id, (int)$p_poster_id, db_now(), db_now(), (int)$p_view_state, $p_announcement, $p_headline, $p_body ) );
 
-	$t_news_id = db_insert_id( $t_news_table );
+	$t_news_id = db_insert_id( db_get_table( 'news' ) );
 
 	return $t_news_id;
 }
@@ -93,43 +90,35 @@ function news_create( $p_project_id, $p_poster_id, $p_view_state, $p_announcemen
 /**
  * Delete the news entry
  *
- * @param int $p_news_id news id
- * @return bool always true
+ * @param integer $p_news_id A news article identifier.
+ * @return void
  */
 function news_delete( $p_news_id ) {
-	$t_news_table = db_get_table( 'news' );
-	$t_query = "DELETE FROM $t_news_table WHERE id=" . db_param();
-	db_query_bound( $t_query, array( $p_news_id ) );
-
-	# db_query_bound() errors on failure so:
-	return true;
+	$t_query = 'DELETE FROM {news} WHERE id=' . db_param();
+	db_query( $t_query, array( $p_news_id ) );
 }
 
 /**
  * Delete the news entry
  *
- * @param int $p_project_id project id
- * @return bool always true
+ * @param integer $p_project_id A project identifier.
+ * @return void
  */
 function news_delete_all( $p_project_id ) {
-	$t_news_table = db_get_table( 'news' );
-	$t_query = "DELETE FROM $t_news_table WHERE project_id=" . db_param();
-	db_query_bound( $t_query, array( (int)$p_project_id ) );
-
-	# db_query_bound() errors on failure so:
-	return true;
+	$t_query = 'DELETE FROM {news} WHERE project_id=' . db_param();
+	db_query( $t_query, array( (int)$p_project_id ) );
 }
 
 /**
  * Update news item
  *
- * @param int $p_news_id news id
- * @param int $p_project_id project id
- * @param int $p_view_state view state
- * @param bool $p_announcement announcement
- * @param string $p_headline news headline
- * @param string $p_body news body
- * @return bool always true
+ * @param integer $p_news_id      A news article identifier.
+ * @param integer $p_project_id   A project identifier.
+ * @param integer $p_view_state   View state.
+ * @param boolean $p_announcement Whether article is an announcement.
+ * @param string  $p_headline     News headline.
+ * @param string  $p_body         News body.
+ * @return void
  */
 function news_update( $p_news_id, $p_project_id, $p_view_state, $p_announcement, $p_headline, $p_body ) {
 	if( is_blank( $p_headline ) ) {
@@ -142,62 +131,55 @@ function news_update( $p_news_id, $p_project_id, $p_view_state, $p_announcement,
 		trigger_error( ERROR_EMPTY_FIELD, ERROR );
 	}
 
-	$t_news_table = db_get_table( 'news' );
-
 	# Update entry
-	$t_query = "UPDATE $t_news_table
-				  SET view_state=" . db_param() . ",
-					announcement=" . db_param() . ",
-					headline=" . db_param() . ",
-					body=" . db_param() . ",
-					project_id=" . db_param() . ",
-					last_modified= " . db_param() . "
-				  WHERE id=" . db_param();
+	$t_query = 'UPDATE {news}
+				  SET view_state=' . db_param() . ',
+					announcement=' . db_param() . ',
+					headline=' . db_param() . ',
+					body=' . db_param() . ',
+					project_id=' . db_param() . ',
+					last_modified= ' . db_param() . '
+				  WHERE id=' . db_param();
 
-	db_query_bound( $t_query, array( $p_view_state, $p_announcement, $p_headline, $p_body, $p_project_id, db_now(), $p_news_id ) );
-
-	# db_query_bound() errors on failure so:
-	return true;
+	db_query( $t_query, array( $p_view_state, $p_announcement, $p_headline, $p_body, $p_project_id, db_now(), $p_news_id ) );
 }
 
 /**
  * Selects the news item associated with the specified id
  *
- * @param int $p_news_id news id
+ * @param integer $p_news_id A news article identifier.
  * @return array news article
  */
 function news_get_row( $p_news_id ) {
-	$t_news_table = db_get_table( 'news' );
-	$t_query = "SELECT * FROM $t_news_table WHERE id=" . db_param();
-	$t_result = db_query_bound( $t_query, array( $p_news_id ) );
+	$t_query = 'SELECT * FROM {news} WHERE id=' . db_param();
+	$t_result = db_query( $t_query, array( $p_news_id ) );
 
-	$row = db_fetch_array( $t_result );
+	$t_row = db_fetch_array( $t_result );
 
-	if( !$row ) {
+	if( !$t_row ) {
 		trigger_error( ERROR_NEWS_NOT_FOUND, ERROR );
 	} else {
-		return $row;
+		return $t_row;
 	}
 }
 
 /**
  * get news count (selected project plus site wide posts)
  *
- * @param int $p_project_id project id
- * @param bool $p_global site wide news i.e. ALL_PROJECTS
+ * @param integer $p_project_id A project identifier.
+ * @param boolean $p_global     Whether this is site wide news i.e. ALL_PROJECTS.
  * @return int news count
  */
 function news_get_count( $p_project_id, $p_global = true ) {
-	$t_news_table = db_get_table( 'news' );
 	$t_project_where = helper_project_specific_where( $p_project_id );
 
-	$t_query = "SELECT COUNT(*) FROM $t_news_table WHERE $t_project_where";
+	$t_query = 'SELECT COUNT(*) FROM {news} WHERE ' . $t_project_where;
 
 	if( $p_global ) {
 		$t_query .= ' OR project_id=' . ALL_PROJECTS;
 	}
 
-	$t_result = db_query_bound( $t_query );
+	$t_result = db_query( $t_query );
 
 	return db_result( $t_result, 0 );
 }
@@ -205,8 +187,8 @@ function news_get_count( $p_project_id, $p_global = true ) {
 /**
  * get news items (selected project plus site wide posts)
  *
- * @param int $p_project_id project id
- * @param bool $p_global site wide news i.e. ALL_PROJECTS
+ * @param integer $p_project_id A project identifier.
+ * @param boolean $p_global     Whether this is site wide news i.e. ALL_PROJECTS.
  * @return array Array of news articles
  */
 function news_get_rows( $p_project_id, $p_global = true ) {
@@ -217,19 +199,18 @@ function news_get_rows( $p_project_id, $p_global = true ) {
 		$t_projects[] = ALL_PROJECTS;
 	}
 
-	$t_news_table = db_get_table( 'news' );
-	$t_query = "SELECT * FROM $t_news_table";
+	$t_query = 'SELECT * FROM {news}';
 
 	if( 1 == count( $t_projects ) ) {
 		$c_project_id = $t_projects[0];
-		$t_query .= " WHERE project_id='$c_project_id'";
+		$t_query .= ' WHERE project_id=\'$c_project_id\'';
 	} else {
 		$t_query .= ' WHERE project_id IN (' . join( $t_projects, ',' ) . ')';
 	}
 
-	$t_query .= " ORDER BY date_posted DESC";
+	$t_query .= ' ORDER BY date_posted DESC';
 
-	$t_result = db_query_bound( $t_query, array() );
+	$t_result = db_query( $t_query, array() );
 
 	$t_rows = array();
 
@@ -243,9 +224,9 @@ function news_get_rows( $p_project_id, $p_global = true ) {
 /**
  * Get field from news item
  *
- * @param int $p_news_id news id
- * @param string $p_field_name field name
- * @return
+ * @param integer $p_news_id    A news article identifier.
+ * @param string  $p_field_name The field name to retrieve.
+ * @return mixed
  */
 function news_get_field( $p_news_id, $p_field_name ) {
 	$t_row = news_get_row( $p_news_id );
@@ -255,8 +236,8 @@ function news_get_field( $p_news_id, $p_field_name ) {
 /**
  * Check if the specified news item is private
  *
- * @param int $p_news_id news id
- * @return bool
+ * @param integer $p_news_id A news article identifier.
+ * @return boolean
  */
 function news_is_private( $p_news_id ) {
 	return( news_get_field( $p_news_id, 'view_state' ) == VS_PRIVATE );
@@ -266,8 +247,8 @@ function news_is_private( $p_news_id ) {
  * Gets a limited set of news rows to be viewed on one page based on the criteria
  * defined in the configuration file.
  *
- * @param int $p_offset offset
- * @param int $p_project_id project id
+ * @param integer $p_offset     Offset.
+ * @param integer $p_project_id A project identifier.
  * @return array
  */
 function news_get_limited_rows( $p_offset, $p_project_id = null ) {
@@ -283,48 +264,44 @@ function news_get_limited_rows( $p_offset, $p_project_id = null ) {
 		$t_projects[] = ALL_PROJECTS;
 	}
 
-	$t_news_table = db_get_table( 'news' );
 	$t_news_view_limit = config_get( 'news_view_limit' );
 	$t_news_view_limit_days = config_get( 'news_view_limit_days' ) * SECONDS_PER_DAY;
 
 	switch( config_get( 'news_limit_method' ) ) {
 		case 0:
-
 			# BY_LIMIT - Select the news posts
-			$query = "SELECT * FROM $t_news_table";
+			$t_query = 'SELECT * FROM {news}';
 
 			if( 1 == count( $t_projects ) ) {
 				$c_project_id = $t_projects[0];
-				$query .= " WHERE project_id=" . db_param();
+				$t_query .= ' WHERE project_id=' . db_param();
 				$t_params = array( $c_project_id );
 			} else {
-				$query .= ' WHERE project_id IN (' . join( $t_projects, ',' ) . ')';
+				$t_query .= ' WHERE project_id IN (' . join( $t_projects, ',' ) . ')';
 				$t_params = null;
 			}
 
-			$query .= ' ORDER BY announcement DESC, id DESC';
-			$t_result = db_query_bound( $query, $t_params, $t_news_view_limit, $c_offset );
+			$t_query .= ' ORDER BY announcement DESC, id DESC';
+			$t_result = db_query( $t_query, $t_params, $t_news_view_limit, $c_offset );
 			break;
 		case 1:
-
 			# BY_DATE - Select the news posts
-			$query = "SELECT *
-						FROM $t_news_table WHERE
-						( " . db_helper_compare_days( 0, 'date_posted', "< $t_news_view_limit_days" ) . "
-						 OR announcement = " . db_param() . " ) ";
+			$t_query = 'SELECT * FROM {news} WHERE
+						( ' . db_helper_compare_days( 0, 'date_posted', '< ' . $t_news_view_limit_days ) . '
+						 OR announcement = ' . db_param() . ' ) ';
 			$t_params = array(
 				db_now(),
 				1,
 			);
 			if( 1 == count( $t_projects ) ) {
 				$c_project_id = $t_projects[0];
-				$query .= " AND project_id=" . db_param();
+				$t_query .= ' AND project_id=' . db_param();
 				$t_params[] = $c_project_id;
 			} else {
-				$query .= ' AND project_id IN (' . join( $t_projects, ',' ) . ')';
+				$t_query .= ' AND project_id IN (' . join( $t_projects, ',' ) . ')';
 			}
-			$query .= " ORDER BY announcement DESC, id DESC";
-			$t_result = db_query_bound( $query, $t_params, $t_news_view_limit, $c_offset );
+			$t_query .= ' ORDER BY announcement DESC, id DESC';
+			$t_result = db_query( $t_query, $t_params, $t_news_view_limit, $c_offset );
 			break;
 	}
 
@@ -339,6 +316,7 @@ function news_get_limited_rows( $p_offset, $p_project_id = null ) {
 /**
  * Checks if the news feature is enabled or not.
  * true: enabled, otherwise false.
+ * @return boolean
  */
 function news_is_enabled() {
 	return config_get( 'news_enabled' ) == ON;
@@ -346,6 +324,7 @@ function news_is_enabled() {
 
 /**
  * Ensures that the news feature is enabled, otherwise generates an access denied error.
+ * @return void
  */
 function news_ensure_enabled() {
 	if( !news_is_enabled() ) {

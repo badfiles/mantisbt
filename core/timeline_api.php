@@ -31,28 +31,32 @@ require_api( 'access_api.php' );
 require_api( 'bug_api.php' );
 require_api( 'history_api.php' );
 
+/**
+ * Get list of affected issues between a given time period
+ * @param integer $p_start_time Timestamp representing start time of the period.
+ * @param integer $p_end_time   Timestamp representing end time of the period.
+ * @return array
+ */
 function timeline_get_affected_issues( $p_start_time, $p_end_time ) {
-	$t_mantis_bug_history_table = db_get_table( 'bug_history' );
-
-	$query = "SELECT DISTINCT(bug_id) from $t_mantis_bug_history_table WHERE date_modified >= " . db_param() . " AND date_modified < " . db_param();
-	$result = db_query_bound( $query, array( $p_start_time, $p_end_time ) );
+	$t_query = 'SELECT DISTINCT(bug_id) from {bug_history} WHERE date_modified >= ' . db_param() . ' AND date_modified < ' . db_param();
+	$t_result = db_query( $t_query, array( $p_start_time, $p_end_time ) );
 
 	$t_current_project = helper_get_current_project();
 
 	$t_all_issue_ids = array();
-	while ( ( $t_row = db_fetch_array( $result ) ) !== false ) {
+	while( ( $t_row = db_fetch_array( $t_result ) ) !== false ) {
 		$t_all_issue_ids[] = $t_row['bug_id'];
 	}
 
 	bug_cache_array_rows( $t_all_issue_ids );
 
 	$t_issue_ids = array();
-	foreach ( $t_all_issue_ids as $t_issue_id ) {
+	foreach( $t_all_issue_ids as $t_issue_id ) {
 		if( $t_current_project != ALL_PROJECTS && $t_current_project != bug_get_field( $t_issue_id, 'project_id' ) ) {
 			continue;
 		}
 
-		if( !access_has_bug_level( VIEWER, $t_issue_id ) ) {
+		if( !access_has_bug_level( config_get( 'view_bug_threshold' ), $t_issue_id ) ) {
 			continue;
 		}
 
@@ -62,6 +66,12 @@ function timeline_get_affected_issues( $p_start_time, $p_end_time ) {
 	return $t_issue_ids;
 }
 
+/**
+ * Get an array of timeline events
+ * @param integer $p_start_time Timestamp representing start time of the period.
+ * @param integer $p_end_time   Timestamp representing end time of the period.
+ * @return array
+ */
 function timeline_events( $p_start_time, $p_end_time ) {
 	$t_issue_ids = timeline_get_affected_issues( $p_start_time, $p_end_time );
 
@@ -81,7 +91,7 @@ function timeline_events( $p_start_time, $p_end_time ) {
 			$t_user_id = $t_history_event['userid'];
 			$t_timestamp = $t_history_event['date'];
 
-			switch ( $t_history_event['type'] ) {
+			switch( $t_history_event['type'] ) {
 				case NEW_BUG:
 					$t_event = new IssueCreatedTimelineEvent( $t_timestamp, $t_user_id, $t_issue_id );
 					break;
@@ -106,7 +116,7 @@ function timeline_events( $p_start_time, $p_end_time ) {
 					$t_event = new IssueTagTimelineEvent( $t_timestamp, $t_user_id, $t_issue_id, $t_history_event['old_value'], false );
 					break;
 				case NORMAL_TYPE:
-					switch ( $t_history_event['field'] ) {
+					switch( $t_history_event['field'] ) {
 						case 'status':
 							$t_event = new IssueStatusChangeTimelineEvent( $t_timestamp, $t_user_id, $t_issue_id, $t_history_event['old_value'], $t_history_event['new_value'] );
 							break;
@@ -126,14 +136,19 @@ function timeline_events( $p_start_time, $p_end_time ) {
 	return $t_timeline_events;
 }
 
-function timeline_sort_events( $p_events ) {
+/**
+ * Sort an array of timeline events
+ * @param array $p_events Array of events being sorted.
+ * @return array Sorted array of events.
+ */
+function timeline_sort_events( array $p_events ) {
 	$t_count = count( $p_events );
 	$t_stable = false;
 
-	while ( !$t_stable ) {
+	while( !$t_stable ) {
 		$t_stable = true;
 
-		for ( $i = 0; $i < $t_count - 1; ++$i ) {
+		for( $i = 0; $i < $t_count - 1; ++$i ) {
 			if( $p_events[$i]->compare( $p_events[$i+1] ) < 0 ) {
 				$t_temp = $p_events[$i];
 				$p_events[$i] = $p_events[$i+1];
@@ -146,7 +161,13 @@ function timeline_sort_events( $p_events ) {
 	return $p_events;
 }
 
-function timeline_filter_events( $p_events, $p_max_count ) {
+/**
+ * Truncate an array of events.
+ * @param array   $p_events    Array of events to truncate.
+ * @param integer $p_max_count Maximum number of entries to return.
+ * @return array
+ */
+function timeline_filter_events( array $p_events, $p_max_count ) {
 	$t_events = array();
 
 	foreach ( $p_events as $t_event ) {
@@ -164,7 +185,12 @@ function timeline_filter_events( $p_events, $p_max_count ) {
 	return $t_events;
 }
 
-function timeline_print_events( $p_events ) {
+/**
+ * Print for display an array of events
+ * @param array $p_events Array of events to display.
+ * @return void
+ */
+function timeline_print_events( array $p_events ) {
 	foreach ( $p_events as $t_event ) {
 		echo $t_event->html();
 	}

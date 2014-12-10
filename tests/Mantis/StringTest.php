@@ -23,16 +23,11 @@
  * @link http://www.mantisbt.org
  */
 
-/**
- * Includes
- */
-require_once dirname( dirname(__FILE__) ) . '/TestConfig.php';
+# Includes
+require_once dirname( dirname( __FILE__ ) ) . '/TestConfig.php';
 
-/**
- * MantisBT Core API
- */
+# MantisBT Core API
 require_mantis_core();
-
 
 /**
  * Mantis string handling test cases
@@ -45,23 +40,31 @@ class Mantis_StringTest extends PHPUnit_Framework_TestCase {
 
 	/**
 	 * Tests string_sanitize_url()
-	  *
+	 *
 	 * @dataProvider provider
-	  * @param string $in input
-	  * @param string $out expected output
+	 * @param string $p_in  Input.
+	 * @param string $p_out Expected output.
+	 * @return void
 	 */
-	public function testStringSanitize( $in, $out )
-	{
-		$a = string_sanitize_url($in, false);
-		$this->assertEquals( $out, $a );
+	public function testStringSanitize( $p_in, $p_out ) {
+		$t_a = string_sanitize_url( $p_in, false );
+		$this->assertEquals( $p_out, $t_a );
+
+		# Since unit tests are run from command-line, with a default MantisBT
+		# config $g_short_path will be that of the phpunit binary. We also
+		# need to cover the case of Mantis being installed at the server's
+		# root (i.e. $g_short_path = '/')
+		config_set_global('short_path', '/');
+		$t_a = string_sanitize_url($p_in, false);
+		$this->assertEquals( $p_out, $t_a );
 	}
 
 	/**
 	 * Data provider for string sanitize test
+	 * @return array
 	 */
-	public function provider()
-	{
-		$testStrings = array(
+	public function provider() {
+		$t_test_strings = array(
 			array( '', 'index.php' ),
 			array( 'abc.php', 'abc.php' ),
 			array( 'abc.php?', 'abc.php'),
@@ -77,6 +80,7 @@ class Mantis_StringTest extends PHPUnit_Framework_TestCase {
 			array( 'plugin.php?page=Source/index', 'plugin.php?page=Source%2Findex'),
 			array( 'plugin.php?page=Source/list&id=1', 'plugin.php?page=Source%2Flist&id=1'),
 			array( 'plugin.php?page=Source/list&id=1#abc', 'plugin.php?page=Source%2Flist&id=1#abc'),
+			array( 'login_page.php?return=http://google.com/', 'index.php'),
 		);
 
 		# @FIXME
@@ -96,7 +100,7 @@ class Mantis_StringTest extends PHPUnit_Framework_TestCase {
 		#	array( $my_path.'plugin.php?page=Source/list&id=1#abc',
 		#	array( 'http://www.test.my.url/'),
 
-		return $testStrings;
+		return $t_test_strings;
 	}
 
 }

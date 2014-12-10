@@ -30,18 +30,11 @@ if( !defined( 'CHECK_DISPLAY_INC_ALLOW' ) ) {
 	return;
 }
 
-/**
- * MantisBT Check API
- */
+# MantisBT Check API
 require_once( 'check_api.php' );
 require_api( 'config_api.php' );
 
 check_print_section_header_row( 'Display' );
-
-check_print_test_row(
-	'use_dynamic_filters = ON requires use_javascript = ON',
-	!config_get_global( 'use_dynamic_filters' ) || ( config_get_global( 'use_dynamic_filters' ) && config_get_global( 'use_javascript' ) )
-);
 
 check_print_test_row(
 	'bug_link_tag is not blank/null',
@@ -74,8 +67,7 @@ if( plugin_is_installed( 'MantisGraph' ) ) {
 			'Checking we can find jpgraph library class files',
 			file_exists( $t_jpgraph_path ),
 			# array( false => dirname( $t_jpgraph_path ) )
-			dirname( $t_jpgraph_path )
-		);
+			dirname( $t_jpgraph_path ) );
 
 		if( $t_jpgraph_found ) {
 			require_once( $t_jpgraph_path );
@@ -86,17 +78,15 @@ if( plugin_is_installed( 'MantisGraph' ) ) {
 			check_print_test_row(
 				'Checking jpgraph library version is at least 2.3.0',
 				version_compare( $t_jpgraph_version, '2.3.0', '>=' ),
-				$t_jpgraph_version
-			);
+				$t_jpgraph_version );
 		}
 
 		$t_jpgraph_antialias = plugin_config_get( 'jpgraph_antialias', OFF );
 		if( $t_jpgraph_antialias ) {
 			check_print_test_row(
 				'jpgraph anti-aliasing requires the php-bundled GD library',
-				$t_jpgraph_antialias == OFF || function_exists('imageantialias'),
-				array( false => 'The functionality requires the imageantialias() function' )
-			);
+				$t_jpgraph_antialias == OFF || function_exists( 'imageantialias' ),
+				array( false => 'The functionality requires the imageantialias() function' ) );
 		}
 	}
 	plugin_pop_current();

@@ -30,9 +30,7 @@ if( !defined( 'CHECK_PATHS_INC_ALLOW' ) ) {
 	return;
 }
 
-/**
- * MantisBT Check API
- */
+# MantisBT Check API
 require_once( 'check_api.php' );
 require_api( 'config_api.php' );
 
@@ -67,8 +65,8 @@ foreach( $t_paths as $t_path_config_name => $t_path ) {
 		$t_path_config_name . ' configuration option has a trailing directory separator',
 		substr( $t_path['config_value'], -1, 1 ) == DIRECTORY_SEPARATOR,
 		array( false =>
-			"You must provide a trailing directory separator (" . DIRECTORY_SEPARATOR .
-			") to the end of '" . htmlspecialchars( $t_path['config_value'] ) . "'."
+			'You must provide a trailing directory separator (' . DIRECTORY_SEPARATOR .
+			') to the end of \'' . htmlspecialchars( $t_path['config_value'] ) . '\'.'
 		)
 	);
 }
@@ -135,7 +133,7 @@ foreach( $t_moveable_paths as $t_moveable_path ) {
 	}
 	check_print_test_warn_row(
 		$t_moveable_path . ' configuration option is set to a path outside the web root',
-		!preg_match( "/^$t_absolute_path_regex_safe/", $t_moveable_real_path ),
+		!preg_match( '/^' . $t_absolute_path_regex_safe . '/', $t_moveable_real_path ),
 		array( false => 'For increased security it is recommended that you move the ' . $t_moveable_path . ' directory outside the web root.' )
 	);
 }
@@ -154,7 +152,6 @@ foreach( $t_removeable_directories as $t_removeable_directory ) {
 
 $t_developer_directories = array(
 	'docbook',
-	'packages',
 	'tests',
 );
 

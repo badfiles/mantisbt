@@ -77,6 +77,7 @@ foreach( $f_dest_bug_id_array as $f_dest_bug_id ) {
 
 	# the related bug exists...
 	bug_ensure_exists( $f_dest_bug_id );
+	$t_dest_bug = bug_get( $f_dest_bug_id, true );
 
 	# bug is not read-only...
 	if( bug_is_readonly( $f_src_bug_id ) ) {
@@ -85,7 +86,7 @@ foreach( $f_dest_bug_id_array as $f_dest_bug_id ) {
 	}
 
 	# user can access to the related bug at least as viewer...
-	if( !access_has_bug_level( VIEWER, $f_dest_bug_id ) ) {
+	if( !access_has_bug_level( config_get( 'view_bug_threshold', null, null, $t_dest_bug->project_id ), $f_dest_bug_id ) ) {
 		error_parameters( $f_dest_bug_id );
 		trigger_error( ERROR_RELATIONSHIP_ACCESS_LEVEL_TO_DEST_BUG_TOO_LOW, ERROR );
 	}
@@ -103,8 +104,7 @@ foreach( $f_dest_bug_id_array as $f_dest_bug_id ) {
 	if( $t_old_id_relationship == -1 ) {
 		# the relationship type is exactly the same of the new one. No sense to proceed
 		trigger_error( ERROR_RELATIONSHIP_ALREADY_EXISTS, ERROR );
-	}
-	else if( $t_old_id_relationship > 0 ) {
+	} else if( $t_old_id_relationship > 0 ) {
 		# there is already a relationship between them -> we have to update it and not to add a new one
 		helper_ensure_confirmed( lang_get( 'replace_relationship_sure_msg' ), lang_get( 'replace_relationship_button' ) );
 

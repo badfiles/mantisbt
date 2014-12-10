@@ -48,7 +48,7 @@ require_api( 'helper_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'utility_api.php' );
 
-if( OFF == config_get('time_tracking_enabled') ) {
+if( OFF == config_get( 'time_tracking_enabled' ) ) {
 	return;
 }
 ?>
@@ -58,8 +58,8 @@ if( OFF == config_get('time_tracking_enabled') ) {
 <?php
 collapse_open( 'bugnotestats' );
 
-$t_bugnote_stats_from_def = date( "d:m:Y", $t_bug->date_submitted );
-$t_bugnote_stats_from_def_ar = explode ( ":", $t_bugnote_stats_from_def );
+$t_bugnote_stats_from_def = date( 'd:m:Y', $t_bug->date_submitted );
+$t_bugnote_stats_from_def_ar = explode( ':', $t_bugnote_stats_from_def );
 $t_bugnote_stats_from_def_d = $t_bugnote_stats_from_def_ar[0];
 $t_bugnote_stats_from_def_m = $t_bugnote_stats_from_def_ar[1];
 $t_bugnote_stats_from_def_y = $t_bugnote_stats_from_def_ar[2];
@@ -68,8 +68,8 @@ $t_bugnote_stats_from_d = gpc_get_string( 'start_day', $t_bugnote_stats_from_def
 $t_bugnote_stats_from_m = gpc_get_string( 'start_month', $t_bugnote_stats_from_def_m );
 $t_bugnote_stats_from_y = gpc_get_string( 'start_year', $t_bugnote_stats_from_def_y );
 
-$t_bugnote_stats_to_def = date( "d:m:Y" );
-$t_bugnote_stats_to_def_ar = explode ( ":", $t_bugnote_stats_to_def );
+$t_bugnote_stats_to_def = date( 'd:m:Y' );
+$t_bugnote_stats_to_def_ar = explode( ':', $t_bugnote_stats_to_def );
 $t_bugnote_stats_to_def_d = $t_bugnote_stats_to_def_ar[0];
 $t_bugnote_stats_to_def_m = $t_bugnote_stats_to_def_ar[1];
 $t_bugnote_stats_to_def_y = $t_bugnote_stats_to_def_ar[2];
@@ -106,7 +106,7 @@ $f_get_bugnote_stats_button = gpc_get_string( 'get_bugnote_stats_button', '' );
 					$t_filter[FILTER_PROPERTY_END_DAY] = $t_bugnote_stats_to_d;
 					$t_filter[FILTER_PROPERTY_END_MONTH] = $t_bugnote_stats_to_m;
 					$t_filter[FILTER_PROPERTY_END_YEAR] = $t_bugnote_stats_to_y;
-					print_filter_do_filter_by_date(true);
+					print_filter_do_filter_by_date( true );
 				?>
 			</td>
 		</tr>
@@ -114,28 +114,24 @@ $f_get_bugnote_stats_button = gpc_get_string( 'get_bugnote_stats_button', '' );
 			<td class="center" colspan="2">
 				<input type="submit" class="button"
 					name="get_bugnote_stats_button"
-					value="<?php echo lang_get( 'time_tracking_get_info_button' ) ?>"
-				/>
+					value="<?php echo lang_get( 'time_tracking_get_info_button' ) ?>" />
 			</td>
 		</tr>
 	</table>
 </form>
 
-
 <?php
 	# Print time tracking information if requested
-
 	if( !is_blank( $f_get_bugnote_stats_button ) ) {
 		# Retrieve time tracking information
-		$t_from = "$t_bugnote_stats_from_y-$t_bugnote_stats_from_m-$t_bugnote_stats_from_d";
-		$t_to = "$t_bugnote_stats_to_y-$t_bugnote_stats_to_m-$t_bugnote_stats_to_d";
+		$t_from = $t_bugnote_stats_from_y . '-' . $t_bugnote_stats_from_m . '-' . $t_bugnote_stats_from_d;
+		$t_to = $t_bugnote_stats_to_y . '-' . $t_bugnote_stats_to_m . '-' . $t_bugnote_stats_to_d;
 		$t_bugnote_stats = bugnote_stats_get_events_array( $f_bug_id, $t_from, $t_to );
 
 		# Sort the array by user/real name
 		if( ON == config_get( 'show_realname' ) ) {
 			$t_name_field = 'realname';
-		}
-		else {
+		} else {
 			$t_name_field = 'username';
 		}
 		$t_sort_name = array();
@@ -155,15 +151,13 @@ $f_get_bugnote_stats_button = gpc_get_string( 'get_bugnote_stats_button', '' );
 			<?php echo lang_get( 'time_tracking' ) ?>
 		</td>
 	</tr>
-
 <?php
 		# Loop on all time tracking entries
 		$t_sum_in_minutes = 0;
 		foreach ( $t_bugnote_stats as $t_item ) {
 			$t_sum_in_minutes += $t_item['sum_time_tracking'];
-			$t_item['sum_time_tracking'] = db_minutes_to_hhmm ( $t_item['sum_time_tracking'] );
+			$t_item['sum_time_tracking'] = db_minutes_to_hhmm( $t_item['sum_time_tracking'] );
 ?>
-
 	<tr>
 		<td class="small-caption">
 			<?php echo string_display_line( $t_item[$t_name_field] ) ?>
@@ -180,7 +174,7 @@ $f_get_bugnote_stats_button = gpc_get_string( 'get_bugnote_stats_button', '' );
 			<?php echo lang_get( 'total_time' ) ?>
 		</td>
 		<td class="small-caption bold">
-			<?php echo db_minutes_to_hhmm ( $t_sum_in_minutes ) ?>
+			<?php echo db_minutes_to_hhmm( $t_sum_in_minutes ) ?>
 		</td>
 	</tr>
 </table>

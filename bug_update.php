@@ -89,8 +89,8 @@ $t_updated_bug->build = gpc_get_string( 'build', $t_existing_bug->build );
 $t_updated_bug->category_id = gpc_get_int( 'category_id', $t_existing_bug->category_id );
 $t_updated_bug->description = gpc_get_string( 'description', $t_existing_bug->description );
 $t_due_date = gpc_get_string( 'due_date', null );
-if( $t_due_date !== null) {
-	if( is_blank ( $t_due_date ) ) {
+if( $t_due_date !== null ) {
+	if( is_blank( $t_due_date ) ) {
 		$t_updated_bug->due_date = 1;
 	} else {
 		$t_updated_bug->due_date = strtotime( $t_due_date );
@@ -100,6 +100,7 @@ $t_updated_bug->duplicate_id = gpc_get_int( 'duplicate_id', 0 );
 $t_updated_bug->eta = gpc_get_int( 'eta', $t_existing_bug->eta );
 $t_updated_bug->fixed_in_version = gpc_get_string( 'fixed_in_version', $t_existing_bug->fixed_in_version );
 $t_updated_bug->handler_id = gpc_get_int( 'handler_id', $t_existing_bug->handler_id );
+$t_updated_bug->last_updated = gpc_get_string( 'last_updated' );
 $t_updated_bug->os = gpc_get_string( 'os', $t_existing_bug->os );
 $t_updated_bug->os_build = gpc_get_string( 'os_build', $t_existing_bug->os_build );
 $t_updated_bug->platform = gpc_get_string( 'platform', $t_existing_bug->platform );
@@ -120,6 +121,10 @@ $t_bug_note = new BugNoteData();
 $t_bug_note->note = gpc_get_string( 'bugnote_text', '' );
 $t_bug_note->view_state = gpc_get_bool( 'private', config_get( 'default_bugnote_view_status' ) == VS_PRIVATE ) ? VS_PRIVATE : VS_PUBLIC;
 $t_bug_note->time_tracking = gpc_get_string( 'time_tracking', '0:00' );
+
+if( $t_existing_bug->last_updated !== $t_updated_bug->last_updated ) {
+	trigger_error( ERROR_BUG_CONFLICTING_EDIT, ERROR );
+}
 
 # Determine whether the new status will reopen, resolve or close the issue.
 # Note that multiple resolved or closed states can exist and thus we need to
@@ -275,7 +280,7 @@ foreach ( $t_related_custom_field_ids as $t_cf_id ) {
 		trigger_error( ERROR_ACCESS_DENIED, ERROR );
 	}
 
-	$t_new_custom_field_value = gpc_get_custom_field( "custom_field_$t_cf_id", $t_cf_def['type'], null );
+	$t_new_custom_field_value = gpc_get_custom_field( 'custom_field_' . $t_cf_id, $t_cf_def['type'], null );
 	$t_old_custom_field_value = custom_field_get_value( $t_cf_id, $f_bug_id );
 
 	# Validate the value of the field against current validation rules.
@@ -380,7 +385,7 @@ if( $t_updated_bug->duplicate_id !== 0 ) {
 	if( user_exists( $t_existing_bug->reporter_id ) ) {
 		bug_monitor( $f_bug_id, $t_existing_bug->reporter_id );
 	}
-	if( user_exists ( $t_existing_bug->handler_id ) ) {
+	if( user_exists( $t_existing_bug->handler_id ) ) {
 		bug_monitor( $f_bug_id, $t_existing_bug->handler_id );
 	}
 	bug_monitor_copy( $f_bug_id, $t_updated_bug->duplicate_id );

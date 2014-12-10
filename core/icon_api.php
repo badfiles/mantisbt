@@ -36,7 +36,7 @@ require_api( 'utility_api.php' );
 
 /**
  * gets the status icon
- * @param string $p_icon
+ * @param string $p_icon Icon file name.
  * @return string html img tag containing status icon
  * @access public
  */
@@ -45,16 +45,16 @@ function icon_get_status_icon( $p_icon ) {
 	$t_status_icon_arr = config_get( 'status_icon_arr' );
 	$t_priotext = get_enum_element( 'priority', $p_icon );
 	if( isset( $t_status_icon_arr[$p_icon] ) && !is_blank( $t_status_icon_arr[$p_icon] ) ) {
-		return "<img src=\"$t_icon_path$t_status_icon_arr[$p_icon]\" alt=\"\" title=\"$t_priotext\" />";
+		return '<img src="' . $t_icon_path . $t_status_icon_arr[$p_icon] . '" alt="" title="' . $t_priotext . '" />';
 	} else {
-		return "&#160;";
+		return '&#160;';
 	}
 }
 
 /**
  * prints the status icon
- * @param string $p_icon
- * @return null
+ * @param string $p_icon Icon file name.
+ * @return void
  * @access public
  */
 function print_status_icon( $p_icon ) {
@@ -69,10 +69,10 @@ function print_status_icon( $p_icon ) {
  * page(s)
  * $p_field is a constant and $p_sort_by is whatever the page happens to be sorting by at the moment
  * Multiple sort keys are not supported
- * @param int $p_dir
- * @param string $p_sort_by
- * @param string $p_field
- * @return null
+ * @param integer $p_dir     Direction to sort by ( either ASC or DESC ).
+ * @param string  $p_sort_by Field.
+ * @param string  $p_field   Field to sort by.
+ * @return void
  * @access public
  */
 function print_sort_icon( $p_dir, $p_sort_by, $p_field ) {
@@ -84,7 +84,7 @@ function print_sort_icon( $p_dir, $p_sort_by, $p_field ) {
 		return;
 	}
 
-	if(( 'DESC' == $p_dir ) || ( DESCENDING == $p_dir ) ) {
+	if( ( 'DESC' == $p_dir ) || ( DESCENDING == $p_dir ) ) {
 		$t_dir = DESCENDING;
 	} else {
 		$t_dir = ASCENDING;
@@ -92,9 +92,9 @@ function print_sort_icon( $p_dir, $p_sort_by, $p_field ) {
 
 	$t_none = NONE;
 	if( !is_blank( $t_sort_icon_arr[$t_dir] ) ) {
-		echo "<img src=\"$t_icon_path$t_sort_icon_arr[$t_dir]\" alt=\"\" />";
+		echo '<img src="' . $t_icon_path . $t_sort_icon_arr[$t_dir] . '" alt="" />';
 	} else {
-		echo "<img src=\"$t_icon_path$t_status_icon_arr[$t_none]\" alt=\"\" />";
+		echo '<img src="' . $t_icon_path . $t_status_icon_arr[$t_none] . '" alt="" />';
 	}
 }
 

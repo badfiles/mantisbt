@@ -48,9 +48,9 @@ $g_log_levels = array(
 
 /**
  * Log an event
- * @param int $p_level Valid debug log level
- * @param string|array,... $p_msg Either a string, or an array structured as (string,execution time)
- * @return null
+ * @param integer          $p_level Valid debug log level.
+ * @param string|array,... $p_msg   Either a string, or an array structured as (string,execution time).
+ * @return void
  */
 function log_event( $p_level, $p_msg ) {
 	global $g_log_levels;
@@ -64,24 +64,40 @@ function log_event( $p_level, $p_msg ) {
 
 	if( is_array( $p_msg ) ) {
 		$t_event = $p_msg;
-		$s_msg = var_export( $p_msg, true );
+		$t_msg = var_export( $p_msg, true );
 	} else {
-		$args = func_get_args();
-		array_shift($args); # skip level
-		array_shift($args); # skip message
-		$p_msg = vsprintf( $p_msg, $args);
+		$t_args = func_get_args();
+		array_shift( $t_args ); # skip level
+		array_shift( $t_args ); # skip message
+		$p_msg = vsprintf( $p_msg, $t_args );
 
 		$t_event = array( $p_msg, 0 );
-		$s_msg = $p_msg;
+		$t_msg = $p_msg;
 	}
 
 	$t_backtrace = debug_backtrace();
 	$t_caller = basename( $t_backtrace[0]['file'] );
-	$t_caller .= ":" . $t_backtrace[0]['line'];
+	$t_caller .= ':' . $t_backtrace[0]['line'];
 
 	# Is this called from another function?
 	if( isset( $t_backtrace[1] ) ) {
-		$t_caller .= ' ' . $t_backtrace[1]['function'] . '()';
+		if( $p_level == LOG_DATABASE ) {
+			if( isset( $t_backtrace[2] ) && $t_backtrace[2]['function'] == 'call_user_func_array' ) {
+				$t_caller = basename( $t_backtrace[3]['file'] );
+				$t_caller .= ':' . $t_backtrace[3]['line'];
+				$t_caller .= ' ' . $t_backtrace[3]['function'] . '()';
+			} else if( $t_backtrace[1]['function'] == 'db_query' ) {
+				$t_caller = basename( $t_backtrace[1]['file'] );
+				$t_caller .= ':' . $t_backtrace[1]['line'];
+				if( isset( $t_backtrace[2] ) ) {
+					$t_caller .= ' ' . $t_backtrace[2]['function'] . '()';
+				} else {
+					$t_caller .= ' ' . $t_backtrace[1]['function'] . '()';
+				}
+			}
+		} else {
+			$t_caller .= ' ' . $t_backtrace[1]['function'] . '()';
+		}
 	} else {
 		# or from a script directly?
 		$t_caller .= ' ' . $_SERVER['SCRIPT_NAME'];
@@ -90,7 +106,7 @@ function log_event( $p_level, $p_msg ) {
 	$t_now = date( config_get_global( 'complete_date_format' ) );
 	$t_level = $g_log_levels[$p_level];
 
-	$t_plugin_event = '[' . $t_level . '] ' . $p_msg;
+	$t_plugin_event = '[' . $t_level . '] ' . $t_msg;
 	if( function_exists( 'event_signal' ) ) {
 		event_signal( 'EVENT_LOG', array( $t_plugin_event ) );
 	}
@@ -107,7 +123,7 @@ function log_event( $p_level, $p_msg ) {
 		}
 	}
 
-	$t_php_event = $t_now . ' ' . $t_level . ' ' . $s_msg;
+	$t_php_event = $t_now . ' ' . $t_level . ' ' . $t_msg;
 
 	switch( $t_destination ) {
 		case 'none':
@@ -126,11 +142,12 @@ function log_event( $p_level, $p_msg ) {
 				}
 			}
 			if( class_exists( 'FirePHP' ) ) {
-				static $firephp;
-				if( $firephp === null ) {
-					$firephp = FirePHP::getInstance(true);
+				static $s_firephp;
+				if( $s_firephp === null ) {
+					$s_firephp = FirePHP::getInstance( true );
 				}
-				$firephp->log( $p_msg, $t_php_event );
+				# Don't use $t_msg, let FirePHP format the message
+				$s_firephp->log( $p_msg, $t_now . ' ' . $t_level );
 				return;
 			}
 			# if firebug is not available, fall through
@@ -148,10 +165,15 @@ function log_event( $p_level, $p_msg ) {
 
 /**
  * Print logging api output to bottom of html page
+ * @return void
  */
 function log_print_to_page() {
 	if( config_get_global( 'log_destination' ) === 'page' && auth_is_user_authenticated() && access_has_global_level( config_get( 'show_log_threshold' ) ) ) {
-		global $g_log_events, $g_log_levels;
+		global $g_log_events, $g_log_levels, $g_email_stored;
+
+		if( $g_email_stored ) {
+			email_send_all();
+		}
 
 		$t_unique_queries_count = 0;
 		$t_total_query_execution_time = 0;
@@ -159,7 +181,8 @@ function log_print_to_page() {
 		$t_total_queries_count = 0;
 		$t_total_event_count = count( $g_log_events );
 
-			echo "\n\n<!--Mantis Debug Log Output-->";
+		echo "\t<hr />\n";
+		echo "\n\n<!--Mantis Debug Log Output-->";
 		if( $t_total_event_count == 0 ) {
 			echo "<!--END Mantis Debug Log Output-->\n\n";
 			return;
@@ -177,7 +200,7 @@ function log_print_to_page() {
 		echo "\t</thead>\n";
 		echo "\t<tbody>\n";
 
-		for ( $i = 0; $i < $t_total_event_count; $i++ ) {
+		for( $i = 0; $i < $t_total_event_count; $i++ ) {
 			if( $g_log_events[$i][1] == LOG_DATABASE ) {
 				if( !in_array( $g_log_events[$i][2][0], $t_unique_queries ) ) {
 					$t_unique_queries_count++;
@@ -198,17 +221,17 @@ function log_print_to_page() {
 			} else {
 				$t_count[$t_log_event[1]] = 1;
 			}
-			switch ( $t_log_event[1] ) {
+			switch( $t_log_event[1] ) {
 				case LOG_DATABASE:
 					$t_total_queries_count++;
 					$t_query_duplicate_class = '';
 					if( $t_log_event[2][2] ) {
 						$t_query_duplicate_class = ' class="duplicate-query"';
 					}
-					echo "\t\t<tr$t_query_duplicate_class><td>" . $t_level . '-' . $t_count[$t_log_event[1]] . "</td><td>" . $t_log_event[2][1] . "</td><td>" . string_html_specialchars ( $t_log_event[3] ) . "</td><td>" . string_html_specialchars( $t_log_event[2][0] ) . "</td></tr>\n";
+					echo "\t\t<tr " . $t_query_duplicate_class . '><td>' . $t_level . '-' . $t_count[$t_log_event[1]] . '</td><td>' . $t_log_event[2][1] . '</td><td>' . string_html_specialchars( $t_log_event[3] ) . '</td><td>' . string_html_specialchars( $t_log_event[2][0] ) . "</td></tr>\n";
 					break;
 				default:
-					echo "\t\t<tr><td>" . $t_level . '-' . $t_count[$t_log_event[1]] . "</td><td>" . $t_log_event[2][1] . "</td><td>" . string_html_specialchars ( $t_log_event[3] ) . "</td><td>" . string_html_specialchars( $t_log_event[2][0] ) . "</td></tr>\n";
+					echo "\t\t<tr><td>" . $t_level . '-' . $t_count[$t_log_event[1]] . '</td><td>' . $t_log_event[2][1] . '</td><td>' . string_html_specialchars( $t_log_event[3] ) . '</td><td>' . string_html_specialchars( $t_log_event[2][0] ) . "</td></tr>\n";
 			}
 		}
 

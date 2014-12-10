@@ -66,8 +66,7 @@ $t_description = string_display( $t_tag_row['description'] );
 
 if( !( access_has_global_level( config_get( 'tag_edit_threshold' ) )
 	|| ( auth_get_current_user_id() == $t_tag_row['user_id'] )
-		&& access_has_global_level( config_get( 'tag_edit_own_threshold' ) ) ) )
-{
+		&& access_has_global_level( config_get( 'tag_edit_own_threshold' ) ) ) ) {
 	access_denied();
 }
 
@@ -99,7 +98,7 @@ html_page_top( sprintf( lang_get( 'tag_update' ), $t_name ) );
 						echo '</select></span>';
 					} else { ?>
 						<span class="display-label"><span><?php echo lang_get( 'tag_creator' ); ?></span></span>
-						<span class="display-value"><span><?php echo string_display_line( user_get_name($t_tag_row['user_id']) ); ?></span></span><?php
+						<span class="display-value"><span><?php echo string_display_line( user_get_name( $t_tag_row['user_id'] ) ); ?></span></span><?php
 					} ?>
 				<span class="label-style"></span>
 			</div>

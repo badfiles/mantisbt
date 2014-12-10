@@ -59,11 +59,11 @@ $f_action = gpc_get_string( 'action', '' );
 if( 'delete' == $f_action ) {
 	form_security_validate( 'news_delete' );
 
-	$row = news_get_row( $f_news_id );
+	$t_row = news_get_row( $f_news_id );
 
 	# This check is to allow deleting of news items that were left orphan due to bug #3723
-	if( project_exists( $row['project_id'] ) ) {
-		access_ensure_project_level( config_get( 'manage_news_threshold' ), $row['project_id'] );
+	if( project_exists( $t_row['project_id'] ) ) {
+		access_ensure_project_level( config_get( 'manage_news_threshold' ), $t_row['project_id'] );
 	}
 
 	helper_ensure_confirmed( lang_get( 'delete_news_sure_msg' ), lang_get( 'delete_news_item_button' ) );
@@ -76,9 +76,9 @@ if( 'delete' == $f_action ) {
 }
 
 # Retrieve news item data and prefix with v_
-$row = news_get_row( $f_news_id );
-if( $row ) {
-	extract( $row, EXTR_PREFIX_ALL, 'v' );
+$t_row = news_get_row( $f_news_id );
+if( $t_row ) {
+	extract( $t_row, EXTR_PREFIX_ALL, 'v' );
 }
 
 access_ensure_project_level( config_get( 'manage_news_threshold' ), $v_project_id );
@@ -123,7 +123,7 @@ html_page_top( lang_get( 'edit_news_title' ) );
 			</div>
 			<div class="field-container">
 				<label for="news-update-announcement"><span><?php echo lang_get( 'announcement' ) ?></span> <span class="help-text"><?php echo lang_get( 'stays_on_top' ) ?></span></label>
-				<span class="checkbox"><input type="checkbox" id="news-update-announcement" name="announcement" <?php check_checked( $v_announcement, 1 ); ?> /></span>
+				<span class="checkbox"><input type="checkbox" id="news-update-announcement" name="announcement" <?php check_checked( (int)$v_announcement, 1 ); ?> /></span>
 				<span class="label-style"></span>
 			</div>
 			<div class="field-container">

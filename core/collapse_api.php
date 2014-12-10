@@ -40,31 +40,25 @@ require_api( 'gpc_api.php' );
 require_api( 'tokens_api.php' );
 require_api( 'utility_api.php' );
 
-/**
- *
- * @global string $g_current_collapse_section
- */
+
+# @global string $g_current_collapse_section
 $g_current_collapse_section = null;
 
-/**
- *
- * @global bool $g_open_collapse_section
- */
+# @global bool $g_open_collapse_section
 $g_open_collapse_section = false;
 
-/**
- *
- * @global string $g_collapse_cache_token
- */
+
+# @global string $g_collapse_cache_token
 $g_collapse_cache_token = null;
 
 /**
  * Marks the beginning of a collapse block's open phase.
  * This will be visible if the block is expanded, or if
  * javascript is disabled.
- * @param string $p_name Collapse block name
- * @param string $p_section Collapse block section
- * @param string $p_css_class CSS class to apply to the div (defaults to none)
+ * @param string $p_name      Collapse block name.
+ * @param string $p_section   Collapse block section.
+ * @param string $p_css_class CSS class to apply to the div (defaults to none).
+ * @return void
  */
 function collapse_open( $p_name, $p_section = '', $p_css_class = '' ) {
 	global $g_current_collapse_section, $g_open_collapse_section;
@@ -87,15 +81,16 @@ function collapse_open( $p_name, $p_section = '', $p_css_class = '' ) {
 	$g_current_collapse_section = $t_block;
 
 	$t_div_id = $t_block . '_open';
-	echo "\n<div id=\"$t_div_id\" class=\"$p_css_class\">";
+	echo "\n" . '<div id="' . $t_div_id . '" class="' . $p_css_class . '">';
 }
 
 /**
  * Marks the end of a collapse block's open phase and the beginning
- * of the block's closed phase.  Thi will only be visible if the
+ * of the block's closed phase.  This will only be visible if the
  * block have been collapsed and javascript is enabled.
- * @param string $p_name Collapse block name
- * @param string $p_section Collapse block section
+ * @param string $p_name    Collapse block name.
+ * @param string $p_section Collapse block section.
+ * @return void
  */
 function collapse_closed( $p_name, $p_section = '' ) {
 	global $g_current_collapse_section, $g_open_collapse_section;
@@ -122,14 +117,11 @@ function collapse_closed( $p_name, $p_section = '' ) {
  * Marks the location where a +/- icon is placed in output
  * for the user to toggle the collapse block status.
  * This should appear in both the open and closed phase of a block.
- * @param string $p_name Collapse block name
- * @param string $p_section Collapse block section
+ * @param string $p_name    Collapse block name.
+ * @param string $p_section Collapse block section.
+ * @return void
  */
 function collapse_icon( $p_name, $p_section = '' ) {
-	if( OFF == config_get( 'use_javascript' ) ) {
-		return;
-	}
-
 	global $g_open_collapse_section;
 
 	if( $g_open_collapse_section === true ) {
@@ -148,8 +140,9 @@ function collapse_icon( $p_name, $p_section = '' ) {
 /**
  * Marks the end of a collapse block's closed phase.
  * Closed phase output is discarded if javascript is disabled.
- * @param string $p_name Collapse block name
- * @param string $p_section Collapse block section
+ * @param string $p_name    Collapse block name.
+ * @param string $p_section Collapse block section.
+ * @return void
  */
 function collapse_end( $p_name, $p_section = '' ) {
 	global $g_current_collapse_section, $g_open_collapse_section;
@@ -167,24 +160,20 @@ function collapse_end( $p_name, $p_section = '' ) {
 
 	$g_open_collapse_section = false;
 
-	if( ON == config_get( 'use_javascript' ) ) {
-		ob_end_flush();
-	} else {
-		ob_end_clean();
-	}
+	ob_end_flush();
 
 	$g_current_collapse_section = null;
 }
 
 /**
  * Determine if a block should be displayed open by default.
- * @param string $p_block Collapse block
- * @return bool
+ * @param string $p_block Collapse block.
+ * @return boolean
  */
 function collapse_display( $p_block ) {
 	global $g_collapse_cache_token;
 
-	if( !isset( $g_collapse_cache_token[$p_block] ) || OFF == config_get( 'use_javascript' ) ) {
+	if( !isset( $g_collapse_cache_token[$p_block] ) ) {
 		return true;
 	}
 
@@ -193,8 +182,9 @@ function collapse_display( $p_block ) {
 
 /**
  * Cache collapse API data from the database for the current user.
- * If the collapse cookie has been set, grab the changes and resave
+ * If the collapse cookie has been set, grab the changes and re-save
  * the token, or touch it otherwise.
+ * @return void
  */
 function collapse_cache_token() {
 	global $g_collapse_cache_token;
@@ -211,9 +201,10 @@ function collapse_cache_token() {
 	$t_token = token_get_value( TOKEN_COLLAPSE );
 
 	if( !is_null( $t_token ) ) {
-		$t_data = unserialize( $t_token );
+		$t_data = json_decode( $t_token, true );
 	} else {
 		$t_data = array();
+		$t_data['filter'] = false;
 	}
 
 	$g_collapse_cache_token = $t_data;
@@ -234,7 +225,7 @@ function collapse_cache_token() {
 		}
 
 		if( $t_update ) {
-			$t_token = serialize( $g_collapse_cache_token );
+			$t_token = json_encode( $g_collapse_cache_token );
 			token_set( TOKEN_COLLAPSE, $t_token, TOKEN_EXPIRY_COLLAPSE );
 		} else {
 			token_touch( TOKEN_COLLAPSE );

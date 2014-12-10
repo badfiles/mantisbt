@@ -23,16 +23,11 @@
  * @link http://www.mantisbt.org
  */
 
-/**
- * Includes
- */
-require_once dirname( dirname(__FILE__) ) . '/TestConfig.php';
+# Includes
+require_once dirname( dirname( __FILE__ ) ) . '/TestConfig.php';
 
-/**
- * MantisBT Core API
- */
+# MantisBT Core API
 require_mantis_core();
-
 
 /**
  * Helper API tests
@@ -44,29 +39,20 @@ class Mantis_HelperTest extends PHPUnit_Framework_TestCase {
 	/**
 	 * Tests helper_array_transpose()
 	 * @dataProvider providerArrayTranspose
-	 * @param array $in input array
-	 * @param array $out output array
+	 * @param mixed $p_in  Input array.
+	 * @param mixed $p_out Output array.
+	 * @return void
 	 */
-	public function testArrayTranspose( $in, $out )
-	{
-		$this->assertEquals( $out, helper_array_transpose( $in ) );
+	public function testArrayTranspose( $p_in, $p_out ) {
+		$this->assertEquals( $p_out, helper_array_transpose( $p_in ) );
 	}
 
 	/**
 	 * Returns test array
+	 * @return array
 	 */
-	public function providerArrayTranspose()
-	{
+	public function providerArrayTranspose() {
 		return array(
-			# null
-			array( null, null ),
-
-			# scalar
-			array( 123, 123 ),
-
-			# object
-			array( $this, $this ),
-
 			# simple array
 			array( array(123,456), array(123,456) ),
 
@@ -89,5 +75,4 @@ class Mantis_HelperTest extends PHPUnit_Framework_TestCase {
 			),
 		);
 	}
-
 }

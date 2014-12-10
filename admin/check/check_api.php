@@ -36,6 +36,7 @@ $g_errors_raised = array();
 
 /**
  * Initialise error handler for checks
+ * @return void
  */
 function check_init_error_handler() {
 	set_error_handler( 'check_error_handler' );
@@ -44,11 +45,12 @@ function check_init_error_handler() {
 
 /**
  * Implement Error handler for check framework
- * @param int $p_type type
- * @param string $p_error error
- * @param string $p_file file
- * @param int $p_line line
- * @param string $p_context context
+ * @param integer $p_type    Error type.
+ * @param string  $p_error   Error number.
+ * @param string  $p_file    File error occurred in.
+ * @param integer $p_line    Line number.
+ * @param string  $p_context Context.
+ * @return void
  */
 function check_error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 	global $g_errors_raised;
@@ -63,7 +65,7 @@ function check_error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) 
 
 /**
  * Check whether any unhandled errors exist
- * @return bool|int false if there are no unhandled errors, or the lowest
+ * @return boolean|integer false if there are no unhandled errors, or the lowest
  *                  unhandled {@see http://php.net/errorfunc.constants Error Type}
  */
 function check_unhandled_errors_exist() {
@@ -80,6 +82,7 @@ function check_unhandled_errors_exist() {
 
 /**
  * Print out errors raised to html
+ * @return void
  */
 function check_print_error_rows() {
 	global $g_show_errors, $g_errors_temporarily_suppressed, $g_errors_raised;
@@ -121,7 +124,7 @@ function check_print_error_rows() {
 				$t_error_description = htmlentities( $t_error['error'] );
 		}
 		echo "\t<tr>\n\t\t<td colspan=\"2\" class=\"error\">";
-		echo "<strong>$t_error_type:</strong> $t_error_description<br />";
+		echo '<strong>' . $t_error_type . ':</strong> ' . $t_error_description . '<br />';
 		echo '<em>Raised in file ' . htmlentities( $t_error['file'] ) . ' on line ' . htmlentities( $t_error['line'] ) . '</em>';
 		echo "</td>\n\t</tr>\n";
 	}
@@ -131,7 +134,8 @@ function check_print_error_rows() {
 /**
  * Print section header
  *
- * @param string $p_heading heading
+ * @param string $p_heading Heading.
+ * @return void
  */
 function check_print_section_header_row( $p_heading ) {
 ?>
@@ -144,35 +148,39 @@ function check_print_section_header_row( $p_heading ) {
 /**
  * Print Check result - information only
  *
- * @param string $p_description description
- * @param string $p_info information
+ * @param string $p_description Description.
+ * @param string $p_info        Information.
+ * @return void
  */
 function check_print_info_row( $p_description, $p_info = null ) {
 	global $g_alternate_row, $g_show_all;
 	if( !$g_show_all ) {
 		return;
 	}
-	echo "\t<tr>\n\t\t<td class=\"description$g_alternate_row\">$p_description</td>\n";
-	echo "\t\t<td class=\"info$g_alternate_row\">$p_info</td>\n\t</tr>\n";
+	echo "\t" . '<tr>' . "\n\t\t";
+	echo '<td class="description' . $g_alternate_row . '">' . $p_description . '</td>' . "\n";
+	echo "\t\t" . '<td class="info' . $g_alternate_row . '">' . $p_info . '</td>' . "\n";
+	echo "\t" . '</tr>' . "\n";
 	$g_alternate_row = $g_alternate_row === 1 ? 2 : 1;
 }
 
 /**
  * Print Check Test Result
- * @param int $p_result BAD|GOOD|WARN
+ * @param integer $p_result One of BAD|GOOD|WARN.
+ * @return void
  */
 function check_print_test_result( $p_result ) {
 	global $g_alternate_row, $g_failed_test, $g_passed_test_with_warnings;
-	switch ( $p_result ) {
+	switch( $p_result ) {
 		case BAD:
-			echo "\t\t<td class=\"fail$g_alternate_row\">FAIL</td>\n";
+			echo "\t\t" . '<td class="fail' . $g_alternate_row . '">FAIL</td>' . "\n";
 			$g_failed_test = true;
 			break;
 		case GOOD:
-			echo "\t\t<td class=\"pass$g_alternate_row\">PASS</td>\n";
+			echo "\t\t" . '<td class="pass' . $g_alternate_row . '">PASS</td>' . "\n";
 			break;
 		case WARN:
-			echo "\t\t<td class=\"warn$g_alternate_row\">WARN</td>\n";
+			echo "\t\t" . '<td class="warn' . $g_alternate_row . '">WARN</td>' . "\n";
 			$g_passed_test_with_warnings = true;
 			break;
 	}
@@ -180,20 +188,20 @@ function check_print_test_result( $p_result ) {
 
 /**
  * Print Check Test Row
- * @param string $p_description description
- * @param bool $p_pass pass
- * @param string $p_info information
- * @return bool
+ * @param string  $p_description Description.
+ * @param boolean $p_pass        Whether test passed.
+ * @param string  $p_info        Information.
+ * @return boolean
  */
 function check_print_test_row( $p_description, $p_pass, $p_info = null ) {
 	global $g_alternate_row, $g_show_all;
 	$t_unhandled = check_unhandled_errors_exist();
-	if( !$g_show_all && $p_pass && !$t_unhandled) {
+	if( !$g_show_all && $p_pass && !$t_unhandled ) {
 		return $p_pass;
 	}
 
-	echo "\t<tr>\n\t\t<td class=\"description$g_alternate_row\">$p_description";
-	if( $p_info !== null) {
+	echo "\t<tr>\n\t\t<td class=\"description" . $g_alternate_row . '\">' . $p_description;
+	if( $p_info !== null ) {
 		if( is_array( $p_info ) && isset( $p_info[$p_pass] ) ) {
 			echo '<br /><em>' . $p_info[$p_pass] . '</em>';
 		} else if( !is_array( $p_info ) ) {
@@ -221,19 +229,19 @@ function check_print_test_row( $p_description, $p_pass, $p_info = null ) {
 
 /**
  * Print Check Test Warning Row
- * @param string $p_description description
- * @param bool $p_pass pass
- * @param string $p_info information
- * @return bool
+ * @param string  $p_description Description.
+ * @param boolean $p_pass        Whether test passed.
+ * @param string  $p_info        Information.
+ * @return boolean
  */
 function check_print_test_warn_row( $p_description, $p_pass, $p_info = null ) {
 	global $g_alternate_row, $g_show_all;
 	$t_unhandled = check_unhandled_errors_exist();
-	if( !$g_show_all && $p_pass && !$t_unhandled) {
+	if( !$g_show_all && $p_pass && !$t_unhandled ) {
 		return $p_pass;
 	}
-	echo "\t<tr>\n\t\t<td class=\"description$g_alternate_row\">$p_description";
-	if( $p_info !== null) {
+	echo "\t<tr>\n\t\t<td class=\"description" . $g_alternate_row . '">' . $p_description;
+	if( $p_info !== null ) {
 		if( is_array( $p_info ) && isset( $p_info[$p_pass] ) ) {
 			echo '<br /><em>' . $p_info[$p_pass] . '</em>';
 		} else if( !is_array( $p_info ) ) {

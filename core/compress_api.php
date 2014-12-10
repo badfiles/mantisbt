@@ -24,25 +24,22 @@
  * @link http://www.mantisbt.org
  *
  * @uses constant_inc.php
- * @uses php_api.php
  * @uses utility_api.php
  */
 
 require_api( 'constant_inc.php' );
 require_api( 'utility_api.php' );
 
-/**
- * Starts the buffering/compression (only if the compression option is ON)
- * This variable is used internally.  It is not used for configuration
- * @global bool $g_compression_started
- */
+# Starts the buffering/compression (only if the compression option is ON)
+# This variable is used internally.  It is not used for configuration
+# @global bool $g_compression_started
 $g_compression_started = false;
 
 /**
  * Check if compression handler (ob_gzhandler) should be enabled. Note: this should not be used
  * as an indicator of whether output received by a client will be compressed, only whether an
  * output handler is used to compress output.
- * @return bool
+ * @return boolean
  * @access public
  */
 function compress_handler_is_enabled() {
@@ -82,7 +79,7 @@ function compress_handler_is_enabled() {
 
 /**
  * Start compression handler if required
- * @return null
+ * @return void
  * @access public
  */
 function compress_start_handler() {
@@ -101,12 +98,12 @@ function compress_start_handler() {
 /**
  * Output Buffering handler that either compresses the buffer or just.
  * returns it, depending on the return value of compress_handler_is_enabled()
- * @param string $p_buffer
- * @param int $p_mode
+ * @param string  &$p_buffer Buffer.
+ * @param integer $p_mode    Mode.
  * @return string
  * @access public
  */
-function compress_handler( & $p_buffer, $p_mode ) {
+function compress_handler( &$p_buffer, $p_mode ) {
 	global $g_compression_started;
 	if( $g_compression_started && compress_handler_is_enabled() ) {
 		return ob_gzhandler( $p_buffer, $p_mode );
@@ -117,7 +114,7 @@ function compress_handler( & $p_buffer, $p_mode ) {
 
 /**
  * Enable output buffering with compression.
- * @return null
+ * @return void
  * @access public
  */
 function compress_enable() {
@@ -128,7 +125,7 @@ function compress_enable() {
 
 /**
  * Disable output buffering with compression.
- * @return null
+ * @return void
  * @access public
  */
 function compress_disable() {

@@ -36,9 +36,6 @@
  * @uses utility_api.php
  */
 
-/**
- * MantisBT Core API's
- */
 require_once( 'core.php' );
 require_api( 'authentication_api.php' );
 require_api( 'bug_api.php' );
@@ -117,6 +114,6 @@ do {
 		$t_page_number++;
 		$t_result = filter_get_bug_rows( $t_page_number, $t_per_page, $t_page_count, $t_bug_count );
 	}
-} while ( $t_more );
+} while( $t_more );
 
 echo excel_get_footer();

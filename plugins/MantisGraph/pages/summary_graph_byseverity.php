@@ -33,10 +33,10 @@ $f_width = gpc_get_int( 'width', 300 );
 $t_ar = plugin_config_get( 'bar_aspect' );
 
 $t_token = token_get_value( TOKEN_GRAPH );
-if( $t_token == null) {
+if( $t_token == null ) {
 	$t_metrics = create_bug_enum_summary( lang_get( 'severity_enum_string' ), 'severity' );
 } else {
-	$t_metrics = graph_total_metrics( unserialize( $t_token ) );
+	$t_metrics = graph_total_metrics( json_decode( $t_token, true ) );
 }
 
 graph_bar( $t_metrics, lang_get( 'by_severity' ), $f_width, $f_width * $t_ar );

@@ -55,30 +55,30 @@ require_api( 'utility_api.php' );
 <?php
 collapse_open( 'bugnotestats' );
 
-$t_today = date( "d:m:Y" );
-$t_date_submitted = isset( $t_bug ) ? date( "d:m:Y", $t_bug->date_submitted ) : $t_today;
+$t_today = date( 'd:m:Y' );
+$t_date_submitted = isset( $t_bug ) ? date( 'd:m:Y', $t_bug->date_submitted ) : $t_today;
 
 $t_bugnote_stats_from_def = $t_date_submitted;
-$t_bugnote_stats_from_def_ar = explode ( ":", $t_bugnote_stats_from_def );
+$t_bugnote_stats_from_def_ar = explode( ':', $t_bugnote_stats_from_def );
 $t_bugnote_stats_from_def_d = $t_bugnote_stats_from_def_ar[0];
 $t_bugnote_stats_from_def_m = $t_bugnote_stats_from_def_ar[1];
 $t_bugnote_stats_from_def_y = $t_bugnote_stats_from_def_ar[2];
 
-$t_bugnote_stats_from_d = gpc_get_int('start_day', $t_bugnote_stats_from_def_d);
-$t_bugnote_stats_from_m = gpc_get_int('start_month', $t_bugnote_stats_from_def_m);
-$t_bugnote_stats_from_y = gpc_get_int('start_year', $t_bugnote_stats_from_def_y);
+$t_bugnote_stats_from_d = gpc_get_int( 'start_day', $t_bugnote_stats_from_def_d );
+$t_bugnote_stats_from_m = gpc_get_int( 'start_month', $t_bugnote_stats_from_def_m );
+$t_bugnote_stats_from_y = gpc_get_int( 'start_year', $t_bugnote_stats_from_def_y );
 
 $t_bugnote_stats_to_def = $t_today;
-$t_bugnote_stats_to_def_ar = explode ( ":", $t_bugnote_stats_to_def );
+$t_bugnote_stats_to_def_ar = explode( ':', $t_bugnote_stats_to_def );
 $t_bugnote_stats_to_def_d = $t_bugnote_stats_to_def_ar[0];
 $t_bugnote_stats_to_def_m = $t_bugnote_stats_to_def_ar[1];
 $t_bugnote_stats_to_def_y = $t_bugnote_stats_to_def_ar[2];
 
-$t_bugnote_stats_to_d = gpc_get_int('end_day', $t_bugnote_stats_to_def_d);
-$t_bugnote_stats_to_m = gpc_get_int('end_month', $t_bugnote_stats_to_def_m);
-$t_bugnote_stats_to_y = gpc_get_int('end_year', $t_bugnote_stats_to_def_y);
+$t_bugnote_stats_to_d = gpc_get_int( 'end_day', $t_bugnote_stats_to_def_d );
+$t_bugnote_stats_to_m = gpc_get_int( 'end_month', $t_bugnote_stats_to_def_m );
+$t_bugnote_stats_to_y = gpc_get_int( 'end_year', $t_bugnote_stats_to_def_y );
 
-$f_get_bugnote_stats_button = gpc_get_string('get_bugnote_stats_button', '');
+$f_get_bugnote_stats_button = gpc_get_string( 'get_bugnote_stats_button', '' );
 
 # Retrieve the cost as a string and convert to floating point
 $f_bugnote_cost = floatval( gpc_get_string( 'bugnote_cost', '' ) );
@@ -117,7 +117,7 @@ if( ON == config_get( 'time_tracking_with_billing' ) ) {
 					$t_filter[FILTER_PROPERTY_END_DAY] = $t_bugnote_stats_to_d;
 					$t_filter[FILTER_PROPERTY_END_MONTH] = $t_bugnote_stats_to_m;
 					$t_filter[FILTER_PROPERTY_END_YEAR] = $t_bugnote_stats_to_y;
-					print_filter_do_filter_by_date(true);
+					print_filter_do_filter_by_date( true );
 				?>
 			</td>
 		</tr>
@@ -147,15 +147,14 @@ if( ON == config_get( 'time_tracking_with_billing' ) ) {
 <?php
 	if( !is_blank( $f_get_bugnote_stats_button ) ) {
 		# Retrieve time tracking information
-		$t_from = "$t_bugnote_stats_from_y-$t_bugnote_stats_from_m-$t_bugnote_stats_from_d";
-		$t_to = "$t_bugnote_stats_to_y-$t_bugnote_stats_to_m-$t_bugnote_stats_to_d";
+		$t_from = $t_bugnote_stats_from_y . '-' . $t_bugnote_stats_from_m . '-' . $t_bugnote_stats_from_d;
+		$t_to = $t_bugnote_stats_to_y . '-' . $t_bugnote_stats_to_m . '-' . $t_bugnote_stats_to_d;
 		$t_bugnote_stats = bugnote_stats_get_project_array( $f_project_id, $t_from, $t_to, $f_bugnote_cost );
 
 		# Sort the array by bug_id, user/real name
 		if( ON == config_get( 'show_realname' ) ) {
 			$t_name_field = 'realname';
-		}
-		else {
+		} else {
 			$t_name_field = 'username';
 		}
 		$t_sort_bug = $t_sort_name = array();
@@ -181,7 +180,7 @@ if( ON == config_get( 'time_tracking_with_billing' ) ) {
 		<td class="small-caption bold">
 			<?php echo lang_get( 'time_tracking' ) ?>
 		</td>
-<?php	if( $t_cost_col) { ?>
+<?php	if( $t_cost_col ) { ?>
 		<td class="small-caption bold right">
 			<?php echo lang_get( 'time_tracking_cost' ) ?>
 		</td>
@@ -203,9 +202,9 @@ if( ON == config_get( 'time_tracking_with_billing' ) ) {
 			$t_user_summary[$t_item[$t_name_field]] += $t_item['sum_time_tracking'];
 
 			$t_item['sum_time_tracking'] = db_minutes_to_hhmm( $t_item['sum_time_tracking'] );
-			if( $t_item['bug_id'] != $t_prev_id) {
+			if( $t_item['bug_id'] != $t_prev_id ) {
 				$t_link = sprintf( lang_get( 'label' ), string_get_bug_view_link( $t_item['bug_id'] ) ) . lang_get( 'word_separator' ) . string_display( $t_item['summary'] );
-				echo '<tr class="row-category-history"><td colspan="4">' . $t_link . "</td></tr>";
+				echo '<tr class="row-category-history"><td colspan="4">' . $t_link . '</td></tr>';
 				$t_prev_id = $t_item['bug_id'];
 			}
 ?>
@@ -216,7 +215,7 @@ if( ON == config_get( 'time_tracking_with_billing' ) ) {
 		<td class="small-caption">
 			<?php echo $t_item['sum_time_tracking'] ?>
 		</td>
-<?php		if ($t_cost_col) { ?>
+<?php		if( $t_cost_col ) { ?>
 		<td class="small-caption right">
 			<?php echo string_attribute( number_format( $t_item['cost'], 2 ) ); ?>
 		</td>
@@ -266,7 +265,7 @@ if( ON == config_get( 'time_tracking_with_billing' ) ) {
 			<?php echo $t_username; ?>
 		</td>
 		<td class="small-caption">
-			<?php echo db_minutes_to_hhmm($t_total_time); ?>
+			<?php echo db_minutes_to_hhmm( $t_total_time ); ?>
 		</td>
 <?php		if( $t_cost_col ) { ?>
 		<td class="small-caption right">

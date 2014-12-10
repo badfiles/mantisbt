@@ -91,7 +91,7 @@ $t_bug = bug_get( $f_bug_id, true );
 # per-project function calls use the project ID of this bug.
 $g_project_override = $t_bug->project_id;
 
-access_ensure_bug_level( VIEWER, $f_bug_id );
+access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
 
 $f_history = gpc_get_bool( 'history', config_get( 'history_default_visible' ) );
 
@@ -130,7 +130,7 @@ if( $t_show_product_version || $t_show_fixed_in_version || $t_show_target_versio
 	}
 
 	if( $t_show_target_version ) {
-		$t_target_version_string   = prepare_version_string( $t_bug->project_id, version_get_id( $t_bug->target_version, $t_bug->project_id) );
+		$t_target_version_string   = prepare_version_string( $t_bug->project_id, version_get_id( $t_bug->target_version, $t_bug->project_id ) );
 	}
 
 	if( $t_show_fixed_in_version ) {
@@ -147,7 +147,7 @@ $t_form_title = lang_get( 'bug_view_title' );
 $t_wiki_link = config_get_global( 'wiki_enable' ) == ON ? 'wiki.php?id=' . $f_bug_id : '';
 
 if( access_has_bug_level( config_get( 'view_history_threshold' ), $f_bug_id ) ) {
-	$t_history_link = "view.php?id=$f_bug_id&history=1#history";
+	$t_history_link = 'view.php?id=' . $f_bug_id . '&history=1#history';
 } else {
 	$t_history_link = '';
 }
@@ -250,7 +250,7 @@ echo $t_form_title;
 echo '&#160;<span class="small">';
 
 # Jump to Bugnotes
-print_bracket_link( "#bugnotes", lang_get( 'jump_to_bugnotes' ), false, 'jump-to-bugnotes' );
+print_bracket_link( '#bugnotes', lang_get( 'jump_to_bugnotes' ), false, 'jump-to-bugnotes' );
 
 # Send Bug Reminder
 if( $t_show_reminder_link ) {
@@ -304,7 +304,7 @@ echo '<td class="right alternate-views-links" colspan="2">';
 if( !is_blank( $t_history_link ) ) {
 	# History
 	echo '<span class="small">';
-	print_bracket_link( $t_history_link, lang_get( 'bug_history' ), false , 'bug-history' );
+	print_bracket_link( $t_history_link, lang_get( 'bug_history' ), false, 'bug-history' );
 	echo '</span>';
 }
 
@@ -327,7 +327,7 @@ echo '</thead>';
 
 if( $t_bottom_buttons_enabled ) {
 	echo '<tfoot>';
-	echo '<tr class="bottom-buttons"><td colspan="6">';
+	echo '<tr class="details-footer"><td colspan="6">';
 	html_buttons_view_bug_page( $t_bug_id );
 	echo '</td></tr>';
 	echo '</tfoot>';
@@ -483,9 +483,9 @@ if( $t_show_status || $t_show_resolution ) {
 		echo '<th class="bug-status category">', lang_get( 'status' ), '</th>';
 
 		# choose color based on status
-		$status_label = html_get_status_css_class( $t_bug->status );
+		$t_status_label = html_get_status_css_class( $t_bug->status );
 
-		echo '<td class="bug-status ', $status_label, '">', $t_status, '</td>';
+		echo '<td class="bug-status ', $t_status_label, '">', $t_status, '</td>';
 	} else {
 		$t_spacer += 2;
 	}
@@ -539,7 +539,7 @@ if( $t_show_projection || $t_show_eta ) {
 # Platform, OS, OS Version
 #
 
-if (( $t_show_platform || $t_show_os || $t_show_os_version ) &&
+if( ( $t_show_platform || $t_show_os || $t_show_os_version ) &&
 	( $t_platform || $t_os || $t_os_version )) {
 	$t_spacer = 0;
 
@@ -752,7 +752,7 @@ if( $t_show_sponsorships_box ) {
 
 # Bug Relationships
 if( $t_show_relationships_box ) {
-	relationship_view_box ( $t_bug->id );
+	relationship_view_box( $t_bug->id );
 }
 
 # File upload box
@@ -792,7 +792,7 @@ event_signal( 'EVENT_VIEW_BUG_EXTRA', array( $f_bug_id ) );
 # Time tracking statistics
 if( config_get( 'time_tracking_enabled' ) &&
 	access_has_bug_level( config_get( 'time_tracking_view_threshold' ), $f_bug_id ) ) {
-	define ( 'BUGNOTE_STATS_INC_ALLOW', true );
+	define( 'BUGNOTE_STATS_INC_ALLOW', true );
 	include( $t_mantis_dir . 'bugnote_stats_inc.php' );
 }
 

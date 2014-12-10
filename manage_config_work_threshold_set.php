@@ -52,22 +52,23 @@ form_security_validate( 'manage_config_work_threshold_set' );
 auth_reauthenticate();
 
 $t_redirect_url = 'manage_config_work_threshold_page.php';
-$t_project = helper_get_current_project();
 
 html_page_top( lang_get( 'manage_threshold_config' ), $t_redirect_url );
 
-$t_access = current_user_get_access_level();
+$g_access = current_user_get_access_level();
+$g_project = helper_get_current_project();
 
 /**
  * set row
- * @param string $p_threshold threshold
- * @param bool $p_all_projects_only all projects only
+ * @param string  $p_threshold         Threshold.
+ * @param boolean $p_all_projects_only All projects only.
+ * @return void
  */
-function set_capability_row( $p_threshold, $p_all_projects_only=false ) {
-	global $t_access, $t_project;
+function set_capability_row( $p_threshold, $p_all_projects_only = false ) {
+	global $g_access, $g_project;
 
-	if( ( $t_access >= config_get_access( $p_threshold ) )
-			  && ( ( ALL_PROJECTS == $t_project ) || !$p_all_projects_only ) ) {
+	if( ( $g_access >= config_get_access( $p_threshold ) )
+			  && ( ( ALL_PROJECTS == $g_project ) || !$p_all_projects_only ) ) {
 		$f_threshold = gpc_get_int_array( 'flag_thres_' . $p_threshold, array() );
 		$f_access = gpc_get_int( 'access_' . $p_threshold );
 		# @@debug @@ echo "<br />for $p_threshold "; var_dump($f_threshold, $f_access); echo '<br />';
@@ -96,12 +97,12 @@ function set_capability_row( $p_threshold, $p_all_projects_only=false ) {
 		if( -1 == $t_lower_threshold ) {
 			if( ( $t_existing_threshold != $t_array_threshold )
 					|| ( $t_existing_access != $f_access ) ) {
-				config_set( $p_threshold, $t_array_threshold, NO_USER, $t_project, $f_access );
+				config_set( $p_threshold, $t_array_threshold, NO_USER, $g_project, $f_access );
 			}
 		} else {
 			if( ( $t_existing_threshold != $t_lower_threshold )
 					|| ( $t_existing_access != $f_access ) ) {
-				config_set( $p_threshold, $t_lower_threshold, NO_USER, $t_project, $f_access );
+				config_set( $p_threshold, $t_lower_threshold, NO_USER, $g_project, $f_access );
 			}
 		}
 	}
@@ -109,41 +110,42 @@ function set_capability_row( $p_threshold, $p_all_projects_only=false ) {
 
 /**
  * Get capability boolean
- * @param string $p_threshold threshold
- * @param bool $p_all_projects_only all projects only
+ * @param string  $p_threshold         Threshold.
+ * @param boolean $p_all_projects_only All projects only.
+ * @return void
  */
-function set_capability_boolean( $p_threshold, $p_all_projects_only=false ) {
-	global $t_access, $t_project;
+function set_capability_boolean( $p_threshold, $p_all_projects_only = false ) {
+	global $g_access, $g_project;
 
-	if( ( $t_access >= config_get_access( $p_threshold ) )
-			  && ( ( ALL_PROJECTS == $t_project ) || !$p_all_projects_only ) ) {
+	if( ( $g_access >= config_get_access( $p_threshold ) )
+			  && ( ( ALL_PROJECTS == $g_project ) || !$p_all_projects_only ) ) {
 		$f_flag = gpc_get( 'flag_' . $p_threshold, OFF );
 		$f_access = gpc_get_int( 'access_' . $p_threshold );
 		$f_flag = ( OFF == $f_flag ) ? OFF : ON;
 		# @@debug @@ echo "<br />for $p_threshold "; var_dump($f_flag, $f_access); echo '<br />';
 
 		if( ( $f_flag != config_get( $p_threshold ) ) || ( $f_access != config_get_access( $p_threshold ) ) ) {
-			config_set( $p_threshold, $f_flag, NO_USER, $t_project, $f_access );
+			config_set( $p_threshold, $f_flag, NO_USER, $g_project, $f_access );
 		}
 	}
 }
 
 /**
  * Set capability enum
- * @param string $p_threshold threshold
- * @param bool $p_all_projects_only all projects only
+ * @param string  $p_threshold         Threshold.
+ * @param boolean $p_all_projects_only All projects only.
+ * @return void
  */
-function set_capability_enum( $p_threshold, $p_all_projects_only=false ) {
-	global $t_access, $t_project;
+function set_capability_enum( $p_threshold, $p_all_projects_only = false ) {
+	global $g_access, $g_project;
 
-	if( ( $t_access >= config_get_access( $p_threshold ) )
-			  && ( ( ALL_PROJECTS == $t_project ) || !$p_all_projects_only ) ) {
+	if( ( $g_access >= config_get_access( $p_threshold ) )
+			  && ( ( ALL_PROJECTS == $g_project ) || !$p_all_projects_only ) ) {
 		$f_flag = gpc_get( 'flag_' . $p_threshold );
 		$f_access = gpc_get_int( 'access_' . $p_threshold );
-		# @@debug @@ echo "<br />for $p_threshold "; var_dump($f_flag, $f_access); echo '<br />';
 
 		if( ( $f_flag != config_get( $p_threshold ) ) || ( $f_access != config_get_access( $p_threshold ) ) ) {
-			config_set( $p_threshold, $f_flag, NO_USER, $t_project, $f_access );
+			config_set( $p_threshold, $f_flag, NO_USER, $g_project, $f_access );
 		}
 	}
 }

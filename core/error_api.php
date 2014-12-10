@@ -39,6 +39,7 @@ require_api( 'html_api.php' );
 require_api( 'lang_api.php' );
 
 $g_error_parameters = array();
+$g_errors_delayed = array();
 $g_error_handled = false;
 $g_error_proceed_url = null;
 $g_error_send_page_header = true;
@@ -59,18 +60,19 @@ set_error_handler( 'error_handler' );
  * The others, being system errors, will come with a string in $p_error
  *
  * @access private
- * @param int $p_type contains the level of the error raised, as an integer.
- * @param string $p_error contains the error message, as a string.
- * @param string $p_file contains the filename that the error was raised in, as a string.
- * @param int $p_line contains the line number the error was raised at, as an integer.
- * @param array $p_context to the active symbol table at the point the error occurred (optional)
+ * @param integer $p_type    Contains the level of the error raised, as an integer.
+ * @param string  $p_error   Contains the error message, as a string.
+ * @param string  $p_file    Contains the filename that the error was raised in, as a string.
+ * @param integer $p_line    Contains the line number the error was raised at, as an integer.
+ * @param array   $p_context To the active symbol table at the point the error occurred (optional).
+ * @return void
  * @uses lang_api.php
  * @uses config_api.php
  * @uses compress_api.php
  * @uses database_api.php (optional)
  * @uses html_api.php (optional)
  */
-function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
+function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) {
 	global $g_error_parameters, $g_error_handled, $g_error_proceed_url;
 	global $g_error_send_page_header;
 
@@ -110,7 +112,7 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 	}
 
 	# build an appropriate error string
-	$t_error_description = "'$p_error' in '$p_file' line $p_line";
+	$t_error_description = '\'' . $p_error . '\' in \'' . $p_file .'\' line ' . $p_line;
 	switch( $p_type ) {
 		case E_WARNING:
 			$t_error_type = 'SYSTEM WARNING';
@@ -122,25 +124,43 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 			$t_error_type = 'DEPRECATED';
 			break;
 		case E_USER_ERROR:
-			$t_error_type = "APPLICATION ERROR #$p_error";
+			$t_error_type = 'APPLICATION ERROR #' . $p_error;
 			$t_error_description = error_string( $p_error );
 			if( $t_method == DISPLAY_ERROR_INLINE ) {
 				$t_error_description .= "\n" . error_string( ERROR_DISPLAY_USER_ERROR_INLINE );
 			}
 			break;
 		case E_USER_WARNING:
-			$t_error_type = "APPLICATION WARNING #$p_error";
+			$t_error_type = 'APPLICATION WARNING #' . $p_error;
 			$t_error_description = error_string( $p_error );
 			break;
 		case E_USER_NOTICE:
-
 			# used for debugging
 			$t_error_type = 'DEBUG';
-			$t_error_description = $p_error;
+			break;
+		case E_USER_DEPRECATED:
+			# Get the parent of the call that triggered the error to facilitate
+			# debugging with a more useful filename and line number
+			$t_stack = debug_backtrace();
+			$t_caller = $t_stack[2];
+
+			$t_error_type = 'WARNING';
+			$t_error_description =  error_string( $p_error )
+				. ' (in ' . $t_caller['file']
+				. ' line ' . $t_caller['line'] . ')';
+
+			if( $t_method == DISPLAY_ERROR_INLINE && php_sapi_name() != 'cli') {
+				# Enqueue messages for later display with error_print_delayed()
+				global $g_errors_delayed;
+				$g_errors_delayed[] = $t_error_description;
+				$g_error_handled = true;
+				return;
+			}
 			break;
 		default:
 			# shouldn't happen, just display the error just in case
-			$t_error_type = "UNHANDLED ERROR TYPE ($p_type)";
+			$t_error_type = 'UNHANDLED ERROR TYPE (' .
+				'<a href="http://php.net/errorfunc.constants">' . $p_type. '</a>)';
 			$t_error_description = $p_error;
 	}
 
@@ -148,7 +168,7 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 
 	if( php_sapi_name() == 'cli' ) {
 		if( DISPLAY_ERROR_NONE != $t_method ) {
-			echo $t_error_type . ": " . $t_error_description . "\n";
+			echo $t_error_type . ': ' . $t_error_description . "\n";
 
 			if( ON == config_get_global( 'show_detailed_errors' ) ) {
 				echo "\n";
@@ -159,7 +179,6 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 			exit(1);
 		}
 	} else {
-
 		switch( $t_method ) {
 			case DISPLAY_ERROR_HALT:
 				# disable any further event callbacks
@@ -172,7 +191,8 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 					$t_old_contents = ob_get_contents();
 					if( !error_handled() ) {
 						# Retrieve the previously output header
-						if( false !== preg_match_all( '|^(.*)(</head>.*$)|is', $t_old_contents, $t_result ) ) {
+						if( false !== preg_match_all( '|^(.*)(</head>.*$)|is', $t_old_contents, $t_result ) &&
+							isset( $t_result[1] ) && isset( $t_result[1][0] ) ) {
 							$t_old_headers = $t_result[1][0];
 							unset( $t_old_contents );
 						}
@@ -267,13 +287,33 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, $p_context ) {
 }
 
 /**
- * Print out the error details including context
- * @param string $p_file
- * @param int $p_line
- * @param string $p_context
- * @return null
+ * Prints messages from the delayed errors queue
+ * The error handler enqueues deprecation warnings that would be printed inline,
+ * to avoid display issues when they are triggered within html tags.
+ * @return void
  */
-function error_print_details( $p_file, $p_line, $p_context ) {
+function error_print_delayed() {
+	global $g_errors_delayed;
+
+	if( !empty( $g_errors_delayed ) ) {
+		echo '<div id="delayed-errors">';
+		foreach( $g_errors_delayed as $t_error ) {
+			echo "\n" . '<div class="error-inline">', $t_error, '</div>';
+		}
+		echo "\n" . '</div>';
+
+		$g_errors_delayed = array();
+	}
+}
+
+/**
+ * Print out the error details including context
+ * @param string  $p_file    File error occurred in.
+ * @param integer $p_line    Line number error occurred on.
+ * @param array   $p_context Error context.
+ * @return void
+ */
+function error_print_details( $p_file, $p_line, array $p_context ) {
 	?>
 		<table class="width90">
 			<tr>
@@ -293,10 +333,10 @@ function error_print_details( $p_file, $p_line, $p_context ) {
 
 /**
  * Print out the variable context given
- * @param string $p_context
- * @return null
+ * @param array $p_context Error context.
+ * @return void
  */
-function error_print_context( $p_context ) {
+function error_print_context( array $p_context ) {
 	if( !is_array( $p_context ) ) {
 		return;
 	}
@@ -307,7 +347,7 @@ function error_print_context( $p_context ) {
 	foreach( $p_context as $t_var => $t_val ) {
 		if( !is_array( $t_val ) && !is_object( $t_val ) ) {
 			$t_type = gettype( $t_val );
-			$t_val = htmlentities( (string) $t_val, ENT_COMPAT, 'UTF-8' );
+			$t_val = htmlentities( (string)$t_val, ENT_COMPAT, 'UTF-8' );
 
 			# Mask Passwords
 			if( strpos( $t_var, 'password' ) !== false ) {
@@ -335,7 +375,7 @@ function error_print_context( $p_context ) {
 
 /**
  * Print out a stack trace
- * @return null
+ * @return void
  * @uses error_alternate_class
  */
 function error_print_stack_trace() {
@@ -370,9 +410,9 @@ function error_print_stack_trace() {
 
 /**
  * Build a string describing the parameters to a function
- * @param string|array|object $p_param
- * @param bool $p_showtype default true
- * @param int $p_depth default 0
+ * @param string|array|object $p_param    Parameter.
+ * @param boolean             $p_showtype Default true.
+ * @param integer             $p_depth    Default 0.
  * @return string
  */
 function error_build_parameter_string( $p_param, $p_showtype = true, $p_depth = 0 ) {
@@ -384,19 +424,18 @@ function error_build_parameter_string( $p_param, $p_showtype = true, $p_depth = 
 		$t_results = array();
 
 		foreach( $p_param as $t_key => $t_value ) {
-			$t_results[] = '[' . error_build_parameter_string( $t_key, false, $p_depth ) . ']' . ' => ' . error_build_parameter_string( $t_value, false, $p_depth );
+			$t_results[] = '[' . error_build_parameter_string( $t_key, false, $p_depth ) . '] => ' . error_build_parameter_string( $t_value, false, $p_depth );
 		}
 
 		return '<array> { ' . implode( $t_results, ', ' ) . ' }';
-	}
-	else if( is_object( $p_param ) ) {
+	} else if( is_object( $p_param ) ) {
 		$t_results = array();
 
 		$t_class_name = get_class( $p_param );
 		$t_inst_vars = get_object_vars( $p_param );
 
 		foreach( $t_inst_vars as $t_name => $t_value ) {
-			$t_results[] = "[$t_name]" . ' => ' . error_build_parameter_string( $t_value, false, $p_depth );
+			$t_results[] = '[' . $t_name . '] => ' . error_build_parameter_string( $t_value, false, $p_depth );
 		}
 
 		return '<Object><' . $t_class_name . '> ( ' . implode( $t_results, ', ' ) . ' )';
@@ -411,7 +450,7 @@ function error_build_parameter_string( $p_param, $p_showtype = true, $p_depth = 
 
 /**
  * Return an error string (in the current language) for the given error.
- * @param int $p_error
+ * @param integer $p_error Error string to localize.
  * @return string
  * @access public
  */
@@ -421,7 +460,7 @@ function error_string( $p_error ) {
 	$t_lang = null;
 	while( true ) {
 		$t_err_msg = lang_get( 'MANTIS_ERROR', $t_lang );
-		if( array_key_exists( $p_error, $t_err_msg) ) {
+		if( array_key_exists( $p_error, $t_err_msg ) ) {
 			$t_error = $t_err_msg[$p_error];
 			break;
 		} elseif( is_null( $t_lang ) ) {
@@ -441,14 +480,14 @@ function error_string( $p_error ) {
 	$t_padding = array_pad( array(), 10, '' );
 
 	# ripped from string_api
-	$t_string = vsprintf ( $t_error, array_merge( $g_error_parameters, $t_padding ) );
-	return preg_replace( "/&amp;(#[0-9]+|[a-z]+);/i", "&$1;", @htmlspecialchars( $t_string, ENT_COMPAT, 'UTF-8' ) );
+	$t_string = vsprintf( $t_error, array_merge( $g_error_parameters, $t_padding ) );
+	return preg_replace( '/&amp;(#[0-9]+|[a-z]+);/i', '&$1;', @htmlspecialchars( $t_string, ENT_COMPAT, 'UTF-8' ) );
 }
 
 /**
  * Check if we have handled an error during this page
  * Return true if an error has been handled, false otherwise
- * @return bool
+ * @return boolean
  */
 function error_handled() {
 	global $g_error_handled;
@@ -464,7 +503,7 @@ function error_handled() {
  *  order of parameters in the string.  See the PHP manual page for the
  *  sprintf() function for more details.
  * @access public
- * @return null
+ * @return void
  */
 function error_parameters() {
 	global $g_error_parameters;
@@ -473,10 +512,10 @@ function error_parameters() {
 }
 
 /**
- * Set a url to give to the user to proceed after viewing the error
+ * Set a URL to give to the user to proceed after viewing the error
  * @access public
- * @param string $p_url url given to user after viewing the error
- * @return null
+ * @param string $p_url URL given to user after viewing the error.
+ * @return void
  */
 function error_proceed_url( $p_url ) {
 	global $g_error_proceed_url;
@@ -490,9 +529,9 @@ function error_proceed_url( $p_url ) {
  * @return string representing css class
  */
 function error_alternate_class() {
-	static $t_errindex = 1;
+	static $s_errindex = 1;
 
-	if( 1 == $t_errindex++ % 2 ) {
+	if( 1 == $s_errindex++ % 2 ) {
 		return 'class="row-1"';
 	} else {
 		return 'class="row-2"';

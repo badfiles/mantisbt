@@ -57,8 +57,8 @@ print_manage_menu( 'manage_plugin_page.php' );
 
 $t_plugins = plugin_find_all();
 uasort( $t_plugins,
-	function ( $p1, $p2 ) {
-		return strcasecmp( $p1->name, $p2->name );
+	function ( $p_p1, $p_p2 ) {
+		return strcasecmp( $p_p1->name, $p_p2->name );
 	}
 );
 
@@ -79,10 +79,18 @@ if( 0 < count( $t_plugins_installed ) ) {
 <div class="form-container">
 
 	<form action="manage_plugin_update.php" method="post">
-
+		<fieldset>
 		<?php echo form_security_field( 'manage_plugin_update' ) ?>
+		</fieldset>
 		<table>
-
+			<colgroup>
+				<col style="width:20%" />
+				<col style="width:35%" />
+				<col style="width:20%" />
+				<col style="width:7%" />
+				<col style="width:8%" />
+				<col style="width:10%" />
+			</colgroup>
 			<thead>
 				<!-- Title -->
 				<tr>
@@ -93,12 +101,12 @@ if( 0 < count( $t_plugins_installed ) ) {
 
 				<!-- Info -->
 				<tr class="row-category">
-					<th width="20%"><?php echo lang_get( 'plugin' ) ?></th>
-					<th width="35%"><?php echo lang_get( 'plugin_description' ) ?></th>
-					<th width="20%"><?php echo lang_get( 'plugin_depends' ) ?></th>
-					<th width="7%"><?php echo lang_get( 'plugin_priority' ) ?></th>
-					<th width="8%"><?php echo lang_get( 'plugin_protected' ) ?></th>
-					<th width="10%"><?php echo lang_get( 'plugin_actions' ) ?></th>
+					<th><?php echo lang_get( 'plugin' ) ?></th>
+					<th><?php echo lang_get( 'plugin_description' ) ?></th>
+					<th><?php echo lang_get( 'plugin_depends' ) ?></th>
+					<th><?php echo lang_get( 'plugin_priority' ) ?></th>
+					<th><?php echo lang_get( 'plugin_protected' ) ?></th>
+					<th><?php echo lang_get( 'plugin_actions' ) ?></th>
 				</tr>
 			</thead>
 
@@ -133,7 +141,7 @@ foreach ( $t_plugins_installed as $t_basename => $t_plugin ) {
 	}
 
 	if( !is_blank( $t_url ) ) {
-		$t_url = '<br/>' . lang_get( 'plugin_url' ) . lang_get( 'word_separator' ) . "<a href=\"$t_url\">$t_url</a>";
+		$t_url = '<br/>' . lang_get( 'plugin_url' ) . lang_get( 'word_separator' ) . '<a href="' . $t_url . '">' . $t_url . '</a>';
 	}
 
 	$t_upgrade = plugin_needs_upgrade( $t_plugin );
@@ -182,14 +190,12 @@ foreach ( $t_plugins_installed as $t_basename => $t_plugin ) {
 	if( $t_upgrade ) {
 		print_bracket_link(
 			'manage_plugin_upgrade.php?name=' . $t_basename . form_security_param( 'manage_plugin_upgrade' ),
-			lang_get( 'plugin_upgrade' )
-		);
+			lang_get( 'plugin_upgrade' ) );
 	}
 	if( !$t_protected ) {
 		print_bracket_link(
 			'manage_plugin_uninstall.php?name=' . $t_basename . form_security_param( 'manage_plugin_uninstall' ),
-			lang_get( 'plugin_uninstall' )
-		);
+			lang_get( 'plugin_uninstall' ) );
 	}
 	echo '</td></tr>';
 } ?>
@@ -216,7 +222,12 @@ if( 0 < count( $t_plugins_available ) ) {
 <br/>
 <div class="table-container">
 	<table>
-
+		<colgroup>
+			<col style="width:25%" />
+			<col style="width:45%" />
+			<col style="width:20%" />
+			<col style="width:10%" />
+		</colgroup>
 		<thead>
 			<!-- Title -->
 			<tr>
@@ -227,10 +238,10 @@ if( 0 < count( $t_plugins_available ) ) {
 
 			<!-- Info -->
 			<tr class="row-category">
-				<td width="25%"><?php echo lang_get( 'plugin' ) ?></td>
-				<td width="45%"><?php echo lang_get( 'plugin_description' ) ?></td>
-				<td width="20%"><?php echo lang_get( 'plugin_depends' ) ?></td>
-				<td width="10%"><?php echo lang_get( 'plugin_actions' ) ?></td>
+				<td><?php echo lang_get( 'plugin' ) ?></td>
+				<td><?php echo lang_get( 'plugin_description' ) ?></td>
+				<td><?php echo lang_get( 'plugin_depends' ) ?></td>
+				<td><?php echo lang_get( 'plugin_actions' ) ?></td>
 			</tr>
 		</thead>
 
@@ -259,7 +270,7 @@ if( 0 < count( $t_plugins_available ) ) {
 		}
 
 		if( !is_blank( $t_url ) ) {
-			$t_url = '<br/>' . lang_get( 'plugin_url' ) . lang_get( 'word_separator' ) . "<a href=\"$t_url\">$t_url</a>";
+			$t_url = '<br/>' . lang_get( 'plugin_url' ) . lang_get( 'word_separator' ) . '<a href="' . $t_url . '">' . $t_url . '</a>';
 		}
 
 		$t_ready = true;
@@ -292,8 +303,7 @@ if( 0 < count( $t_plugins_available ) ) {
 		if( $t_ready ) {
 			print_bracket_link(
 				'manage_plugin_install.php?name=' . $t_basename . form_security_param( 'manage_plugin_install' ),
-				lang_get( 'plugin_install' )
-			);
+				lang_get( 'plugin_install' ) );
 		}
 		echo '</td></tr>';
 	}
