@@ -19,7 +19,7 @@
  *
  * **********************************************************************
  * ** This file contains translations stored in translatewiki.net.     **
- * ** See http://translatewiki.net/wiki/Project:About for information  **
+ * ** See https://translatewiki.net/wiki/Project:About for information **
  * ** on copyright/license for translatewiki.net translations.         **
  * **********************************************************************
  * **                                                                  **
@@ -379,7 +379,7 @@ $s_close_immediately = '立即关闭：';
 $s_closed_bug_title = '关闭问题';
 $s_bug_deleted_msg = '问题已经被删除...';
 $s_delete_bug_sure_msg = '确定要删除此问题吗？';
-$s_delete_bug_button = '删除问题';
+$s_delete_bug_button = '删除';
 $s_monitor_bug_button = '监视';
 $s_unmonitor_bug_button = '取消监视';
 $s_file_upload_msg = '文件上传成功';
@@ -391,12 +391,12 @@ $s_upload_file_button = '上传文件';
 $s_upload_files_button = '上传文件';
 $s_max_file_size_label = '最大尺寸：';
 $s_bug_reopened_msg = '问题已经被重新打开...';
-$s_reopen_add_bugnote_title = '重启问题的原因...';
+$s_reopen_add_bugnote_title = '为重启问题添加注释原因';
 $s_bugnote_add_reopen_button = '添加问题注释并重启问题';
 $s_resolved_bug_title = '解决问题';
 $s_resolved_bug_button = '解决问题';
 $s_bug_resolved_msg = '问题已经被解决，请在下面填入问题注释...';
-$s_resolve_add_bugnote_title = '为解决问题添加问题注释';
+$s_resolve_add_bugnote_title = '为解决问题添加注释原因';
 $s_bugnote_add_resolve_button = '添加注释';
 $s_from = '从';
 $s_to = '到';
@@ -519,7 +519,7 @@ $s_lost_password_title = '重置密码';
 $s_lost_password_done_title = '密码邮件已发出';
 $s_lost_password_subject = '密码重置';
 $s_lost_password_info = '如果你想重置忘记的密码, 请填写你的用户名和邮件地址。<br /><br />如果你填写的信息是有效的, 你将通过电子邮件收到一个含有特殊验证码的网页链接，点击该链接即可修改你的密码。';
-$s_lost_password_confirm_hash_OK = '系统已经接受了你的确认，请更新密码。';
+$s_lost_password_confirm_hash_OK = '系统已经接受了您的确认，请更新密码。';
 $s_open_and_assigned_to_me_label = '开启并分配给我的：';
 $s_open_and_reported_to_me_label = '开启并由我汇报的：';
 $s_newer_news_link = '更新的新闻';
@@ -573,6 +573,7 @@ $s_date_created = '创建日期';
 $s_last_visit = '最近一次登录';
 $s_last_visit_label = '上次访问：';
 $s_edit_user_link = '编辑用户';
+$s_separate_list_items_by = '（由“%1$s”指定的列表项）';
 $s_config_all_projects = '注意：这些设置将对<b>所有项目</b>有效。';
 $s_config_project = '注意：这些设置只对"%1$s"项目有效。';
 $s_colour_coding = '在下面的表中，将应用下列颜色：';
@@ -924,7 +925,7 @@ $s_query_name_label = '过滤器名：';
 $s_query_exists = '此特定的筛选器似乎已经存在。';
 $s_query_dupe_name = '这个名称已经被另外一个筛选器使用，请选择一个不同的名称。';
 $s_query_blank_name = '没有名称就不能保存过滤器，在保存前请给当前过滤器起一个名字。';
-$s_query_name_too_long = '您不能将存储与超过 64 个字符的筛选器名称。请给此筛选器较短的名称。';
+$s_query_name_too_long = '您不能存储超过 64 个字符的过滤器名称。请为此过滤器提供一个更短的名称。';
 $s_query_store_error = '保存此筛选器时出错。';
 $s_open_queries = '管理过滤器';
 $s_query_delete_msg = '您确实要删除此筛选器吗？';
@@ -1020,7 +1021,7 @@ $s_roadmap = '路线图';
 $s_resolved_progress = '已解决 %1$d 个问题(共 %2$d 个问题)，进度(%3$d%%)。';
 $s_roadmap_empty = '没有可用路线图信息';
 $s_roadmap_empty_manager = '没有可用的线路图信息。一旦项目有版本并且问题有设置“目标版本”就会包括问题。';
-$s_http_auth_realm = 'MantisBT 问题管理系统登录';
+$s_http_auth_realm = 'MantisBT 登录';
 $s_bug = '问题';
 $s_bugs = '个问题';
 $s_add_new_relationship = '新建关联';
@@ -1203,17 +1204,18 @@ $s_month_september = '9月';
 $s_month_october = '10月';
 $s_month_november = '11月';
 $s_month_december = '12月';
-$s_timeline_issue_created = '<span class="username">%1s</span>创建了问题<span class="issue_id">%2s</span>';
-$s_timeline_issue_note_created = '<span class="username">%1s</span>在问题<span class="issue_id">%2s</span>做出评论';
-$s_timeline_issue_monitor = '<span class="username">%1s</span>监视问题<span class="issue_id">%2s</span>';
-$s_timeline_issue_unmonitor = '<span class="username">%1s</span>停止监视问题<span class="issue_id">%2s</span>';
-$s_timeline_issue_tagged = '<span class="username">%1s</span>将问题<span class="issue_id">%2s</span>标记<span class="tag_name">%3s</span>';
-$s_timeline_issue_untagged = '<span class="username">%1s</span>从问题<span class="issue_id">%2s</span>移除<span class="tag_name">%3s</span>';
-$s_timeline_issue_resolved = '<span class="username">%1s</span>解决了问题<span class="issue_id">%2s</span>';
-$s_timeline_issue_closed = '<span class="username">%1s</span>关闭了问题<span class="issue_id">%2s</span>';
-$s_timeline_issue_reopened = '<span class="username">%1s</span>重启了问题<span class="issue_id">%2s</span>';
-$s_timeline_issue_assigned = '<span class="username">%1s</span>将问题<span class="issue_id">%2s</span>分配给<span class="username">%3s</span>';
-$s_timeline_issue_assigned_to_self = '<span class="username">%1s</span>开始解决问题<span class="issue_id">%2s</span>';
+$s_timeline_issue_created = '<span class="username">%1$s</span>创建了问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_note_created = '<span class="username">%1$s</span>在问题<span class="issue_id">%2$s</span>做出评论';
+$s_timeline_issue_monitor = '<span class="username">%1$s</span>监视问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_unmonitor = '<span class="username">%1$s</span>停止监视问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_tagged = '<span class="username">%1$s</span>将问题<span class="issue_id">%2$s</span>标记<span class="tag_name">%3$s</span>';
+$s_timeline_issue_untagged = '<span class="username">%1$s</span>从问题<span class="issue_id">%2$s</span>移除<span class="tag_name">%3$s</span>';
+$s_timeline_issue_resolved = '<span class="username">%1$s</span>解决了问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_closed = '<span class="username">%1$s</span>关闭了问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_reopened = '<span class="username">%1$s</span>重启了问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_assigned = '<span class="username">%1$s</span>将问题<span class="issue_id">%2$s</span>分配给<span class="username">%3$s</span>';
+$s_timeline_issue_assigned_to_self = '<span class="username">%1$s</span>开始解决问题<span class="issue_id">%2$s</span>';
+$s_timeline_issue_unassigned = '<span class="username">%1$s</span>取消分配了问题<span class="issue_id">%2$s</span>';
 $s_timeline_no_activity = '指定的时间段内没有活动。';
 $s_timeline_title = '时间轴';
 $s_timeline_more = '更多事件…';
@@ -1262,6 +1264,7 @@ $MANTIS_ERROR[ERROR_FILE_DUPLICATE] = '文件重复，请先删除原有的文�
 $MANTIS_ERROR[ERROR_FILE_INVALID_UPLOAD_PATH] = '无效的上传路径；目录不存在或 Web 服务器不能写入该目录';
 $MANTIS_ERROR[ERROR_FILE_NO_UPLOAD_FAILURE] = '没有上传文件，请返回并选择要上传的文件';
 $MANTIS_ERROR[ERROR_FILE_MOVE_FAILED] = '上传的文件不能转移到文件储存目录；目录不存在或 Web 服务器不能写入该目录';
+$MANTIS_ERROR[ERROR_FILE_NOT_FOUND] = '找不到ID为“%1$d”的附件。';
 $MANTIS_ERROR[ERROR_BUG_DUPLICATE_SELF] = '不能将问题设置为自身的重复问题。';
 $MANTIS_ERROR[ERROR_BUG_REVISION_NOT_FOUND] = '未找到问题修订';
 $MANTIS_ERROR[ERROR_CUSTOM_FIELD_NOT_FOUND] = '没有找到自定义字段';

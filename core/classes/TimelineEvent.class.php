@@ -30,17 +30,14 @@
 class TimelineEvent {
 	protected $timestamp;
 	protected $user_id;
-	protected $tie_breaker;
 
 	/**
 	 * @param integer $p_timestamp   Timestamp representing the time the event occurred.
 	 * @param integer $p_user_id     An user identifier.
-	 * @param boolean $p_tie_breaker A value to sort events by if timestamp matches (generally issue identifier).
 	 */
-	public function __construct( $p_timestamp, $p_user_id, $p_tie_breaker ) {
+	public function __construct( $p_timestamp, $p_user_id ) {
 		$this->timestamp = $p_timestamp;
 		$this->user_id = $p_user_id;
-		$this->tie_breaker = $p_tie_breaker;
 	}
 
 	/**
@@ -50,32 +47,6 @@ class TimelineEvent {
 	 */
 	public function skip() {
 		return false;
-	}
-
-	/**
-	 * Comparision function for ordering of timeline events.
-	 * We compare first by timestamp, then by the tie_breaker field.
-	 * @param TimelineEvent $p_other An instance of TimelineEvent to compare against.
-	 * @return integer
-	 */
-	public function compare( TimelineEvent $p_other ) {
-		if( $this->timestamp < $p_other->timestamp ) {
-			return -1;
-		}
-
-		if( $this->timestamp > $p_other->timestamp ) {
-			return 1;
-		}
-
-		if( $this->tie_breaker < $p_other->tie_breaker ) {
-			return -1;
-		}
-
-		if( $this->tie_breaker > $p_other->tie_breaker ) {
-			return 1;
-		}
-
-		return 0;
 	}
 
 	/**
@@ -103,17 +74,23 @@ class TimelineEvent {
 	public function html_start() {
 		$t_avatar = user_get_avatar( $this->user_id, 32 );
 
+		# Avatar div
 		if( !empty( $t_avatar ) ) {
-			$t_class = 'entry';
-			$t_src = 'src="' . $t_avatar[0] . '" ';
-		} else {
-			$t_class = 'entry-no-avatar';
-			$t_src = '';
+			$t_class = 'avatar';
+			$t_src = $t_avatar[0];
+		}
+		else {
+			$t_class = 'no-avatar';
+			$t_src = 'images/notice.gif';
 		}
 
-		$t_html = '<div class="%s"><img class="avatar" %s/><div class="timestamp">%s</div>';
-
-		return sprintf( $t_html, $t_class, $t_src, $this->format_timestamp( $this->timestamp ) );
+		return sprintf(
+			'<div class="entry"><div class="%s"><img class="%s" src="%s" /></div><div class="timestamp">%s</div>',
+			$t_class,
+			$t_class,
+			$t_src,
+			$this->format_timestamp( $this->timestamp )
+		);
 	}
 
 	/**

@@ -50,6 +50,8 @@ if( !function_exists( 'db_null_date' ) ) {
 function installer_db_now() {
 	global $g_db;
 
+	# Timezone must not be set to UTC prior to calling BindTimestamp(), as
+	# ADOdb assumes a local timestamp and does the UTC conversion itself.
 	return $g_db->BindTimeStamp( time() );
 }
 
@@ -733,6 +735,10 @@ $g_upgrade[186] = array( 'UpdateFunction', 'update_history_long_custom_fields' )
 $g_upgrade[187] = array( 'CreateIndexSQL', array( 'idx_bug_id', db_get_table( 'bug_monitor' ), 'bug_id' ) );
 $g_upgrade[188] = array( 'AlterColumnSQL', array( db_get_table( 'project' ), 'inherit_global L ' . $t_notnull . ' DEFAULT \'0\'' ) );
 $g_upgrade[189] = array( 'AlterColumnSQL', array( db_get_table( 'project_hierarchy' ), 'inherit_parent L ' . $t_notnull . ' DEFAULT \'0\'' ) );
+
+# ----------------------------------------------------------------------------
+# Schema version: 190
+#
 $g_upgrade[190] = array( 'UpdateFunction', 'check_project_hierarchy', array() );
 $g_upgrade[191] = array( 'CreateIndexSQL', array('idx_project_hierarchy', db_get_table( 'project_hierarchy' ),'child_id,parent_id',array('UNIQUE')));
 $g_upgrade[192] = array( 'CreateIndexSQL', array('idx_bug_history_date_modified', db_get_table( 'bug_history' ), 'date_modified' ) );
@@ -744,4 +750,5 @@ $g_upgrade[197] = array( 'AlterColumnSQL', array( db_get_table( 'user' ), "realn
 $g_upgrade[198] = array( 'AlterColumnSQL', array( db_get_table( 'user' ), "password C(64) $t_notnull DEFAULT \" '' \"" ) );
 $g_upgrade[199] = array( 'AlterColumnSQL', array( db_get_table( 'user' ), "email C(255) $t_notnull DEFAULT \" '' \"" ) );
 
+# Release marker: 1.3.0-beta.1
 # Release marker: 1.3.0

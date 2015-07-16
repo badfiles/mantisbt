@@ -24,6 +24,7 @@
  * @link http://www.mantisbt.org
  *
  * @uses access_api.php
+ * @uses antispam_api.php
  * @uses authentication_api.php
  * @uses bug_api.php
  * @uses bug_revision_api.php
@@ -41,6 +42,7 @@
  */
 
 require_api( 'access_api.php' );
+require_api( 'antispam_api.php' );
 require_api( 'authentication_api.php' );
 require_api( 'bug_api.php' );
 require_api( 'bug_revision_api.php' );
@@ -187,6 +189,8 @@ function bugnote_add( $p_bug_id, $p_bugnote_text, $p_time_tracking = '0:00', $p_
 	$c_type = (int)$p_type;
 	$c_date_submitted = $p_date_submitted <= 0 ? db_now() : (int)$p_date_submitted;
 	$c_last_modified = $p_last_modified <= 0 ? db_now() : (int)$p_last_modified;
+
+	antispam_check();
 
 	if( REMINDER !== $p_type ) {
 		# Check if this is a time-tracking note
@@ -450,13 +454,14 @@ function bugnote_get_all_bugnotes( $p_bug_id ) {
 
 	# the cache should be aware of the sorting order
 	if( !isset( $g_cache_bugnotes[(int)$p_bug_id] ) ) {
-		# sort by bugnote id which should be more accurate than submit date, since two bugnotes
-		# may be submitted at the same time if submitted using a script (eg: MantisConnect).
+		# Now sorting by submit date and id (#11742). The date_submitted
+		# column is currently not indexed, but that does not seem to affect
+		# performance in a measurable way
 		$t_query = 'SELECT b.*, t.note
 			          	FROM      {bugnote} b
 			          	LEFT JOIN {bugnote_text} t ON b.bugnote_text_id = t.id
 						WHERE b.bug_id=' . db_param() . '
-						ORDER BY b.id ASC';
+						ORDER BY b.date_submitted ASC, b.id ASC';
 		$t_bugnotes = array();
 
 		# BUILD bugnotes array

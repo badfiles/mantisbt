@@ -19,7 +19,7 @@
  *
  * **********************************************************************
  * ** This file contains translations stored in translatewiki.net.     **
- * ** See http://translatewiki.net/wiki/Project:About for information  **
+ * ** See https://translatewiki.net/wiki/Project:About for information **
  * ** on copyright/license for translatewiki.net translations.         **
  * **********************************************************************
  * **                                                                  **
@@ -402,7 +402,7 @@ $s_reminder_sent_none = 'Hiç bir hatırlatıcı gönderilemedi.';
 $s_reminder_list_truncated = 'alıcılar listesi kısaltıldı';
 $s_bug_send_button = 'Gönder';
 $s_reminder = 'Hatırlatma';
-$s_reminder_explain = 'Bu not, bu sorunda geribildirim isteyerek listelenen alıcılara gönderilecektir.';
+$s_reminder_explain = 'Bu not, bu sorun hakkında geri bildirim istemek için seçilen kullanıcılara gönderilecektir.';
 $s_reminder_monitor = 'Bu alıcılar ayrıca bu sorunu izlemeye başlamışlardır. "İzlemeyi Sonlandır" butonuna tıklayarak bu işlemi iptal edebilirler.';
 $s_reminder_store = 'Bu not bu sorun ile birlikte saklanacaktır.';
 $s_confirm_sponsorship = '%2$s için %1$d sorununu üstlenmek istediğinizi teyid ediniz.';

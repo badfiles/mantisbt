@@ -57,17 +57,44 @@ auth_reauthenticate();
 
 access_ensure_global_level( config_get( 'manage_user_threshold' ) );
 
-$f_sort	         = gpc_get_string( 'sort', 'username' );
-$f_dir	         = gpc_get_string( 'dir', 'ASC' );
-$f_hide_inactive = gpc_get_bool( 'hideinactive' );
-$f_show_disabled = gpc_get_bool( 'showdisabled' );
+$t_cookie_name = config_get( 'manage_users_cookie' );
+$t_lock_image = '<img src="' . config_get( 'icon_path' ) . 'protected.gif" width="8" height="15" border="0" alt="' . lang_get( 'protected' ) . '" />';
+$c_filter = '';
+
 $f_save          = gpc_get_bool( 'save' );
 $f_filter        = utf8_strtoupper( gpc_get_string( 'filter', config_get( 'default_manage_user_prefix' ) ) );
 $f_page_number   = gpc_get_int( 'page_number', 1 );
 
-$t_cookie_name = config_get( 'manage_users_cookie' );
-$t_lock_image = '<img src="' . config_get( 'icon_path' ) . 'protected.gif" width="8" height="15" alt="' . lang_get( 'protected' ) . '" />';
-$c_filter = '';
+if( !$f_save && !is_blank( gpc_get_cookie( $t_cookie_name, '' ) ) ) {
+	$t_manage_arr = explode( ':', gpc_get_cookie( $t_cookie_name ) );
+
+	# Hide Inactive
+	$f_hide_inactive = (bool)$t_manage_arr[0];
+
+	# Sort field
+	if ( isset( $t_manage_arr[1] ) ) {
+		$f_sort = $t_manage_arr[1];
+	} else {
+		$f_sort = 'username';
+	}
+
+	# Sort order
+	if ( isset( $t_manage_arr[2] ) ) {
+		$f_dir = $t_manage_arr[2];
+	} else {
+		$f_dir = 'DESC';
+	}
+
+	# Show Disabled
+	if ( isset( $t_manage_arr[3] ) ) {
+		$f_show_disabled = $t_manage_arr[3];
+	}
+} else {
+	$f_sort          = gpc_get_string( 'sort', 'username' );
+	$f_dir           = gpc_get_string( 'dir', 'ASC' );
+	$f_hide_inactive = gpc_get_bool( 'hideinactive' );
+	$f_show_disabled = gpc_get_bool( 'showdisabled' );
+}
 
 # Clean up the form variables
 if( !db_field_exists( $f_sort, db_get_table( 'user' ) ) ) {
@@ -90,30 +117,6 @@ $t_show_disabled_filter = '&amp;showdisabled=' . $c_show_disabled;
 if( $f_save ) {
 	$t_manage_string = $c_hide_inactive.':'.$c_sort.':'.$c_dir.':'.$c_show_disabled;
 	gpc_set_cookie( $t_cookie_name, $t_manage_string, true );
-} else if( !is_blank( gpc_get_cookie( $t_cookie_name, '' ) ) ) {
-	$t_manage_arr = explode( ':', gpc_get_cookie( $t_cookie_name ) );
-
-	# Hide Inactive
-	$c_hide_inactive = $t_manage_arr[0];
-
-	# Sort field
-	if( isset( $t_manage_arr[1] ) ) {
-		$c_sort = $t_manage_arr[1];
-	} else {
-		$c_sort = 'username';
-	}
-
-	# Sort order
-	if( isset( $t_manage_arr[2] ) ) {
-		$c_dir  = $t_manage_arr[2];
-	} else {
-		$c_dir = 'DESC';
-	}
-
-	# Show Disabled
-	if( isset( $t_manage_arr[3] ) ) {
-		$c_show_disabled = $t_manage_arr[3];
-	}
 }
 
 html_page_top( lang_get( 'manage_users_link' ) );
@@ -124,8 +127,8 @@ print_manage_menu( 'manage_user_page.php' );
 
 $t_days_old = 7 * SECONDS_PER_DAY;
 $t_query = 'SELECT COUNT(*) AS new_user_count FROM {user}
-	WHERE '.db_helper_compare_days( (string)db_now(), 'date_created', '<= ' . $t_days_old );
-$t_result = db_query( $t_query );
+	WHERE ' . db_helper_compare_time( db_param(), '<=', 'date_created', $t_days_old );
+$t_result = db_query( $t_query, array( db_now() ) );
 $t_row = db_fetch_array( $t_result );
 $t_new_user_count = $t_row['new_user_count'];
 
@@ -184,7 +187,8 @@ if( $f_filter === 'ALL' ) {
 } else if( $f_filter === 'UNUSED' ) {
 	$t_where = '(login_count = 0) AND ( date_created = last_visit )';
 } else if( $f_filter === 'NEW' ) {
-	$t_where = db_helper_compare_days( '' . db_now() . '', 'date_created', '<= ' . $t_days_old );
+	$t_where = db_helper_compare_time( db_param(), '<=', 'date_created', $t_days_old );
+	$t_where_params[] = db_now();
 } else {
 	$t_where_params[] = $f_filter . '%';
 	$t_where = db_helper_like( 'UPPER(username)' );
@@ -210,11 +214,12 @@ if( 0 == $c_hide_inactive ) {
 	$t_query = 'SELECT count(*) as user_count FROM {user} WHERE ' . $t_where . $t_show_disabled_cond;
 } else {
 	$t_query = 'SELECT count(*) as user_count FROM {user}
-			WHERE ' . $t_where . ' AND ' . db_helper_compare_days( '' . db_now() . '', 'last_visit', '< ' . $t_days_old )
-			. $t_show_disabled_cond;
+			WHERE ' . $t_where . $t_show_disabled_cond . '
+			AND ' . db_helper_compare_time( db_param(), '<', 'last_visit', $t_days_old );
+	$t_where_params[] = db_now();
 }
 
-$t_result = db_query_bound( $t_query, $t_where_params );
+$t_result = db_query( $t_query, $t_where_params );
 $t_row = db_fetch_array( $t_result );
 $t_total_user_count = $t_row['user_count'];
 
@@ -239,8 +244,9 @@ if( 0 == $c_hide_inactive ) {
 	$t_result = db_query( $t_query, $t_where_params, $p_per_page, $t_offset );
 } else {
 	$t_query = 'SELECT * FROM {user}
-			WHERE ' . $t_where . ' AND ' . db_helper_compare_days( '' . db_now() . '', 'last_visit', '< ' . $t_days_old ) . '
-			' . $t_show_disabled_cond . ' ORDER BY ' . $c_sort . ' ' . $c_dir;
+			WHERE ' . $t_where . $t_show_disabled_cond . '
+			AND ' . db_helper_compare_time( db_param(), '<', 'last_visit', $t_days_old ) . '
+			ORDER BY ' . $c_sort . ' ' . $c_dir;
 	$t_result = db_query( $t_query, $t_where_params, $p_per_page, $t_offset );
 }
 

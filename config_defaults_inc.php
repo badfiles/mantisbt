@@ -383,6 +383,24 @@ $g_lost_password_feature = ON;
  */
 $g_max_lost_password_in_progress_count = 3;
 
+#############
+# Anti-Spam #
+#############
+
+/**
+ * Max number of events to allow for users with default access level when signup is enabled.
+ * Use 0 for no limit.
+ * @var integer
+ * @see $g_default_new_account_access_level
+ */
+$g_antispam_max_event_count = 10;
+
+/**
+ * Time window to enforce max events within.  Default is 3600 seconds (1 hour).
+ * @var integer
+ */
+$g_antispam_time_window_in_seconds = 3600;
+
 ###########################
 # MantisBT Email Settings #
 ###########################
@@ -512,7 +530,19 @@ $g_notify_flags['monitor'] = array(
 $g_email_receive_own = OFF;
 
 /**
- * set to OFF to disable email check
+ * Email addresses validation
+ *
+ * Determines whether email addresses are validated.
+ * - When ON (default), validation is performed using the pattern given by the
+ *   HTML5 specification for 'email' type form input elements
+ *   {@link http://www.w3.org/TR/html5/forms.html#valid-e-mail-address}
+ * - When OFF, validation is disabled.
+ *
+ * NOTE: Regardless of how this option is set, validation is never performed
+ * when using LDAP email (i.e. when $g_use_ldap_email = ON), as we assume that
+ * it is handled by the directory.
+ * @see $g_use_ldap_email
+ *
  * @global integer $g_validate_email
  */
 $g_validate_email = ON;
@@ -571,39 +601,45 @@ $g_mail_priority = 3;
 $g_phpMailer_method = PHPMAILER_METHOD_MAIL;
 
 /**
- * This option allows you to use a remote SMTP host.  Must use the phpMailer script
- * One or more hosts, separated by a semicolon, can be listed.
- * You can also specify a different port for each host by using this
- * format: [hostname:port] (e.g. "smtp1.example.com:25;smtp2.example.com").
- * Hosts will be tried in order.
+ * Remote SMTP Host(s)
+ * Either a single hostname or multiple semicolon-delimited hostnames.
+ * You can specify for each host a port other than the default, using format:
+ * [hostname:port] (e.g. "smtp1.example.com:25;smtp2.example.com").
+ * Hosts will be tried in the given order.
+ * NOTE: This is only used with PHPMAILER_METHOD_SMTP.
+ * @see $g_smtp_port
  * @global string $g_smtp_host
  */
 $g_smtp_host = 'localhost';
 
 /**
- * These options allow you to use SMTP Authentication when you use a remote
- * SMTP host with phpMailer.  If smtp_username is not '' then the username
- * and password will be used when logging in to the SMTP server.
+ * SMTP Server Authentication user
+ * NOTE: must be set to '' if the SMTP host does not require authentication.
+ * @see $g_smtp_password
  * @global string $g_smtp_username
  */
 $g_smtp_username = '';
 
 /**
  * SMTP Server Authentication password
+ * Not used when $g_smtp_username = ''
+ * @see $g_smtp_username
  * @global string $g_smtp_password
  */
 $g_smtp_password = '';
 
 /**
- * This control the connection mode to SMTP server. Can be 'ssl' or 'tls'
+ * Allow secure connection to the SMTP server
+ * Valid values are '' (no encryption), 'ssl' or 'tls'
  * @global string $g_smtp_connection_mode
  */
 $g_smtp_connection_mode = '';
 
 /**
- * The smtp port to use.  The typical SMTP ports are 25 and 587.  The port to
- * use will depend on the SMTP server configuration and hence others may be
- * used.
+ * Default SMTP port
+ * Typical ports are 25 and 587.
+ * This can be overridden individually for specific hosts.
+ * @see $g_smtp_host
  * @global integer $g_smtp_port
  */
 $g_smtp_port = 25;
@@ -829,6 +865,8 @@ $g_logo_url = '%default_home_page%';
  * Specifies whether to enable support for project documents or not.
  * This feature is deprecated and is expected to be moved to a plugin
  * in the future.
+ * @see $g_view_proj_doc_threshold
+ * @see $g_upload_project_file_threshold
  * @global integer $g_enable_project_documentation
  */
 $g_enable_project_documentation = OFF;
@@ -948,8 +986,12 @@ $g_excel_columns = array (
 $g_show_bug_project_links = ON;
 
 /**
- * Position of the status colour legend, can be: POSITION_*
- * see constant_inc.php. (*: TOP , BOTTOM , or BOTH)
+ * Position of the status color legend
+ * Allowed values are:
+ * - STATUS_LEGEND_POSITION_NONE - do not display the legend at all
+ * - STATUS_LEGEND_POSITION_TOP
+ * - STATUS_LEGEND_POSITION_BOTTOM (default)
+ * - STATUS_LEGEND_POSITION_BOTH
  * @global integer $g_status_legend_position
  */
 $g_status_legend_position = STATUS_LEGEND_POSITION_BOTTOM;
@@ -1134,12 +1176,17 @@ $g_calendar_date_format = 'Y-m-d H:i';
 /**
  * Default timezone to use in MantisBT
  *
- * If this config is left blank, it will be initialized by calling function
+ * This configuration is normally initialized when installing Mantis.
+ * It should be set to one of the values specified in the
+ * {@link http://php.net/timezones List of Supported Timezones}.
+ * If this config is left blank, the timezone will be initialized by calling
  * {@link http://php.net/date-default-timezone-get date_default_timezone_get()}
- * to determine the default timezone.
- * Note that this function's behavior was modified in PHP 5.4.0.
+ * (note that this function's behavior was modified in PHP 5.4.0), which will
+ * fall back to 'UTC' if unable to determine the timezone.
+ * Correct configuration of this variable can be confirmed by running the
+ * administration checks.
+ * Users can override the default timezone under their preferences.
  *
- * @link http://php.net/timezones List of Supported Timezones
  * @global string $g_default_timezone
  */
 $g_default_timezone = '';
@@ -1192,6 +1239,12 @@ $g_private_news_threshold = DEVELOPER;
  * @global integer $g_default_new_account_access_level
  */
 $g_default_new_account_access_level = REPORTER;
+
+/**
+ * Default Project View Status (VS_PUBLIC or VS_PRIVATE)
+ * @global integer $g_default_project_view_status
+ */
+$g_default_project_view_status = VS_PUBLIC;
 
 /**
  * Default Bug View Status (VS_PUBLIC or VS_PRIVATE)
@@ -1839,6 +1892,17 @@ $g_ldap_organization = '';
  * @global integer $g_ldap_protocol_version
  */
 $g_ldap_protocol_version = 0;
+
+/**
+ * Duration of the timeout for TCP connection to the LDAP server (in seconds).
+ * Set this to a low value when the hostname defined in $g_ldap_server resolves
+ * to multiple IP addresses, allowing rapid failover to the next available LDAP
+ * server.
+ * Defaults to 0 (infinite)
+ *
+ * @global int $g_ldap_network_timeout
+ */
+$g_ldap_network_timeout = 0;
 
 /**
  * Determines whether the LDAP library automatically follows referrals returned
@@ -2603,7 +2667,10 @@ $g_bug_revision_drop_threshold = MANAGER;
 /**
  * access level needed to upload files to the project documentation section
  * You can set this to NOBODY to prevent uploads to projects
- * See also: $g_upload_bug_file_threshold, $g_allow_file_upload
+ * @see $g_enable_project_documentation
+ * @see $g_view_proj_doc_threshold
+ * @see $g_allow_file_upload
+ * @see $g_upload_bug_file_threshold
  * @global integer $g_upload_project_file_threshold
  */
 $g_upload_project_file_threshold = MANAGER;
@@ -2633,9 +2700,13 @@ $g_update_bugnote_threshold = DEVELOPER;
 
 /**
  * Threshold needed to view project documentation
+ * Note: setting this to ANYBODY will let any user download attachments
+ * from private projects, regardless of their being a member of it.
+ * @see $g_enable_project_documentation
+ * @see $g_upload_project_file_threshold
  * @global integer $g_view_proj_doc_threshold
  */
-$g_view_proj_doc_threshold = ANYBODY;
+$g_view_proj_doc_threshold = VIEWER;
 
 /**
  * Site manager
@@ -3367,13 +3438,20 @@ $g_logout_redirect_page = 'login_page.php';
 ###########
 
 /**
- * An array of headers to be sent with each page.
+ * An array of custom headers to be sent with each page.
+ *
  * For example, to allow your MantisBT installation to be viewed in a frame in
  * IE6 when the frameset is not at the same hostname as the MantisBT install,
  * you need to add a P3P header. You could try something like
  * 'P3P: CP="CUR ADM"' in your config file, but make sure to check that the
  * your policy actually matches with what you are promising. See
  * http://msdn.microsoft.com/en-us/library/ms537343.aspx for more information.
+ *
+ * Even though this is not recommended, you could use this setting to disable
+ * previously sent headers. For example, assuming you didn't want to benefit
+ * from Content Security Policy, you could add 'Content-Security-Policy:' to
+ * the array.
+ *
  * @global array $g_custom_headers
  */
 $g_custom_headers = array();
@@ -3763,10 +3841,15 @@ $g_wiki_engine = '';
 $g_wiki_root_namespace = 'mantis';
 
 /**
- * URL under which the wiki engine is hosted.  Must be on the same server.
+ * URL under which the wiki engine is hosted.
+ * Must be on the same server as MantisBT, requires trailing '/'.
+ * By default, this is derived from the global MantisBT path ($g_path),
+ * replacing the URL's path component by the wiki engine string (i.e. if
+ * $g_path = 'http://example.com/mantis/' and $g_wiki_engine = 'dokuwiki',
+ * the wiki URL will be 'http://example.com/dokuwiki/')
  * @global string $g_wiki_engine_url
  */
-$g_wiki_engine_url = $t_protocol . '://' . $t_host . '/%wiki_engine%/';
+$g_wiki_engine_url = '';
 
 ####################
 # Recently Visited #
@@ -4044,9 +4127,10 @@ $g_show_queries_count = OFF;
  * Recommended config_inc.php settings for developers (these are automatically
  * set if the server is localhost):
  * $g_display_errors = array(
- *     E_USER_ERROR   => DISPLAY_ERROR_HALT,
- *     E_WARNING      => DISPLAY_ERROR_HALT,
- *     E_ALL          => DISPLAY_ERROR_INLINE,
+ *     E_USER_ERROR        => DISPLAY_ERROR_HALT,
+ *     E_RECOVERABLE_ERROR => DISPLAY_ERROR_HALT,
+ *     E_WARNING           => DISPLAY_ERROR_HALT,
+ *     E_ALL               => DISPLAY_ERROR_INLINE,
  * );
  *
  * WARNING: E_USER_ERROR should always be set to DISPLAY_ERROR_HALT. Using
@@ -4056,7 +4140,8 @@ $g_show_queries_count = OFF;
  * @global array $g_display_errors
  */
 $g_display_errors = array(
-	E_USER_ERROR   => DISPLAY_ERROR_HALT,
+	E_USER_ERROR        => DISPLAY_ERROR_HALT,
+	E_RECOVERABLE_ERROR => DISPLAY_ERROR_HALT,
 );
 
 # Add developers defaults when server is localhost

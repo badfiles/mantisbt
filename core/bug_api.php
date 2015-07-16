@@ -24,6 +24,7 @@
  * @link http://www.mantisbt.org
  *
  * @uses access_api.php
+ * @uses antispam_api.php
  * @uses authentication_api.php
  * @uses bugnote_api.php
  * @uses bug_revision_api.php
@@ -48,6 +49,7 @@
  */
 
 require_api( 'access_api.php' );
+require_api( 'antispam_api.php' );
 require_api( 'authentication_api.php' );
 require_api( 'bugnote_api.php' );
 require_api( 'bug_revision_api.php' );
@@ -460,6 +462,8 @@ class BugData {
 	 */
 	function create() {
 		self::validate( true );
+
+		antispam_check();
 
 		# check due_date format
 		if( is_blank( $this->due_date ) ) {
@@ -1101,18 +1105,19 @@ function bug_copy( $p_bug_id, $p_target_project_id = null, $p_copy_custom_fields
 
 	# COPY CUSTOM FIELDS
 	if( $p_copy_custom_fields ) {
-		$t_query = 'SELECT field_id, bug_id, value FROM {custom_field_string} WHERE bug_id=' . db_param();
+		$t_query = 'SELECT field_id, bug_id, value, text FROM {custom_field_string} WHERE bug_id=' . db_param();
 		$t_result = db_query( $t_query, array( $t_bug_id ) );
 
 		while( $t_bug_custom = db_fetch_array( $t_result ) ) {
 			$c_field_id = (int)$t_bug_custom['field_id'];
 			$c_new_bug_id = (int)$t_new_bug_id;
 			$c_value = $t_bug_custom['value'];
+			$c_text = $t_bug_custom['text'];
 
 			$t_query = 'INSERT INTO {custom_field_string}
-						   ( field_id, bug_id, value )
-						   VALUES (' . db_param() . ', ' . db_param() . ', ' . db_param() . ')';
-			db_query( $t_query, array( $c_field_id, $c_new_bug_id, $c_value ) );
+						   ( field_id, bug_id, value, text )
+						   VALUES (' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ')';
+			db_query( $t_query, array( $c_field_id, $c_new_bug_id, $c_value, $c_text ) );
 		}
 	}
 
@@ -1214,7 +1219,7 @@ function bug_move( $p_bug_id, $p_target_project_id ) {
 	if( $t_category_id == 0 ) {
 		# Category is required in target project, set it to default
 		if( ON != config_get( 'allow_no_category', null, null, $p_target_project_id ) ) {
-			bug_set_field( $p_bug_id, 'category_id', config_get( 'default_category_for_moves' ) );
+			bug_set_field( $p_bug_id, 'category_id', config_get( 'default_category_for_moves', null, null, $p_target_project_id ) );
 		}
 	} else {
 		# Check if the category is global, and if not attempt mapping it to the new project
@@ -1227,8 +1232,8 @@ function bug_move( $p_bug_id, $p_target_project_id ) {
 			$t_category_name = category_get_field( $t_category_id, 'name' );
 			$t_target_project_category_id = category_get_id_by_name( $t_category_name, $p_target_project_id, false );
 			if( $t_target_project_category_id === false ) {
-				# Use default category after moves, since there is no match by name.
-				$t_target_project_category_id = config_get( 'default_category_for_moves' );
+				# Use target project's default category for moves, since there is no match by name.
+				$t_target_project_category_id = config_get( 'default_category_for_moves', null, null, $p_target_project_id );
 			}
 			bug_set_field( $p_bug_id, 'category_id', $t_target_project_category_id );
 		}

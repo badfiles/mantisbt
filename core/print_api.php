@@ -262,9 +262,9 @@ function print_captcha_input( $p_field_name ) {
 /**
  * This populates an option list with the appropriate users by access level
  * @todo from print_reporter_option_list
- * @param integer $p_user_id    A user identifier.
- * @param integer $p_project_id A project identifier.
- * @param integer $p_access     An access level.
+ * @param integer|array $p_user_id    A user identifier or a list of them.
+ * @param integer       $p_project_id A project identifier.
+ * @param integer       $p_access     An access level.
  * @return void
  */
 function print_user_option_list( $p_user_id, $p_project_id = null, $p_access = ANYBODY ) {
@@ -283,17 +283,35 @@ function print_user_option_list( $p_user_id, $p_project_id = null, $p_access = A
 			$t_project_users_list = project_get_all_user_rows( $t_project_id, $p_access );
 			# Do a 'smart' merge of the project's user list, into an
 			# associative array (to remove duplicates)
-			# Use a while loop for better performance
-			$i = 0;
-			while( isset( $t_project_users_list[$i] ) ) {
-				$t_users[$t_project_users_list[$i]['id']] = $t_project_users_list[$i];
-				$i++;
-		}
+			foreach( $t_project_users_list as $t_id => $t_user ) {
+				$t_users[$t_id] = $t_user;
+			}
+			# Clear the array to release memory
 			unset( $t_project_users_list );
 		}
 		unset( $t_projects );
 	} else {
 		$t_users = project_get_all_user_rows( $p_project_id, $p_access );
+	}
+
+	# Add the specified user ID to the list
+	# If we have an array of user IDs, then we've been called from a filter
+	# so don't add anything
+	if( !is_array( $p_user_id ) &&
+		$p_user_id != NO_USER &&
+		!array_key_exists( $p_user_id, $t_users )
+	) {
+		$t_row = user_get_row( $p_user_id );
+		if( $t_row === false ) {
+			# User doesn't exist - create a dummy record for display purposes
+			$t_name = user_get_name( $p_user_id );
+			$t_row = array(
+				'id' => $p_user_id,
+				'username' => $t_name,
+				'realname' => $t_name,
+			);
+		}
+		$t_users[$p_user_id] = $t_row;
 	}
 
 	$t_display = array();
@@ -698,6 +716,9 @@ function print_category_option_list( $p_category_id = 0, $p_project_id = null ) 
 	} else {
 		$t_project_id = $p_project_id;
 	}
+
+	$t_cat_arr = category_get_all_rows( $t_project_id, null, true );
+
 	if( config_get( 'allow_no_category' ) ) {
 		echo '<option value="0"';
 		check_selected( $p_category_id, 0 );
@@ -705,14 +726,16 @@ function print_category_option_list( $p_category_id = 0, $p_project_id = null ) 
 		echo category_full_name( 0, false ), '</option>';
 	} else {
 		if( 0 == $p_category_id ) {
-			echo '<option value="0"';
-			echo check_selected( $p_category_id, 0 );
-			echo '>';
-			echo string_attribute( lang_get( 'select_option' ) ) . '</option>';
+			if( count( $t_cat_arr ) == 1 ) {
+				$p_category_id = (int) $t_cat_arr[0]['id'];
+			} else {
+				echo '<option value="0"';
+				echo check_selected( $p_category_id, 0 );
+				echo '>';
+				echo string_attribute( lang_get( 'select_option' ) ) . '</option>';
+			}
 		}
 	}
-
-	$t_cat_arr = category_get_all_rows( $t_project_id, null, true );
 
 	foreach( $t_cat_arr as $t_category_row ) {
 		$t_category_id = (int)$t_category_row['id'];
@@ -1911,18 +1934,19 @@ function print_bug_attachment_preview_image( array $p_attachment ) {
  * @return void
  */
 function print_timezone_option_list( $p_timezone ) {
-	if( !function_exists( 'timezone_identifiers_list' ) ) {
-		echo "\t" . '<option value="' . $p_timezone . '" selected="selected">' . $p_timezone . '</option>' . "\n";
-		return;
-	}
-
 	$t_identifiers = timezone_identifiers_list( DateTimeZone::ALL );
 
-	foreach ( $t_identifiers as $t_identifier ) {
-		$t_zone = explode( '/', $t_identifier );
-		if( isset( $t_zone[1] ) != '' ) {
-			$t_locations[$t_zone[0]][$t_zone[0] . '/' . $t_zone[1]] = array( str_replace( '_', ' ', $t_zone[1] ), $t_identifier );
+	foreach( $t_identifiers as $t_identifier ) {
+		$t_zone = explode( '/', $t_identifier, 2 );
+		if( isset( $t_zone[1] ) ) {
+			$t_id = $t_zone[1];
+		} else {
+			$t_id = $t_identifier;
 		}
+		$t_locations[$t_zone[0]][$t_identifier] = array(
+			str_replace( '_', ' ', $t_id ),
+			$t_identifier
+		);
 	}
 
 	foreach( $t_locations as $t_continent => $t_locations ) {

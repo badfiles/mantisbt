@@ -38,22 +38,10 @@ class IssueAssignedTimelineEvent extends TimelineEvent {
 	 * @param integer $p_handler_id An user identifier.
 	 */
 	public function __construct( $p_timestamp, $p_user_id, $p_issue_id, $p_handler_id ) {
-		parent::__construct( $p_timestamp, $p_user_id, $p_issue_id );
+		parent::__construct( $p_timestamp, $p_user_id );
 
 		$this->issue_id = $p_issue_id;
 		$this->handler_id = $p_handler_id;
-	}
-
-	/**
-	 * Whether to skip this event after access checks
-	 * @return boolean
-	 */
-	function skip() {
-		if( !access_has_bug_level( config_get( 'view_handler_threshold' ), $this->issue_id ) ) {
-			return true;
-		}
-
-		return false;
 	}
 
 	/**

@@ -19,7 +19,7 @@
  *
  * **********************************************************************
  * ** This file contains translations stored in translatewiki.net.     **
- * ** See http://translatewiki.net/wiki/Project:About for information  **
+ * ** See https://translatewiki.net/wiki/Project:About for information **
  * ** on copyright/license for translatewiki.net translations.         **
  * **********************************************************************
  * **                                                                  **
@@ -45,6 +45,7 @@
  * @author Emostoyanov
  * @author RealEnder
  * @author StanProg
+ * @author Vodnokon4e
  */
 
 $s_actiongroup_menu_move = 'Преместване';
@@ -78,7 +79,7 @@ $s_login_anonymously = 'Вход като гост';
 $s_anonymous = 'Гост';
 $s_jump_to_bugnotes = 'Преглед на бележките';
 $s_public_project_msg = 'Проектът е ПУБЛИЧЕН. Всички потребители имат достъп.';
-$s_private_project_msg = 'Проектът е ЧАСТЕН. Само администраторите и ръчно-добавените потребители имат достъп.';
+$s_private_project_msg = 'Проектът е ЧАСТЕН. Само администраторите и ръчно добавените потребители имат достъп.';
 $s_access_level_project = 'Ниво на достъп за проекта';
 $s_view_submitted_bug_link = 'Преглед на изпратения проблем %1$s';
 $s_assigned_projects = 'Възложени проекти';
@@ -115,11 +116,11 @@ $s_no_category = '(няма категория)';
 $s_global_categories = 'Глобални категории';
 $s_inherit = 'Наследени категории';
 $s_inherit_global = 'Онаследи глобалните категории';
-$s_inherit_parent = 'Онаследи Parent категории';
+$s_inherit_parent = 'Онаследи ,родителските категории';
 $s_update_subproject_inheritance = 'Обновяване на  структурата на подпроекта';
 $s_duplicate_of = 'Дубликат на';
-$s_has_duplicate = 'Съществува дубликат';
-$s_related_to = 'Отнася се до';
+$s_has_duplicate = 'съществува дубликат';
+$s_related_to = 'отнася се до';
 $s_dependant_on = 'Зависи от';
 $s_blocks = 'Производен на';
 $s_new_bug = 'Нов проблем';
@@ -280,6 +281,7 @@ $s_email_label = 'Е-поща';
 $s_password = 'Парола';
 $s_no_password_change = 'Паролата е контролирана от друга система, не може да бъде променена от тук.';
 $s_confirm_password = 'Потвърждаване на паролата';
+$s_current_password = 'Текуща парола';
 $s_access_level = 'Ниво на достъп';
 $s_access_level_label = 'Ниво на достъп';
 $s_update_user_button = 'Обновяване на профил';
@@ -392,7 +394,7 @@ $s_reminder_list_truncated = 'списъкът с получателите е и
 $s_bug_send_button = 'Изпращане';
 $s_reminder = 'Напомнящо съобщение';
 $s_reminder_explain = 'Съобщението ще бъде изпратено до този, който е отворил проблема повторно.';
-$s_reminder_monitor = 'Получателите също ще наблюдават проблема. Могат да се отпишат от списъка чрез бутон "Спри наблюдението".';
+$s_reminder_monitor = 'Получателите също ще наблюдават проблема. Те могат да се отпишат от списъка чрез бутон "Спри наблюдението".';
 $s_reminder_store = 'Съобщението ще бъде прикрепено към проблема.';
 $s_confirm_sponsorship = 'Потвърждение за спонсориране на проблем %1$d за %2$s.';
 $s_stick_bug_button = 'Прикрепи';
@@ -445,7 +447,7 @@ $s_view_revisions = 'Преглед на версии';
 $s_revision = 'Версия';
 $s_revision_by = '%1$s от %2$s';
 $s_revision_drop = 'Пропусни';
-$s_bug_revision_dropped_history = 'Пропуснат преглед на бъг';
+$s_bug_revision_dropped_history = 'Пропуснат преглед на проблем';
 $s_bugnote_revision_dropped_history = 'Версията на бележката е премахната';
 $s_all_revisions = 'Всички версии';
 $s_back_to_issue = 'Връщане към проблем';
@@ -462,17 +464,19 @@ $s_add_bugnote_button = 'Добавяне на бележка';
 $s_bugnote_edit_link = 'Редакция';
 $s_closed_bug_button = 'Приключване на проблем';
 $s_bugnote_updated_msg = 'Бележката е обновена успешно...';
+$s_last_edited = 'Последна редакция:';
 $s_hide_content = 'Скриване на съдържанието';
 $s_show_content = 'Показване на съдържанието';
-$s_total_queries_executed = 'Изпълнени са общо %1$d заявки.';
-$s_unique_queries_executed = 'Изпълнени са %1$d уникални заявки.';
-$s_memory_usage_in_kb = 'Използвана памет :  %1$s KB';
+$s_total_queries_executed = 'Общ брой изпълнени заявки: %1$d';
+$s_unique_queries_executed = 'Изпълнени уникални заявки: %1$d';
+$s_memory_usage_in_kb = 'Използвана памет: %1$s KiB';
+$s_log_page_event = 'Събитие';
 $s_please_report = 'Моля, съобщавайте за това на% 1 $ s.';
 $s_click_to_login = 'Влизане';
 $s_warning_plain_password_authentication = 'Използвана е много лесна парола за оторизация, която може да бъде видяна от администратор.';
 $s_warning_default_administrator_account_present = 'Трябва да дезактивирате настоящия "администратор" или да промените паролата му.';
 $s_warning_admin_directory_present = 'Директория Админ трябва да бъде премахната.';
-$s_error_database_no_schema_version = '<strong>Грешка:</strong> Структурата на базата данни не е актуална (config(databaseversion) има стойност 0 и таблиците от предишни обновявания не съществуват). Моля, проверете дали базата ви работи - не можем да извлечем версията на схемата на базата.  Таблицата  Config не съдържа валидна версия на схемата на базата - ако се наложи потърсете помощ в mantis-help мейлинг листа.';
+$s_error_database_no_schema_version = '<strong>Грешка:</strong> Структурата на базата данни не е актуална (config(databaseversion) има стойност 0) или е повредена. Моля, проверете дали базата ви работи - не можем да извлечем версията на схемата на базата.  Таблицата  Config не съдържа валидна версия на схемата на базата - ако се наложи потърсете помощ в mantis-help мейлинг листа.';
 $s_error_database_version_out_of_date_2 = 'Структурата на базата данни може да е остаряла. Обновете <a href="admin/install.php">тук</a> , преди да влезете.';
 $s_error_code_version_out_of_date = '<strong>Внимание:</strong> структурата на базата данни е по-нова спрямо инсталирания код. Обновете кода.';
 $s_login_page_info = 'Добре дошли в системата за следене на грешки.';
@@ -536,6 +540,7 @@ $s_show_disabled = 'Показване на неактивните';
 $s_manage_accounts_title = 'Управление на Профили';
 $s_date_created = 'Дата на създаване';
 $s_last_visit = 'Последно посещение';
+$s_last_visit_label = 'Последно посещение:';
 $s_edit_user_link = 'Редакция на потребител';
 $s_config_all_projects = 'Забележка: Настройките са валидни за ВСИЧКИ ПРОЕКТИ, освен ако не са въведени други настройки, които да отхвърлят началните.';
 $s_config_project = 'Забележка: Конфигурацията засяга само проект %1$s.';
@@ -572,11 +577,15 @@ $s_desc_bug_submit_status = 'Статус, задаван на нов пробл
 $s_desc_bug_reopen_status = 'Статус, задаван на отворени наново проблеми';
 $s_desc_bug_resolved_status_threshold = 'Статус, при който проблема се счита за решен';
 $s_desc_bug_closed_status_threshold = 'Статус на затворен проблем.';
+$s_access_change_access_label = 'Кой може да променя нивата за достъп:';
 $s_default_not_in_flow = 'Първоначално-зададеният статус на %1$s не е избиран в следващите статуси на %2$s. Ще бъде игнориран.';
 $s_assign_issue = 'Възлагане на проблем';
 $s_allow_reporter_close = 'Разрешение за приключване на проблема';
 $s_allow_reporter_reopen = 'Разрешение за повторно отваряне на проблема';
 $s_set_status_assigned = 'Задаване на статус при възлагане от служителя, избран за закриване на проблема';
+$s_edit_own_bugnotes = 'Редактиране на собствени бележки';
+$s_delete_others_bugnotes = 'Изтриване на чужди бележки';
+$s_delete_own_bugnotes = 'Изтриване на собствени бележки';
 $s_limit_access = 'Ограничаване достъпа на кореспондентите до техните собствени проблеми';
 $s_submit_status = 'Статус, задаван на нов проблем';
 $s_assigned_status = 'Статус, задаван на възложени от системата проблеми';
@@ -786,7 +795,7 @@ $s_selected_project = 'Избран проект';
 $s_valid_project_msg = 'Изберете валиден проект';
 $s_signup_done_title = 'Регистрацията на профила премина успешно';
 $s_password_emailed_msg = 'Поздравления. Регистрирахте се успешно. Ще бъде изпратен email за потвърждение на email адреса ви. Чрез избор на линка, пратен в този email, ще активирате личния си профил.';
-$s_no_reponse_msg = 'Имате 7 дни да завършите процеса по потвърждаване на профила; ако не успеете да завършите потвърждаването на профила до 7 дни, новосъздадения профил ще бъде елиминиран.';
+$s_no_reponse_msg = 'Имате 7 дни да завършите процеса по потвърждаване на профила; ако не успеете да завършите потвърждаването на профила до 7 дни, новосъздадения профил ще бъде изтрит.';
 $s_signup_info = 'След попълване на формуляра и проверка на отговорите, ще ви бъде изпратен потвърждаващ email на email адреса, който е предоставен.<br />Чрез потвърждаващия email, ще можете да активирате профила си. Ако не успеете да активирате профила си до 7 дни, той ще бъде елиминиран.<br />Трябва да предоставите валиден email, за да можете да получите потвърждаващия email.';
 $s_signup_title = 'Регистриране';
 $s_signup_button = 'Регистриране';
@@ -1146,17 +1155,17 @@ $s_month_september = 'септември';
 $s_month_october = 'октомври';
 $s_month_november = 'ноември';
 $s_month_december = 'декември';
-$s_timeline_issue_created = '<span class="username">%1s</span> създаде проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_note_created = '<span class="username">%1s</span> коментира проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_monitor = '<span class="username">%1s</span> наблюдава проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_unmonitor = '<span class="username">%1s</span> спря да наблюдава проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_tagged = '<span class="username">%1s</span> етикетира проблем <span class="issue_id">%2s</span> with <span class="tag_name">%3s</span>';
-$s_timeline_issue_untagged = '<span class="username">%1s</span> отстрани <span class="tag_name">%3s</span> от проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_resolved = '<span class="username">%1s</span> реши проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_closed = '<span class="username">%1s</span> затвори проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_reopened = '<span class="username">%1s</span> отвори повторно проблем <span class="issue_id">%2s</span>';
-$s_timeline_issue_assigned = '<span class="username">%1s</span> възложи проблем <span class="issue_id">%2s</span> to <span class="username">%3s</span>';
-$s_timeline_issue_assigned_to_self = '<span class="username">%1s</span> пое проблем <span class="issue_id">%2s</span>';
+$s_timeline_issue_created = '<span class="username">%1$s</span> създаде проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_note_created = '<span class="username">%1$s</span> коментира проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_monitor = '<span class="username">%1$s</span> наблюдава проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_unmonitor = '<span class="username">%1$s</span> спря да наблюдава проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_tagged = '<span class="username">%1$s</span> етикетира проблем <span class="issue_id">%2$s</span> with <span class="tag_name">%3$s</span>';
+$s_timeline_issue_untagged = '<span class="username">%1$s</span> отстрани <span class="tag_name">%3$s</span> от проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_resolved = '<span class="username">%1$s</span> реши проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_closed = '<span class="username">%1$s</span> затвори проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_reopened = '<span class="username">%1$s</span> отвори повторно проблем <span class="issue_id">%2$s</span>';
+$s_timeline_issue_assigned = '<span class="username">%1$s</span> възложи проблем <span class="issue_id">%2$s</span> to <span class="username">%3$s</span>';
+$s_timeline_issue_assigned_to_self = '<span class="username">%1$s</span> пое проблем <span class="issue_id">%2$s</span>';
 $s_timeline_no_activity = 'Няма дейност в зададения период от време.';
 $s_timeline_more = 'Още събития...';
 $s_missing_error_string = 'Липсва низ на грешка: %1$s';

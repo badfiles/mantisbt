@@ -19,7 +19,7 @@
  *
  * **********************************************************************
  * ** This file contains translations stored in translatewiki.net.     **
- * ** See http://translatewiki.net/wiki/Project:About for information  **
+ * ** See https://translatewiki.net/wiki/Project:About for information **
  * ** on copyright/license for translatewiki.net translations.         **
  * **********************************************************************
  * **                                                                  **
@@ -45,6 +45,7 @@
  * @author Geraki
  * @author Kongr43gpen
  * @author Omnipaedista
+ * @author Protnet
  */
 
 $s_actiongroup_menu_move = 'Μετακίνηση';
@@ -655,7 +656,7 @@ $s_custom_field_project_count = 'Αριθμός Εφαρμογών';
 $s_custom_field_type = 'Τύπος';
 $s_custom_field_possible_values = 'Πιθανές Τιμές';
 $s_custom_field_default_value = 'Προεπιλεγμένη Τιμή';
-$s_custom_field_valid_regexp = 'Απλή Έκφραση';
+$s_custom_field_valid_regexp = 'Regular Expression';
 $s_custom_field_access_level_r = 'Προσπέλαση Ανάγνωσης';
 $s_custom_field_access_level_rw = 'Προσπέλαση Εγγραφής';
 $s_custom_field_length_min = 'Ελαχ. Μήκος';
@@ -747,7 +748,7 @@ $s_add_profiles = 'Προσθήκη προφίλ';
 $s_notify_of_new_user_created = 'Ενημέρωση στην δημιουργία νέου χρήστη';
 $s_email_notification = 'Eιδοποίηση μέσω e-mail';
 $s_status_changed_to = 'Αλλαγή κατάστασης σε';
-$s_email_on_deleted = 'Email στα Διαγραμμένα';
+$s_email_on_deleted = 'Email στα Διαγεγραμμένα';
 $s_email_on_sponsorship_changed = 'Email on Sponsorship changed';
 $s_email_on_relationship_changed = 'Email on Relationship changed';
 $s_loading = 'Φόρτωση...';
