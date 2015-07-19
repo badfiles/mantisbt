@@ -2039,7 +2039,7 @@ function print_bug_attachment_preview_image( array $p_attachment ) {
  * @return void
  */
 function print_timezone_option_list( $p_timezone ) {
-	$t_identifiers = timezone_identifiers_list( DateTimeZone::ALL );
+	$t_identifiers = timezone_identifiers_list( DateTimeZone::PER_COUNTRY, "RU" );
 
 	foreach( $t_identifiers as $t_identifier ) {
 		$t_zone = explode( '/', $t_identifier, 2 );
