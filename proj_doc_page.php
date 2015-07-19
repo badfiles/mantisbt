@@ -144,7 +144,9 @@ while( $t_row = db_fetch_array( $t_result ) ) {
 	$t_href = '<a href="file_download.php?file_id='.$v_id.'&amp;type=doc">';
 	echo $t_href;
 	print_file_icon( $v_filename );
-	echo '</a>&#160;' . $t_href . $v_title . '</a> (' . $v_filesize . lang_get( 'word_separator' ) . lang_get( 'bytes' ) . ')';
+	echo '</a>&#160;' . $t_href . $v_title . '</a>';
+	echo '<span class="small" title="' . get_filesize_info( $v_filesize , BINARY, 0 ) . '">';
+	echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $v_filesize , config_get( 'file_size_system' ) ) . ')</span>';
 ?>
 			<br />
 			<span class="small">

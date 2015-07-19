@@ -34,6 +34,9 @@ define( 'BAD', 0 );
 define( 'GOOD', 1 );
 define( 'WARN', 2 );
 
+define( 'BINARY', 1024 );
+define( 'DECIMAL', 1000 );
+
 # PHP-related constants
 define( 'PHP_CLI', 0 );
 define( 'PHP_CGI', 1 );

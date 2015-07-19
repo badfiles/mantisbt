@@ -1190,6 +1190,8 @@ $s_note_user_id_label = 'Note By:';
 $s_filter_match_type = 'Match Type';
 $s_filter_match_all = 'All Conditions';
 $s_filter_match_any = 'Any Condition';
+$s_bgnts = '#';
+$s_bugnotes = 'Bugnotes';
 
 # view_all_inc.php
 $s_none = 'none';
@@ -1314,6 +1316,11 @@ $s_kb = 'KB';
 $s_attachment_missing = 'Attachment missing';
 $s_attachment_count = 'Attachment count';
 $s_view_attachments_for_issue = 'View %1$d attachment(s) for issue #%2$d';
+$s_unit_bytes = 'bytes';
+$s_unit_k_binary = 'KiB';
+$s_unit_m_binary = 'MiB';
+$s_unit_k_decimal = 'KB';
+$s_unit_m_decimal = 'MB';
 
 # PHPMailer
 $s_phpmailer_language = 'en';

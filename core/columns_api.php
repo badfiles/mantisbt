@@ -336,7 +336,7 @@ function column_get_title( $p_column ) {
 		case 'attachment_count':
 			return lang_get( 'attachments' );
 		case 'bugnotes_count':
-			return '#';
+			return lang_get( 'bgnts' );
 		case 'category_id':
 			return lang_get( 'category' );
 		case 'edit':
@@ -881,7 +881,7 @@ function print_column_title_summary( $p_sort, $p_dir, $p_columns_target = COLUMN
  * @access public
  */
 function print_column_title_bugnotes_count( $p_sort, $p_dir, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
-	echo '<th class="column-bugnotes-count"> # </th>';
+	echo '<th class="column-bugnotes-count"><span class="small" title="' . lang_get( 'bugnotes' ) . '">' . lang_get( 'bgnts' ) . '</span></th>';
 }
 
 /**
