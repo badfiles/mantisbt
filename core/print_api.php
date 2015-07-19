@@ -1962,15 +1962,12 @@ function print_timezone_option_list( $p_timezone ) {
 }
 
 /**
- * Return file size information
- * @param integer $p_size File size.
- * @param string  $p_unit File size unit.
- * @return string
-* Returns file size information in units of a chosen system.
+ * Returns file size information in units of a chosen system.
  * @param integer $p_size file Size in bytes
  * @param integer $p_unit_type Base to display sizes (BINARY OR DECIMAL). Defaults to BINARY (1024).
  * @param integer $p_force_unit Force using file size unit in terms of base power (0 for bytes, 1 for kilo, 2 for mega, etc).
  *				Defaults to auto (-1)
+ * @return string
 */
 function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 ) {
 	if( ( $p_force_unit == 0 ) || ( ( $p_force_unit == -1 ) && ( $p_size <= 10 * $p_unit_type ) ) ) {
