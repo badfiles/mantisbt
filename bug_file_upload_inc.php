@@ -41,6 +41,8 @@ require_api( 'file_api.php' );
 require_api( 'form_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'access_api.php' );
+require_api( 'current_user_api.php' );
 
 # check if we can allow the upload... bail out if we can't
 if( !file_allow_bug_upload( $f_bug_id ) ) {
@@ -77,6 +79,9 @@ $t_max_file_size = (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_nu
 		<input type="hidden" name="bug_id" value="<?php echo $f_bug_id ?>" />
 		<input type="hidden" name="max_file_size" value="<?php echo $t_max_file_size ?>" />
 <?php
+	if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) )) {
+			echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
+		}
 	# Display multiple file upload fields
 	for( $i = 0; $i < $t_file_upload_max_num; $i++ ) {
 ?>

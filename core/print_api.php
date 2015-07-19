@@ -1846,6 +1846,9 @@ function print_bug_attachment_header( array $p_attachment ) {
 		if( $p_attachment['can_download'] ) {
 			echo '<a href="' . string_attribute( $p_attachment['download_url'] ) . '">';
 		}
+		if( $p_attachment['to_send'] == true ) {
+			print_file_icon( 'file.eml' );
+		}
 		print_file_icon( $p_attachment['display_name'] );
 		if( $p_attachment['can_download'] ) {
 			echo '</a>';

@@ -46,6 +46,7 @@
  * @uses user_api.php
  * @uses user_pref_api.php
  * @uses utility_api.php
+ * @uses file_api.php
  *
  * @uses PHPMailerAutoload.php PHPMailer library
  */
@@ -73,6 +74,7 @@ require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'user_pref_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'file_api.php' );
 
 require_lib( 'phpmailer/PHPMailerAutoload.php' );
 
@@ -593,6 +595,9 @@ function email_generic_to_recipients( $p_bug_id, $p_notify_type, array $p_recipi
 
 	$t_project_id = bug_get_field( $p_bug_id, 'project_id' );
 
+	$t_attach_files = bug_get_attachments( $p_bug_id, true );
+	$t_attach_files_ser = serialize( $t_attach_files );
+
 	if( is_array( $p_recipients ) ) {
 		# send email to every recipient
 		foreach( $p_recipients as $t_user_id => $t_user_email ) {
@@ -602,9 +607,16 @@ function email_generic_to_recipients( $p_bug_id, $p_notify_type, array $p_recipi
 			lang_push( user_pref_get_language( $t_user_id, $t_project_id ) );
 
 			$t_visible_bug_data = email_build_visible_bug_data( $t_user_id, $p_bug_id, $p_message_id );
-			email_bug_info_to_one_user( $t_visible_bug_data, $p_message_id, $t_project_id, $t_user_id, $p_header_optional_params );
+			email_bug_info_to_one_user( $t_visible_bug_data, $p_message_id, $t_project_id, $t_user_id, $t_attach_files_ser, $p_header_optional_params );
 
 			lang_pop();
+		}
+		
+		# clean to_send field for queued files
+		if( isset( $t_attach_files ) && is_array( $t_attach_files ) ) {
+			foreach( $t_attach_files as $t_attachment ) {
+			file_set_field( $t_attachment['id'], 'to_send', false );
+			}
 		}
 	}
 }
@@ -760,7 +772,7 @@ function email_relationship_child_resolved_closed( $p_bug_id, $p_message_id ) {
  *                             even when using cronjob
  * @return integer|null
  */
-function email_store( $p_recipient, $p_subject, $p_message, array $p_headers = null, $p_force = false ) {
+function email_store( $p_recipient, $p_subject, $p_message, array $p_headers = null, $p_force = false, $p_attach_files = null ) {
 	global $g_email_shutdown_processing;
 
 	$t_recipient = trim( $p_recipient );
@@ -796,7 +808,7 @@ function email_store( $p_recipient, $p_subject, $p_message, array $p_headers = n
 	}
 	$t_email_data->metadata['hostname'] = $t_hostname;
 
-	$t_email_id = email_queue_add( $t_email_data );
+	$t_email_id = email_queue_add( $t_email_data, $p_attach_files );
 
 	# Set the email processing flag for the shutdown function
 	$g_email_shutdown_processing |= EMAIL_SHUTDOWN_GENERATED;
@@ -959,6 +971,13 @@ function email_send( EmailData $p_email_data ) {
 
 	$t_mail->Subject = $t_subject;
 	$t_mail->Body = make_lf_crlf( "\n" . $t_message );
+
+	if( isset( $t_email_data->attachments ) && is_array( $t_email_data->attachments ) ) {
+		foreach( $t_email_data->attachments as $t_attachment ) {
+			$t_blob = file_get_content( $t_attachment['id'] );
+			$t_mail->AddStringAttachment( $t_blob['content'], $t_attachment['filename'], 'base64', $t_blob['type'] );
+		}
+	}
 
 	if( isset( $t_email_data->metadata['headers'] ) && is_array( $t_email_data->metadata['headers'] ) ) {
 		foreach( $t_email_data->metadata['headers'] as $t_key => $t_value ) {
@@ -1124,7 +1143,7 @@ function email_bug_reminder( $p_recipients, $p_bug_id, $p_message ) {
  * @param array   $p_header_optional_params Array of additional email headers.
  * @return void
  */
-function email_bug_info_to_one_user( array $p_visible_bug_data, $p_message_id, $p_project_id, $p_user_id, array $p_header_optional_params = null ) {
+function email_bug_info_to_one_user( array $p_visible_bug_data, $p_message_id, $p_project_id, $p_user_id, $p_attach_files, array $p_header_optional_params = null ) {
 	$t_user_email = user_get_email( $p_user_id );
 
 	# check whether email should be sent
@@ -1163,8 +1182,7 @@ function email_bug_info_to_one_user( array $p_visible_bug_data, $p_message_id, $
 	}
 
 	# send mail
-	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers );
-
+	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers, false, $p_attach_files );
 	return;
 }
 

@@ -59,7 +59,7 @@ $g_cache_file_count = array();
  * @param int $p_bug_id    The bug id.
  * @param array $p_files   The array of files, if null, then do nothing.
  */
-function file_process_posted_files_for_bug( $p_bug_id, $p_files ) {
+function file_process_posted_files_for_bug( $p_bug_id, $p_files, $p_to_send ) {
 	if( $p_files === null ) {
 		return;
 	}
@@ -67,7 +67,7 @@ function file_process_posted_files_for_bug( $p_bug_id, $p_files ) {
 	$t_files = helper_array_transpose( $p_files );
 	foreach( $t_files as $t_file ) {
 		if( !empty( $t_file['name'] ) ) {
-			file_add( $p_bug_id, $t_file, 'bug' );
+			file_add( $p_bug_id, $t_file, $p_to_send );
 		}
 	}
 }
@@ -356,6 +356,7 @@ function file_get_visible_attachments( $p_bug_id ) {
 
 		$t_attachment['preview'] = false;
 		$t_attachment['type'] = '';
+		$t_attachment['to_send'] = $t_row['to_send'];
 
 		$t_ext = strtolower( pathinfo( $t_attachment['display_name'], PATHINFO_EXTENSION ) );
 		$t_attachment['alt'] = $t_ext;
@@ -468,6 +469,26 @@ function file_get_field( $p_file_id, $p_field_name, $p_table = 'bug' ) {
 	$t_result = db_query( $t_query, array( (int)$p_file_id ), 1 );
 
 	return db_result( $t_result );
+}
+
+/**
+ * Set the specified field value
+ * @param int $p_file_id file id
+ * @param string $p_field_name field name
+ * @param        $p_field_value field value
+ * @param string $p_table table name
+ * @return string
+ */
+function file_set_field( $p_file_id, $p_field_name, $p_field_value, $p_table = 'bug' ) {
+	$t_bug_file_table = db_get_table( $p_table . '_file' );
+	if( !db_field_exists( $p_field_name, $t_bug_file_table ) ) {
+	trigger_error( ERROR_DB_FIELD_NOT_FOUND, ERROR );
+	}
+
+	$query = "UPDATE $t_bug_file_table SET $p_field_name=" . db_param() . " WHERE id=" . db_param();
+	$result = db_query_bound( $query, array( $p_field_value, (int)$p_file_id ));
+
+	return db_result( $result );
 }
 
 /**
@@ -624,6 +645,7 @@ function file_is_name_unique( $p_name, $p_bug_id, $p_table = 'bug' ) {
  *
  * @param integer $p_bug_id          The bug id (should be 0 when adding project doc).
  * @param array   $p_file            The uploaded file info, as retrieved from gpc_get_file().
+ * @param bool    $p_to_send         Mark file to be sent if true
  * @param string  $p_table           Either 'bug' or 'project' depending on attachment type.
  * @param string  $p_title           File title.
  * @param string  $p_desc            File description.
@@ -632,7 +654,7 @@ function file_is_name_unique( $p_name, $p_bug_id, $p_table = 'bug' ) {
  * @param boolean $p_skip_bug_update Skip bug last modification update (useful when importing bug attachments).
  * @return void
  */
-function file_add( $p_bug_id, array $p_file, $p_table = 'bug', $p_title = '', $p_desc = '', $p_user_id = null, $p_date_added = 0, $p_skip_bug_update = false ) {
+function file_add( $p_bug_id, array $p_file, $p_to_send = false, $p_table = 'bug', $p_title = '', $p_desc = '', $p_user_id = null, $p_date_added = 0, $p_skip_bug_update = false ) {
 	file_ensure_uploaded( $p_file );
 	$t_file_name = $p_file['name'];
 	$t_tmp_file = $p_file['tmp_name'];
@@ -726,12 +748,12 @@ function file_add( $p_bug_id, array $p_file, $p_table = 'bug', $p_title = '', $p
 	$t_id_col = $p_table . '_id';
 
 	$t_query = 'INSERT INTO ' . $t_file_table . ' ( ' . $t_id_col . ', title, description, diskfile, filename, folder,
-		filesize, file_type, date_added, user_id )
+		filesize, file_type, date_added, user_id, to_send )
 	VALUES
 		( ' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() .
-		  ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ' )';
+		  ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ', ' . db_param() . ' )';
 	db_query( $t_query, array( $t_id, $p_title, $p_desc, $t_unique_name, $t_file_name, $t_file_path,
-									 $t_file_size, $p_file['type'], $p_date_added, (int)$p_user_id ) );
+									 $t_file_size, $p_file['type'], $p_date_added, (int)$p_user_id, (int)$p_to_send ) );
 	$t_attachment_id = db_insert_id( $t_file_table );
 
 	if( db_is_oracle() ) {

@@ -54,7 +54,8 @@ require_api( 'string_api.php' );
 helper_begin_long_process();
 
 $f_bug_id	= gpc_get_int( 'bug_id', -1 );
-$f_files		= gpc_get_file( 'ufile', null );
+$f_files	= gpc_get_file( 'ufile', null );
+$f_to_send	= gpc_get_bool( 'to_send', false );
 
 if( $f_bug_id == -1 && $f_files === null ) {
 	# _POST/_FILES does not seem to get populated if you exceed size limit so check if bug_id is -1
@@ -74,7 +75,7 @@ if( !file_allow_bug_upload( $f_bug_id ) ) {
 	access_denied();
 }
 
-file_process_posted_files_for_bug( $f_bug_id, $f_files );
+file_process_posted_files_for_bug( $f_bug_id, $f_files, $f_to_send );
 
 form_security_purge( 'bug_file_add' );
 

@@ -63,6 +63,11 @@ class EmailData {
 	);
 
 	/**
+	 * Attachments array
+	 */
+	var $attachments = '';
+
+	/**
 	 * Email ID
 	 */
 	public $email_id = 0;
@@ -87,9 +92,10 @@ function email_queue_prepare_db( EmailData $p_email_data ) {
 /**
  * Add to email queue
  * @param EmailData $p_email_data Email Data structure.
+ * @param array (serialized) $p_attach_files
  * @return integer
  */
-function email_queue_add( EmailData $p_email_data ) {
+function email_queue_add( EmailData $p_email_data, $p_attach_files = null ) {
 	$t_email_data = email_queue_prepare_db( $p_email_data );
 
 	# email cannot be blank
@@ -116,10 +122,10 @@ function email_queue_add( EmailData $p_email_data ) {
 	$c_metadata = serialize( $t_email_data->metadata );
 
 	$t_query = 'INSERT INTO {email}
-				    ( email, subject, body, submitted, metadata)
+				    ( email, subject, body, submitted, metadata, attachments )
 				  VALUES
-				    (' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ')';
-	db_query( $t_query, array( $c_email, $c_subject, $c_body, db_now(), $c_metadata ) );
+				    (' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ')';
+	db_query( $t_query, array( $c_email, $c_subject, $c_body, db_now(), $c_metadata, $p_attach_files ) );
 	$t_id = db_insert_id( db_get_table( 'email' ), 'email_id' );
 
 	log_event( LOG_EMAIL, 'message #' . $t_id . ' queued' );
@@ -140,6 +146,7 @@ function email_queue_row_to_object( $p_row ) {
 
 	$t_row = $p_row;
 	$t_row['metadata'] = unserialize( $t_row['metadata'] );
+	$t_row['attachments'] = unserialize( $t_row['attachments'] );
 
 	$t_email_data = new EmailData;
 
