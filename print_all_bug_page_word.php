@@ -484,7 +484,7 @@ foreach( $t_related_custom_field_ids as $t_custom_field_id ) {
 				$c_download_url = htmlspecialchars( $t_attachment['download_url'] );
 				$c_filesize = number_format( $t_attachment['size'] );
 				$c_date_added = date( $t_date_format, $t_attachment['date_added'] );
-				echo $c_filename . ' (' . $c_filesize . ' ' . lang_get( 'bytes' )
+				echo $c_filename . ' (' . get_filesize_info( $t_attachment['size'] , config_get( 'file_size_system' ) ) . ')'
 					. ') <span class="italic-small">' . $c_date_added . '</span><br />'
 					. string_display_links( $t_path . $c_download_url );
 
