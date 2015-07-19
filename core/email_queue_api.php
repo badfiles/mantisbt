@@ -116,6 +116,10 @@ function email_queue_add( EmailData $p_email_data, $p_attach_files = null ) {
 		trigger_error( ERROR_EMPTY_FIELD, ERROR );
 	}
 
+	if ( $p_attach_files == null ) {
+		$p_attach_files="";
+	}
+
 	$c_email = $t_email_data->email;
 	$c_subject = $t_email_data->subject;
 	$c_body = $t_email_data->body;
