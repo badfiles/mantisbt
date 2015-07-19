@@ -83,7 +83,7 @@ if( $f_files !== null ) {
 		access_denied();
 	}
 
-	file_process_posted_files_for_bug( $f_bug_id, $f_files );
+	file_process_posted_files_for_bug( $f_bug_id, $f_files, false, $f_private );
 }
 
 # We always set the note time to BUGNOTE, and the API will overwrite it with TIME_TRACKING
