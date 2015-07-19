@@ -117,8 +117,8 @@ if( ( $t_filter_position & FILTER_POSITION_TOP ) == FILTER_POSITION_TOP ) {
 		<?php
 			# -- Print and Export links --
 			print_small_button( 'print_all_bug_page.php', lang_get( 'print_all_bug_page_link' ) );
-			print_small_button( 'csv_export.php', lang_get( 'csv_export' ) );
-			print_small_button( 'excel_xml_export.php', lang_get( 'excel_export' ) );
+#			print_small_button( 'csv_export.php', lang_get( 'csv_export' ) );
+#			print_small_button( 'excel_xml_export.php', lang_get( 'excel_export' ) );
 
 			$t_event_menu_options = $t_links = event_signal('EVENT_MENU_FILTER');
 
