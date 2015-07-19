@@ -1773,6 +1773,13 @@ $g_file_download_xsendfile_enabled = OFF;
  */
 $g_file_download_xsendfile_header_name = 'X-Sendfile';
 
+/**
+* Threshold for showing 'Include files to the nearest notification' checkbox
+* in the file upload dialog in bug view.
+* @global int $g_send_attachments_threshold
+*/
+$g_send_attachments_threshold = MANAGER;
+
 ##########################
 # MantisBT HTML Settings #
 ##########################

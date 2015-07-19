@@ -90,7 +90,7 @@ if( $f_files !== null ) {
 		access_denied();
 	}
 
-	$t_file_infos = file_process_posted_files_for_bug( $f_bug_id, $f_files );
+	$t_file_infos = file_process_posted_files_for_bug( $f_bug_id, $f_files, false, $f_private );
 } else {
 	$t_file_infos = array();
 }

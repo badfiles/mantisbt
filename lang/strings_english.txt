@@ -524,6 +524,7 @@ $s_upload_file_button = 'Upload File';
 $s_upload_files_button = 'Upload Files';
 $s_max_file_size_label = 'Maximum size:';
 $s_file_size_info = '%1$s %2$s'; # $1 = size, $2 = unit (e.g. kb, bytes)
+$s_label_to_send = 'Attach file(s) to the nearest notification e-mail';
 
 # bug_reopen.php
 $s_bug_reopened_msg = 'Issue has been reopened...';

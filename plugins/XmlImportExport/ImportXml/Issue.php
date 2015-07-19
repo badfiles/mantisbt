@@ -287,7 +287,7 @@ class ImportXml_Issue implements ImportXml_Interface {
 				);
 				# unfortunately we have no clue who has added the attachment (this could only be fetched from history -> feel free to implement this)
 				# also I have no clue where description should come from...
-				file_add( $this->new_id_, $t_file_data, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, $t_attachment->date_added, true );
+				file_add( $this->new_id_, $t_file_data, false, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, $t_attachment->date_added, true );
 				unlink( $t_temp_file_name );
 			}
 		}
