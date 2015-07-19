@@ -1226,15 +1226,17 @@ function email_send( EmailData $p_email_data ) {
 			break;
 	}
 
-	$t_mail->IsHTML( false );              # set email format to plain text
-	$t_mail->WordWrap = 80;              # set word wrap to 80 characters
+	$t_mail->IsHTML( false );             # set email format to plain text
+	$t_mail->WordWrap = 300;              # set word wrap to 300 characters
 	$t_mail->CharSet = $t_email_data->metadata['charset'];
 	$t_mail->Host = config_get( 'smtp_host' );
 	$t_mail->From = config_get( 'from_email' );
 	$t_mail->Sender = config_get( 'return_path_email' );
 	$t_mail->FromName = config_get( 'from_name' );
-	$t_mail->AddCustomHeader( 'Auto-Submitted:auto-generated' );
+	$t_mail->AddCustomHeader( 'Auto-Submitted: auto-generated' );
 	$t_mail->AddCustomHeader( 'X-Auto-Response-Suppress: All' );
+	$t_mail->AddCustomHeader( 'Precedence: bulk' );
+	$t_mail->AddCustomHeader( 'Reply-To: ' . config_get( 'return_path_email' ) );
 
 	# Setup new line and encoding to avoid extra new lines with some smtp gateways like sendgrid.net
 	$t_mail->LE         = "\r\n";
@@ -1562,7 +1564,7 @@ function email_format_bugnote( $p_bugnote, $p_project_id, $p_show_time_tracking,
 	$t_date_format = ( $p_date_format === null ) ? config_get( 'normal_date_format' ) : $p_date_format;
 
 	$t_last_modified = date( $t_date_format, $p_bugnote->last_modified );
-
+/**
 	$t_formatted_bugnote_id = bugnote_format_id( $p_bugnote->id );
 	$t_bugnote_link = string_process_bugnote_link( config_get( 'bugnote_link_tag' ) . $p_bugnote->id, false, false, true );
 
@@ -1584,7 +1586,9 @@ function email_format_bugnote( $p_bugnote, $p_project_id, $p_show_time_tracking,
 	$t_string = ' (' . $t_formatted_bugnote_id . ') ' . user_get_name( $p_bugnote->reporter_id ) .
 		$t_access_level_string . ' - ' . $t_last_modified . $t_private . "\n" .
 		$t_time_tracking . ' ' . $t_bugnote_link;
-
+*/
+	$t_string = user_get_name( $p_bugnote->reporter_id ) . ' -- ' . $t_last_modified;
+	
 	$t_message  = $p_horizontal_separator . " \n";
 	$t_message .= $t_string . " \n";
 	$t_message .= $p_horizontal_separator . " \n";
@@ -1623,28 +1627,37 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 		$t_message .= $t_email_separator1 . " \n";
 	}
 
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_reporter' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_handler' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_reporter' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_handler' );
+	$t_message .= email_format_attribute( $p_visible_bug_data, 'platform' );
 	$t_message .= $t_email_separator1 . " \n";
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_project' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_bug' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_project' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_bug' );
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_category' );
 
-	if( isset( $p_visible_bug_data['email_tag'] ) ) {
-		$t_message .= email_format_attribute( $p_visible_bug_data, 'email_tag' );
-	}
+#	if( isset( $p_visible_bug_data['email_tag'] ) ) {
+#		$t_message .= email_format_attribute( $p_visible_bug_data, 'email_tag' );
+#	}
 
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_reproducibility' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_severity' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_priority' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_reproducibility' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_severity' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_priority' );
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_status' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_target_version' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_target_version' );
+
+	if( $p_visible_bug_data['due_date'] !== '') {
+		$t_message .= email_format_attribute( $p_visible_bug_data, 'due_date' );
+	}
 
 	# custom fields formatting
 	foreach( $p_visible_bug_data['custom_fields'] as $t_custom_field_name => $t_custom_field_data ) {
+		$t_field_vale = string_custom_field_value_for_email( $t_custom_field_data['value'], $t_custom_field_data['type'] );
+		if( ( trim( $t_field_vale ) == '' ) || ( trim( $t_field_vale ) == '0' ) ) {
+		} else {
 		$t_message .= utf8_str_pad( lang_get_defaulted( $t_custom_field_name, null ) . ': ', $t_email_padding_length, ' ', STR_PAD_RIGHT );
-		$t_message .= string_custom_field_value_for_email( $t_custom_field_data['value'], $t_custom_field_data['type'] );
+		$t_message .= $t_field_vale;
 		$t_message .= " \n";
+		}
 	}
 
 	# end foreach custom field
@@ -1656,14 +1669,14 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 	}
 	$t_message .= $t_email_separator1 . " \n";
 
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_date_submitted' );
-	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_last_modified' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_date_submitted' );
+#	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_last_modified' );
 
 	if( isset( $p_visible_bug_data['email_due_date'] ) ) {
 		$t_message .= email_format_attribute( $p_visible_bug_data, 'email_due_date' );
 	}
 
-	$t_message .= $t_email_separator1 . " \n";
+#	$t_message .= $t_email_separator1 . " \n";
 
 	$t_message .= email_format_attribute( $p_visible_bug_data, 'email_summary' );
 
@@ -1682,7 +1695,7 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 			$t_message .= $t_email_separator1 . "\n" . utf8_str_pad( lang_get( 'bug_relationships' ), 20 ) . utf8_str_pad( lang_get( 'id' ), 8 ) . lang_get( 'summary' ) . "\n" . $t_email_separator2 . "\n" . $p_visible_bug_data['relations'];
 		}
 	}
-
+/**
 	# Sponsorship
 	if( isset( $p_visible_bug_data['sponsorship_total'] ) && ( $p_visible_bug_data['sponsorship_total'] > 0 ) ) {
 		$t_message .= $t_email_separator1 . " \n";
@@ -1698,7 +1711,7 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 			}
 		}
 	}
-
+*/
 	$t_message .= $t_email_separator1 . " \n\n";
 
 	# format bugnotes
@@ -1707,6 +1720,9 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 		$t_message .= email_format_bugnote( $t_bugnote, $p_visible_bug_data['email_project_id'],
 				/* show_time_tracking */ true,  $t_email_separator2, $t_normal_date_format ) . "\n";
 	}
+
+	$t_message .= $t_email_separator1 . " \n";
+	$t_message .= $p_visible_bug_data['freetext']  . "\n";
 
 	# format history
 	if( array_key_exists( 'history', $p_visible_bug_data ) ) {
@@ -1765,6 +1781,12 @@ function email_build_visible_bug_data( $p_user_id, $p_bug_id, $p_message_id ) {
 
 	$t_bug_data['email_bug'] = $p_bug_id;
 
+	if( $p_user_id == user_get_id_by_name( config_get( 'anonymous_account_replacer' ) ) ) {
+		$t_bug_data['freetext'] = lang_get( 'email_freetext_unreg' );
+	} else {
+		$t_bug_data['freetext'] = lang_get( 'email_freetext' );
+	}
+
 	if( $p_message_id !== 'email_notification_title_for_action_bug_deleted' ) {
 		$t_bug_data['email_bug_view_url'] = string_get_bug_view_url_with_fqdn( $p_bug_id );
 	}
@@ -1776,6 +1798,13 @@ function email_build_visible_bug_data( $p_user_id, $p_bug_id, $p_message_id ) {
 			$t_bug_data['email_handler'] = '';
 		}
 	}
+
+	if( !date_is_null( $t_row['due_date'] ) ) {
+		$t_bug_data['due_date'] = date( config_get( 'normal_date_format' ), $t_row['due_date'] );
+	} else {
+		$t_bug_data['due_date'] = '';
+	}
+	$t_bug_data['platform'] = $t_row['platform'];
 
 	$t_bug_data['email_reporter'] = user_get_name( $t_row['reporter_id'] );
 	$t_bug_data['email_project_id'] = $t_row['project_id'];

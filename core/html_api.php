@@ -467,6 +467,7 @@ function html_operation_failure( $p_redirect_url, $p_message = '' ) {
  * End the <body> section
  * @return void
  */
+
 function html_body_end() {
 	# Should code need to be added to this function in the future, it should be
 	# placed *above* this event, which needs to be the last thing to occur
