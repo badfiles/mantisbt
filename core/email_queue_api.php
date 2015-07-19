@@ -35,6 +35,7 @@ require_api( 'database_api.php' );
 require_api( 'error_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'file_api.php' );
 
 /**
  * EmailData Structure Definition
@@ -63,6 +64,11 @@ class EmailData {
 	);
 
 	/**
+	 * Attachments array
+	 */
+	var $attachments = '';
+
+	/**
 	 * Email ID
 	 */
 	public $email_id = 0;
@@ -87,9 +93,10 @@ function email_queue_prepare_db( EmailData $p_email_data ) {
 /**
  * Add to email queue
  * @param EmailData $p_email_data Email Data structure.
+ * @param array (serialized) $p_attach_files
  * @return integer
  */
-function email_queue_add( EmailData $p_email_data ) {
+function email_queue_add( EmailData $p_email_data, $p_attach_files = null ) {
 	$t_email_data = email_queue_prepare_db( $p_email_data );
 
 	# email cannot be blank
@@ -110,6 +117,10 @@ function email_queue_add( EmailData $p_email_data ) {
 		trigger_error( ERROR_EMPTY_FIELD, ERROR );
 	}
 
+	if ( $p_attach_files == null ) {
+		$p_attach_files="";
+	}
+
 	$c_email = $t_email_data->email;
 	$c_subject = $t_email_data->subject;
 	$c_body = $t_email_data->body;
@@ -117,10 +128,10 @@ function email_queue_add( EmailData $p_email_data ) {
 
 	db_param_push();
 	$t_query = 'INSERT INTO {email}
-				    ( email, subject, body, submitted, metadata)
+				    ( email, subject, body, submitted, metadata, attachments )
 				  VALUES
-				    (' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ')';
-	db_query( $t_query, array( $c_email, $c_subject, $c_body, db_now(), $c_metadata ) );
+				    (' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ')';
+	db_query( $t_query, array( $c_email, $c_subject, $c_body, db_now(), $c_metadata, $p_attach_files ) );
 	$t_id = db_insert_id( db_get_table( 'email' ), 'email_id' );
 
 	log_event( LOG_EMAIL_VERBOSE, sprintf( 'message %d queued', $t_id ) );
@@ -141,6 +152,7 @@ function email_queue_row_to_object( $p_row ) {
 
 	$t_row = $p_row;
 	$t_row['metadata'] = unserialize( $t_row['metadata'] );
+	$t_row['attachments'] = unserialize( $t_row['attachments'] );
 
 	$t_email_data = new EmailData;
 
@@ -182,6 +194,19 @@ function email_queue_get( $p_email_id ) {
  */
 function email_queue_delete( $p_email_id, $p_reason = '' ) {
 	db_param_push();
+
+	# clean to_send field if an e-mail containing them has been sent
+	$t_query = 'SELECT attachments FROM {email} WHERE email_id=' . db_param();
+	$t_result = db_query( $t_query, array( $p_email_id ) );
+	$t_attached_files = unserialize( db_fetch_array( $t_result )['attachments'] );
+		if( isset( $t_attached_files )
+			&& is_array( $t_attached_files )
+			) {
+			foreach( $t_attached_files as $t_attachment ) {
+				file_set_field( $t_attachment['id'], 'to_send', false );
+			}
+		}
+
 	$t_query = 'DELETE FROM {email} WHERE email_id=' . db_param();
 	db_query( $t_query, array( $p_email_id ) );
 

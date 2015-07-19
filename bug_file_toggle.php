@@ -15,7 +15,7 @@
 # along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Add documentation to project
+ * Toggle passed file property
  *
  * @package MantisBT
  * @copyright Copyright 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
@@ -24,59 +24,41 @@
  *
  * @uses core.php
  * @uses access_api.php
+ * @uses bug_api.php
  * @uses config_api.php
- * @uses constant_inc.php
- * @uses error_api.php
  * @uses file_api.php
  * @uses form_api.php
  * @uses gpc_api.php
- * @uses html_api.php
+ * @uses helper_api.php
  * @uses lang_api.php
  * @uses print_api.php
- * @uses utility_api.php
  */
 
 require_once( 'core.php' );
 require_api( 'access_api.php' );
+require_api( 'bug_api.php' );
 require_api( 'config_api.php' );
-require_api( 'constant_inc.php' );
-require_api( 'error_api.php' );
 require_api( 'file_api.php' );
 require_api( 'form_api.php' );
 require_api( 'gpc_api.php' );
-require_api( 'html_api.php' );
+require_api( 'helper_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'print_api.php' );
-require_api( 'utility_api.php' );
 
-form_security_validate( 'proj_doc_add' );
+$f_action = gpc_get_string( 'action' );
 
-# Check if project documentation feature is enabled.
-if( OFF == config_get( 'enable_project_documentation' ) ) {
-	access_denied();
+if( $f_action == 'l' ) {
+    $t_access = 'handle_protected';
+    $t_field = 'protected';
+} else {
+    $t_access = 'send';
+    $t_field = 'to_send';
 }
 
-access_ensure_project_level( config_get( 'upload_project_file_threshold' ) );
-
-$f_title = gpc_get_string( 'title' );
-$f_description = gpc_get_string( 'description' );
-$f_file = gpc_get_file( 'file' );
-
-if( is_blank( $f_title ) ) {
-	error_parameters( lang_get( 'title' ) );
-	trigger_error( ERROR_EMPTY_FIELD, ERROR );
-}
-
-file_add( 0, $f_file, false, false, 'project', $f_title, $f_description );
-
-form_security_purge( 'proj_doc_add' );
-
-$t_redirect_url = 'proj_doc_page.php';
-
-layout_page_header( null, $t_redirect_url );
-
-layout_page_begin( 'proj_doc_page.php' );
-
-html_operation_successful( $t_redirect_url );
-
-layout_page_end();
+form_security_validate( 'bug_file_' . $t_field . '_toggle' );
+$f_file_id = gpc_get_int( 'file_id' );
+$t_bug_id = file_get_field( $f_file_id, 'bug_id' );
+access_ensure_bug_level( config_get(  $t_access . '_attachments_threshold' ), $t_bug_id );
+file_set_field( $f_file_id, $t_field, !(bool)file_get_field( $f_file_id, $t_field ) );
+form_security_purge( 'bug_file_' . $t_field . '_toggle' );
+print_header_redirect_view( $t_bug_id );
