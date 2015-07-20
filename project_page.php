@@ -61,9 +61,9 @@ if( $f_project_id == ALL_PROJECTS ) {
 # Override the current page to make sure we get the appropriate project-specific configuration
 $g_project_override = $f_project_id;
 
-html_page_top( project_get_field( $f_project_id, 'name' ) );
+layout_page_header( project_get_field( $f_project_id, 'name' ) );
 
-print_recently_visited();
+layout_page_begin();
 
 echo '<h1>', string_display( project_get_field( $f_project_id, 'name' ) ), '</h1>';
 
@@ -132,4 +132,4 @@ if( count( $t_users ) > 0 ) {
 	}
 }
 
-html_page_bottom();
+layout_page_end();

@@ -91,7 +91,8 @@ access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
 
 compress_enable();
 
-html_page_top( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
+layout_page_header( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
+layout_page_begin();
 ?>
 <br />
 
@@ -99,7 +100,7 @@ html_page_top( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
 
 <tr>
 	<!-- Title -->
-	<td class="form-title">
+	<td class="bold">
 		<?php
 		if( $t_graph_relation ) {
 			echo lang_get( 'viewing_bug_relationship_graph_title' );
@@ -109,7 +110,7 @@ html_page_top( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
 		?>
 	</td>
 	<!-- Links -->
-	<td class="right">
+	<td class="pull-right">
 		<!-- View Issue -->
 		<span class="small"><?php print_bracket_link( 'view.php?id=' . $f_bug_id, lang_get( 'view_issue' ) ) ?></span>
 

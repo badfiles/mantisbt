@@ -217,26 +217,33 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 				# don't send the page header information if it has already been sent
 				if( $g_error_send_page_header ) {
 					if( $t_html_api ) {
-						html_page_top1();
+						layout_page_header();
 						if( $p_error != ERROR_DB_QUERY_FAILED && $t_db_connected == true ) {
-							html_page_top2();
-						} else {
-							html_page_top2a();
+							if( auth_is_user_authenticated() ) {
+								layout_page_begin();
+							} else {
+								layout_navbar();
+								layout_main_container_begin();
+							}
 						}
 					} else {
-						echo '<html><head><title>', $t_error_type, '</title></head><body>';
-					}
+                        layout_page_header( $t_error_type );
+                    }
 				} else {
 					# Output the previously sent headers, if defined
 					if( isset( $t_old_headers ) ) {
 						echo $t_old_headers, "\n";
-						html_page_top2();
+                        layout_page_header_end();
+                        layout_page_begin();
 					}
 				}
 
-				echo '<div id="error-msg">';
-				echo '<div class="error-type">' . $t_error_type . '</div>';
-				echo '<div class="error-description">', $t_error_description, '</div>';
+				echo '<div class="col-md-12 col-xs-12">';
+				echo '<div class="space-20"></div>';
+				echo '<div class="alert alert-danger">';
+
+				echo '<p class="bold">' . $t_error_type . '</p>';
+				echo '<p>', $t_error_description, '</p>';
 
 				echo '<div class="error-info">';
 				if( null === $g_error_proceed_url ) {
@@ -247,25 +254,33 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 				echo '</div>';
 
 				if( ON == config_get_global( 'show_detailed_errors' ) ) {
-					echo '<div class="error-details">';
+					echo '<p>';
 					error_print_details( $p_file, $p_line, $p_context );
-					echo '</div>';
-					echo '<div class="error-trace">';
+					echo '</p>';
+					echo '<p>';
 					error_print_stack_trace();
-					echo '</div>';
+					echo '</p>';
 				}
-				echo '</div>';
+				echo '</div></div>';
 
 				if( isset( $t_old_contents ) ) {
+					echo '<div class="col-md-12 col-xs-12">';
+					echo '<div class="space-20"></div>';
+					echo '<div class="alert alert-warning">';
 					echo '<div class="warning">Previous non-fatal errors occurred.  Page contents follow.</div>';
-					echo '<div id="old-contents">';
+					echo '<p>';
 					echo $t_old_contents;
-					echo '</div>';
+					echo '</p></div></div>';
 				}
 
 				if( $t_html_api ) {
 					if( $p_error != ERROR_DB_QUERY_FAILED && $t_db_connected == true ) {
-						html_page_bottom();
+						if( auth_is_user_authenticated() ) {
+							layout_page_end();
+						} else {
+							layout_main_container_end();
+							layout_footer();
+						}
 					} else {
 						html_body_end();
 						html_end();
@@ -276,7 +291,7 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 				exit(1);
 
 			case DISPLAY_ERROR_INLINE:
-				echo '<div class="error-inline">', $t_error_type, ': ', $t_error_description, '</div>';
+				echo '<div class="alert alert-warning">', $t_error_type, ': ', $t_error_description, '</div>';
 				$g_error_handled = true;
 				break;
 
@@ -322,7 +337,7 @@ function error_print_delayed() {
  */
 function error_print_details( $p_file, $p_line, array $p_context ) {
 	?>
-		<table class="width90">
+		<table class="width-100">
 			<tr>
 				<td>Full path: <?php echo htmlentities( $p_file, ENT_COMPAT, 'UTF-8' );?></td>
 			</tr>
@@ -382,11 +397,10 @@ function error_print_context( array $p_context ) {
 
 /**
  * Print out a stack trace
- * @return void
- * @uses error_alternate_class
  */
 function error_print_stack_trace() {
-	echo '<table class="width90">';
+	echo '<div class="table-responsive">';
+	echo '<table class="table table-bordered table-striped table-condensed">';
 	echo '<tr><th>Filename</th><th>Line</th><th></th><th></th><th>Function</th><th>Args</th></tr>';
 
 	$t_stack = debug_backtrace();
@@ -399,7 +413,7 @@ function error_print_stack_trace() {
 	# remove the call to the error handler from the stack trace
 
 	foreach( $t_stack as $t_frame ) {
-		echo '<tr ', error_alternate_class(), '>';
+		echo '<tr>';
 		echo '<td>', ( isset( $t_frame['file'] ) ? htmlentities( $t_frame['file'], ENT_COMPAT, 'UTF-8' ) : '-' ), '</td><td>', ( isset( $t_frame['line'] ) ? $t_frame['line'] : '-' ), '</td><td>', ( isset( $t_frame['class'] ) ? $t_frame['class'] : '-' ), '</td><td>', ( isset( $t_frame['type'] ) ? $t_frame['type'] : '-' ), '</td><td>', ( isset( $t_frame['function'] ) ? $t_frame['function'] : '-' ), '</td>';
 
 		$t_args = array();
@@ -530,17 +544,3 @@ function error_proceed_url( $p_url ) {
 	$g_error_proceed_url = $p_url;
 }
 
-/**
- * Simple version of helper_alternate_class for use by error api only.
- * @access private
- * @return string representing css class
- */
-function error_alternate_class() {
-	static $s_errindex = 1;
-
-	if( 1 == $s_errindex++ % 2 ) {
-		return 'class="row-1"';
-	} else {
-		return 'class="row-2"';
-	}
-}

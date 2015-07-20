@@ -200,7 +200,7 @@ function print_avatar( $p_user_id, $p_size = 80 ) {
 			$t_avatar_url = htmlspecialchars( $t_avatar[0] );
 			$t_width = $t_avatar[1];
 			$t_height = $t_avatar[2];
-			echo '<a rel="nofollow" href="http://site.gravatar.com"><img class="avatar" src="' . $t_avatar_url . '" alt="User avatar" width="' . $t_width . '" height="' . $t_height . '" /></a>';
+			echo '<a rel="nofollow" href="http://site.gravatar.com"><img class="avatar pull-right" src="' . $t_avatar_url . '" alt="User avatar" width="' . $t_width . '" height="' . $t_height . '" /></a>';
 		}
 	}
 }
@@ -246,7 +246,7 @@ function print_user_with_subject( $p_user_id, $p_bug_id ) {
  * @return void
  */
 function print_email_input( $p_field_name, $p_email ) {
-	echo '<input id="email-field" type="text" name="' . string_attribute( $p_field_name ) . '" size="32" maxlength="64" value="' . string_attribute( $p_email ) . '" />';
+	echo '<input class="input-sm" id="email-field" type="text" name="' . string_attribute( $p_field_name ) . '" size="32" maxlength="64" value="' . string_attribute( $p_email ) . '" />';
 }
 
 /**
@@ -256,7 +256,7 @@ function print_email_input( $p_field_name, $p_email ) {
  * @return void
  */
 function print_captcha_input( $p_field_name ) {
-	echo '<input id="captcha-field" type="text" name="' . $p_field_name . '" size="6" maxlength="6" value="" />';
+	echo '<input class="input-sm" id="captcha-field" type="text" name="' . $p_field_name . '" size="6" maxlength="6" value="" />';
 }
 
 /**
@@ -370,12 +370,12 @@ function print_reporter_option_list( $p_user_id, $p_project_id = null ) {
  */
 function print_tag_attach_form( $p_bug_id, $p_string = '' ) {
 ?>
-	<small><?php echo sprintf( lang_get( 'tag_separate_by' ), config_get( 'tag_separator' ) )?></small>
-	<form method="post" action="tag_attach.php">
+	<form method="post" action="tag_attach.php" class="form-inline">
 	<?php echo form_security_field( 'tag_attach' )?>
-	<input type="hidden" name="bug_id" value="<?php echo $p_bug_id?>" />
+	<label class="inline small"><?php echo sprintf( lang_get( 'tag_separate_by' ), config_get( 'tag_separator' ) )?></label>
+	<input type="hidden" name="bug_id" value="<?php echo $p_bug_id?>" class="input-sm" />
 	<?php print_tag_input( $p_bug_id, $p_string ); ?>
-	<input type="submit" value="<?php echo lang_get( 'tag_attach' )?>" class="button" />
+	<input type="submit" value="<?php echo lang_get( 'tag_attach' )?>" class="btn btn-primary btn-sm btn-white btn-round" />
 	</form>
 <?php
 	return true;
@@ -390,8 +390,8 @@ function print_tag_attach_form( $p_bug_id, $p_string = '' ) {
 function print_tag_input( $p_bug_id = 0, $p_string = '' ) {
 ?>
 	<input type="hidden" id="tag_separator" value="<?php echo config_get( 'tag_separator' )?>" />
-	<input type="text" name="tag_string" id="tag_string" size="40" value="<?php echo string_attribute( $p_string )?>" />
-	<select <?php echo helper_get_tab_index()?> name="tag_select" id="tag_select">
+	<input type="text" name="tag_string" id="tag_string" class="input-sm" size="40" value="<?php echo string_attribute( $p_string )?>" />
+	<select class="input-sm" <?php echo helper_get_tab_index()?> name="tag_select" id="tag_select" class="input-sm">
 		<?php print_tag_option_list( $p_bug_id );?>
 	</select>
 <?php
@@ -475,26 +475,35 @@ function print_news_entry( $p_headline, $p_body, $p_poster_id, $p_view_state, $p
 	$t_body = string_display_links( $p_body );
 	$t_date_posted = date( config_get( 'normal_date_format' ), $p_date_posted );
 
-	if( VS_PRIVATE == $p_view_state ) {
-		$t_news_css = 'news-heading-private';
-	} else {
-		$t_news_css = 'news-heading-public';
-	} ?>
+	$t_news_css = VS_PRIVATE == $p_view_state ? 'hidden' : '';
+	?>
 
-	<div class="news-item">
-		<h3 class="<?php echo $t_news_css; ?>">
-			<span class="news-title"><?php echo $t_headline; ?></span>
-			<span class="news-date-posted"><?php echo $t_date_posted; ?></span>
-			<span class="news-author"><?php echo prepare_user_name( $p_poster_id ); ?></span><?php
+	<div class="space-10"></div>
+	<div class="widget-box widget-color-blue2">
+		<div class="widget-header widget-header-small <?php echo $t_news_css; ?>">
+			<h4 class="widget-title lighter">
+				<i class="ace-icon fa fa-edit"></i>
+				<?php echo $t_headline ?>
+			</h4>
+		</div>
 
+		<div class="widget-body">
+			<div class="widget-toolbox padding-8 clearfix">
+				<i class="fa fa-user"></i> <?php echo prepare_user_name( $p_poster_id ); ?>
+				&#160;&#160;&#160;&#160;
+				<i class="fa fa-clock-o"></i> <?php echo $t_date_posted; ?>
+			</div>
+			<div class="widget-main">
+				<?php
 			if( 1 == $p_announcement ) { ?>
 				<span class="news-announcement"><?php echo lang_get( 'announcement' ); ?></span><?php
 			}
 			if( VS_PRIVATE == $p_view_state ) { ?>
 				<span class="news-private"><?php echo lang_get( 'private' ); ?></span><?php
 			} ?>
-		</h3>
-		<p class="news-body"><?php echo $t_body; ?></p>
+				<p class="news-body"><?php echo $t_body; ?></p>
+			</div>
+		</div>
 	</div><?php
 }
 
@@ -1002,7 +1011,7 @@ function print_status_option_list( $p_select_label, $p_current_value = 0, $p_all
 		# resort the list into ascending order
 		ksort( $t_enum_list );
 		reset( $t_enum_list );
-		echo '<select ' . helper_get_tab_index() . ' id="' . $p_select_label . '" name="' . $p_select_label . '">';
+		echo '<select class="input-sm" ' . helper_get_tab_index() . ' id="' . $p_select_label . '" name="' . $p_select_label . '">';
 		foreach( $t_enum_list as $t_key => $t_val ) {
 			echo '<option value="' . $t_key . '"';
 			check_selected( $t_key, $p_current_value );
@@ -1157,7 +1166,7 @@ function print_custom_field_projects_list( $p_field_id ) {
 		$t_project_name = project_get_field( $t_project_id, 'name' );
 		$t_sequence = custom_field_get_sequence( $p_field_id, $t_project_id );
 		echo '<strong>', string_display_line( $t_project_name ), '</strong>: ';
-		print_bracket_link( 'manage_proj_custom_field_remove.php?field_id=' . $c_field_id . '&project_id=' . $t_project_id . '&return=custom_field' . $t_security_token, lang_get( 'remove_link' ) );
+		print_extra_small_button( 'manage_proj_custom_field_remove.php?field_id=' . $c_field_id . '&project_id=' . $t_project_id . '&return=custom_field' . $t_security_token, lang_get( 'remove_link' ) );
 		echo '<br />- ';
 
 		$t_linked_field_ids = custom_field_get_linked_ids( $t_project_id );
@@ -1308,7 +1317,7 @@ function print_view_bug_sort_link( $p_string, $p_sort_field, $p_sort, $p_dir, $p
  * @param integer $p_show_disabled Whether to show disabled users.
  * @return void
  */
-function print_manage_user_sort_link( $p_page, $p_string, $p_field, $p_dir, $p_sort_by, $p_hide_inactive = 0, $p_filter = ALL, $p_show_disabled = 0 ) {
+function print_manage_user_sort_link( $p_page, $p_string, $p_field, $p_dir, $p_sort_by, $p_hide_inactive = 0, $p_filter = ALL, $p_show_disabled = 0, $p_class = '' ) {
 	if( $p_sort_by == $p_field ) {
 		# If this is the selected field flip the order
 		if( 'ASC' == $p_dir || ASCENDING == $p_dir ) {
@@ -1322,7 +1331,8 @@ function print_manage_user_sort_link( $p_page, $p_string, $p_field, $p_dir, $p_s
 	}
 
 	$t_field = rawurlencode( $p_field );
-	print_link( $p_page . '?sort=' . $t_field . '&dir=' . $t_dir . '&save=1&hideinactive=' . $p_hide_inactive . '&showdisabled=' . $p_show_disabled . '&filter=' . $p_filter, $p_string );
+	print_link( $p_page . '?sort=' . $t_field . '&dir=' . $t_dir . '&save=1&hideinactive=' . $p_hide_inactive . '&showdisabled=' . $p_show_disabled . '&filter=' . $p_filter,
+        $p_string, false, $p_class );
 }
 
 /**
@@ -1367,17 +1377,21 @@ function print_manage_project_sort_link( $p_page, $p_string, $p_field, $p_dir, $
  * @see form_security_token()
  * @return void
  */
-function print_button( $p_action_page, $p_label, array $p_args_to_post = null, $p_security_token = null ) {
+function print_form_button( $p_action_page, $p_label, $p_args_to_post = null, $p_security_token = null, $p_class = '' ) {
 	$t_form_name = explode( '.php', $p_action_page, 2 );
 	# TODO: ensure all uses of print_button supply arguments via $p_args_to_post (POST)
 	# instead of via $p_action_page (GET). Then only add the CSRF form token if
 	# arguments are being sent via the POST method.
-	echo '<form method="post" action="', htmlspecialchars( $p_action_page ), '" class="action-button">';
+	echo '<form method="post" action="', htmlspecialchars( $p_action_page ), '" class="form-inline">';
 	echo '<fieldset>';
 	if( $p_security_token !== OFF ) {
 		echo form_security_field( $t_form_name[0], $p_security_token );
 	}
-	echo '<input type="submit" class="button-small" value="', $p_label, '" />';
+	if( $p_class !== '') {
+		echo '<input type="submit" class="' . $p_class . '" value="', $p_label, '" />';
+	} else {
+		echo '<input type="submit" class="btn btn-primary btn-xs btn-white btn-round" value="', $p_label, '" />';
+	}
 
 	if( $p_args_to_post !== null ) {
 		foreach( $p_args_to_post as $t_var => $t_value ) {
@@ -1445,6 +1459,42 @@ function print_link( $p_link, $p_url_text, $p_new_window = false, $p_class = '' 
 }
 
 /**
+ * print a HTML link with a button look
+ * @param string  $p_link       The page URL.
+ * @param string  $p_url_text   The displayed text for the link.
+ * @param boolean $p_new_window Whether to open in a new window.
+ * @param string  $p_class      The CSS class of the link.
+ * @return void
+ */
+function print_button( $p_link, $p_url_text, $p_class = '', $p_new_window = false ) {
+	if( is_blank( $p_link ) ) {
+		echo $p_url_text;
+	} else {
+		$t_link = htmlspecialchars( $p_link );
+		if( $p_new_window === true ) {
+			echo "<a class=\"btn btn-primary btn-white btn-round $p_class\" href=\"$t_link\" target=\"_blank\">$p_url_text</a>";
+		} else {
+			echo "<a class=\"btn btn-primary btn-white btn-round $p_class\" href=\"$t_link\">$p_url_text</a>";
+		}
+	}
+}
+
+/**
+ * shortcut for printing a HTML link with a small button look
+ * @param string  $p_link       The page URL.
+ * @param string  $p_url_text   The displayed text for the link.
+ * @param boolean $p_new_window Whether to open in a new window.
+ * @return void
+ */
+function print_extra_small_button( $p_link, $p_url_text, $p_new_window = false ) {
+	print_button( $p_link, $p_url_text, 'btn-xs', $p_new_window );
+}
+
+function print_small_button( $p_link, $p_url_text, $p_new_window = false ) {
+	print_button( $p_link, $p_url_text, 'btn-sm', $p_new_window );
+}
+
+/**
  * print a HTML page link
  * @param string  $p_page_url       The Page URL.
  * @param string  $p_text           The displayed text for the link.
@@ -1459,14 +1509,16 @@ function print_page_link( $p_page_url, $p_text = '', $p_page_no = 0, $p_page_cur
 	}
 
 	if( ( 0 < $p_page_no ) && ( $p_page_no != $p_page_cur ) ) {
+		echo '<li class="pull-right"> ';
 		$t_delimiter = ( strpos( $p_page_url, '?' ) ? '&' : '?' );
 		if( $p_temp_filter_id !== 0 ) {
 			print_link( $p_page_url . $t_delimiter . 'filter=' . $p_temp_filter_id . '&page_number=' . $p_page_no, $p_text );
 		} else {
 			print_link( $p_page_url . $t_delimiter . 'page_number=' . $p_page_no, $p_text );
 		}
+		echo ' </li>';
 	} else {
-		echo $p_text;
+		echo '<li class="disabled pull-right"><a>' . $p_text . '</a></li>';
 	}
 }
 
@@ -1497,13 +1549,15 @@ function print_page_links( $p_page, $p_start, $p_end, $p_current, $p_temp_filter
 
 	$t_page_links = 10;
 
-	print( '[ ' );
+	print( '<ul class="pagination small no-margin"> ' );
 
-	# First and previous links
-	print_page_link( $p_page, $t_first, 1, $p_current, $p_temp_filter_id );
-	echo '&#160;';
-	print_page_link( $p_page, $t_prev, $p_current - 1, $p_current, $p_temp_filter_id );
-	echo '&#160;';
+	# Next and Last links
+	print_page_link( $p_page, $t_last, $p_end, $p_current, $p_temp_filter_id );
+	if( $p_current < $p_end ) {
+		print_page_link( $p_page, $t_next, $p_current + 1, $p_current, $p_temp_filter_id );
+	} else {
+		print_page_link( $p_page, $t_next, null, null, $p_temp_filter_id );
+	}
 
 	# Page numbers ...
 
@@ -1511,42 +1565,37 @@ function print_page_links( $p_page, $p_start, $p_end, $p_current, $p_temp_filter
 	$t_first_page = min( $t_first_page, $p_end - $t_page_links );
 	$t_first_page = max( $t_first_page, $p_start );
 
-	if( $t_first_page > 1 ) {
-		print( ' ... ' );
-	}
-
 	$t_last_page = $t_first_page + $t_page_links;
 	$t_last_page = min( $t_last_page, $p_end );
 
-	for( $i = $t_first_page;$i <= $t_last_page;$i++ ) {
+	if( $t_last_page < $p_end ) {
+		print( '<li class="pull-right"><a> ... </a></li>' );
+	}
+
+	for( $i = $t_last_page;$i >= $t_first_page;$i-- ) {
 		if( $i == $p_current ) {
-			array_push( $t_items, $i );
+			array_push( $t_items, '<li class="active pull-right"><a>' . $i . '</a></li>' );
 		} else {
 			$t_delimiter = ( strpos( $p_page, '?' ) ? '&' : '?' ) ;
 			if( $p_temp_filter_id !== 0 ) {
-				array_push( $t_items, '<a href="' . $p_page . $t_delimiter . 'filter=' . $p_temp_filter_id . '&amp;page_number=' . $i . '">' . $i . '</a>' );
+				array_push( $t_items, '<li class="pull-right"><a href="' . $p_page . $t_delimiter . 'filter=' . $p_temp_filter_id . '&amp;page_number=' . $i . '">' . $i . '</a></li>' );
 			} else {
-				array_push( $t_items, '<a href="' . $p_page . $t_delimiter . 'page_number=' . $i . '">' . $i . '</a>' );
+				array_push( $t_items, '<li class="pull-right"><a href="' . $p_page . $t_delimiter . 'page_number=' . $i . '">' . $i . '</a></li>' );
 			}
 		}
 	}
 	echo implode( '&#160;', $t_items );
 
-	if( $t_last_page < $p_end ) {
-		print( ' ... ' );
+	if( $t_first_page > 1 ) {
+		print( '<li class="pull-right"><a> ... </a></li>' );
 	}
 
-	# Next and Last links
-	echo '&#160;';
-	if( $p_current < $p_end ) {
-		print_page_link( $p_page, $t_next, $p_current + 1, $p_current, $p_temp_filter_id );
-	} else {
-		print_page_link( $p_page, $t_next, null, null, $p_temp_filter_id );
-	}
-	echo '&#160;';
-	print_page_link( $p_page, $t_last, $p_end, $p_current, $p_temp_filter_id );
 
-	print( ' ]' );
+	# First and previous links
+	print_page_link( $p_page, $t_prev, $p_current - 1, $p_current, $p_temp_filter_id );
+	print_page_link( $p_page, $t_first, 1, $p_current, $p_temp_filter_id );
+
+	print( ' </ul>' );
 }
 
 /**
@@ -1765,7 +1814,7 @@ function get_dropdown( array $p_control_array, $p_control_name, $p_match = '', $
 		$t_size = '';
 		$t_multiple = '';
 	}
-	$t_info = sprintf( '<select %s name="%s" id="%s"%s>', $t_multiple, $p_control_name, $p_control_name, $t_size );
+	$t_info = sprintf( '<select class="input-sm" %s name="%s" id="%s"%s>', $t_multiple, $p_control_name, $p_control_name, $t_size );
 	if( $p_add_any ) {
 		array_unshift_assoc( $p_control_array, META_FILTER_ANY, lang_trans( '[any]' ) );
 	}
@@ -1863,13 +1912,13 @@ function print_bug_attachment_header( array $p_attachment ) {
 		event_signal( 'EVENT_VIEW_BUG_ATTACHMENT', array( $p_attachment ) );
 	} else {
 		print_file_icon( $p_attachment['display_name'] );
-		echo lang_get( 'word_separator' ) . '<span class="strike">' . string_display_line( $p_attachment['display_name'] ) . '</span>' . lang_get( 'word_separator' ) . '(' . lang_get( 'attachment_missing' ) . ')';
+		echo lang_get( 'word_separator' ) . '<s>' . string_display_line( $p_attachment['display_name'] ) . '</s>' . lang_get( 'word_separator' ) . '(' . lang_get( 'attachment_missing' ) . ')';
 	}
 
 	if( $p_attachment['can_delete'] ) {
-		echo lang_get( 'word_separator' ) . '[';
-		print_link( 'bug_file_delete.php?file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_delete' ), lang_get( 'delete_link' ), false, 'small' );
-		echo ']';
+		echo lang_get( 'word_separator' ) . '&#160;&#160;';
+		print_button( 'bug_file_delete.php?file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_delete' ),
+			lang_get( 'delete_link' ), 'btn-xs' );
 	}
 }
 

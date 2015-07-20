@@ -98,7 +98,9 @@ $g_project_override = null;
 form_security_purge( $t_form_name );
 
 if( count( $t_failed_ids ) > 0 ) {
-	html_page_top();
+	layout_page_header();
+
+	layout_page_begin();
 
 	echo '<div>';
 
@@ -111,7 +113,7 @@ if( count( $t_failed_ids ) > 0 ) {
 	print_bracket_link( 'view_all_bug_page.php', lang_get( 'proceed' ) );
 	echo '</div>';
 
-	html_page_bottom();
+	layout_page_end();
 } else {
 	print_header_redirect( 'view_all_bug_page.php' );
 }

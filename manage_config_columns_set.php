@@ -124,6 +124,8 @@ form_security_purge( 'manage_config_columns_set' );
 $t_redirect_url = $t_account_page ? 'account_manage_columns_page.php' : 'manage_config_columns_page.php';
 html_page_top( null, $t_redirect_url );
 
+layout_page_begin();
+
 html_operation_successful( $t_redirect_url );
 
-html_page_bottom();
+layout_page_end();

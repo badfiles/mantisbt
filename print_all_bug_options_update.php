@@ -86,7 +86,9 @@ $t_result = db_query( $t_query, array( $c_export, $t_user_id ) );
 
 form_security_purge( 'print_all_bug_options_update' );
 
-html_page_top( null, $f_redirect_url );
+layout_page_header( null, $f_redirect_url );
+
+layout_page_begin();
 
 if( $t_result ) {
 	html_operation_successful( $f_redirect_url );
@@ -97,4 +99,4 @@ if( $t_result ) {
 	echo '</div>';
 }
 
-html_page_bottom();
+layout_page_end();

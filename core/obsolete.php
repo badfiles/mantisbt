@@ -191,3 +191,7 @@ config_obsolete( 'content_expire' );
 config_obsolete( 'use_javascript' );
 config_obsolete( 'recently_visited', 'recently_visited_count' );
 config_obsolete( 'email_set_category' );
+config_obsolete( 'show_footer_menu' );
+config_obsolete( 'status_legend_position' );
+config_obsolete( 'status_percentage_legend' );
+

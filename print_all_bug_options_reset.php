@@ -77,8 +77,9 @@ form_security_purge( 'print_all_bug_options_reset' );
 
 $t_redirect_url = 'print_all_bug_options_page.php';
 
-html_page_top( null, $t_redirect_url );
+layout_page_header( null, $t_redirect_url );
 
+layout_page_begin();
 
 if( $t_result ) {
 	html_operation_successful( $t_redirect_url );
@@ -89,4 +90,4 @@ if( $t_result ) {
 	echo '</div>';
 }
 
-html_page_bottom();
+layout_page_end();

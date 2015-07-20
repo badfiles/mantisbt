@@ -218,7 +218,9 @@ $t_redirect_url = 'manage_user_edit_page.php?user_id=' . $c_user_id;
 
 form_security_purge( 'manage_user_update' );
 
-html_page_top( null, $t_result ? $t_redirect_url : null );
+layout_page_header( null, $t_result ? $t_redirect_url : null );
+
+layout_page_begin( 'manage_overview_page.php' );
 
 if( $f_protected && $t_old_protected ) {				# PROTECTED
 	echo '<div class="failure-msg">';
@@ -229,4 +231,4 @@ if( $f_protected && $t_old_protected ) {				# PROTECTED
 	html_operation_successful( $t_redirect_url );
 }
 
-html_page_bottom();
+layout_page_end();

@@ -132,7 +132,9 @@ if( $t_account_verification ) {
 	token_delete( TOKEN_ACCOUNT_VERIFY, $t_user_id );
 }
 
-html_page_top( null, $t_redirect_url );
+layout_page_header( null, $t_redirect_url );
+
+layout_page_begin();
 
 $t_message = '';
 
@@ -152,4 +154,4 @@ if( $t_realname_updated ) {
 
 html_operation_successful( $t_redirect_url, $t_message );
 
-html_page_bottom();
+layout_page_end();

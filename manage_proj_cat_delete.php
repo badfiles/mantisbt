@@ -79,7 +79,7 @@ $t_bug_count = db_result( db_query( $t_query, array( $f_category_id ) ) );
 
 # Confirm with the user
 helper_ensure_confirmed( sprintf( lang_get( 'category_delete_sure_msg' ), string_display_line( $t_name ), $t_bug_count ),
-	lang_get( 'delete_category_button' ) );
+    lang_get( 'delete_category_button' ) );
 
 category_remove( $f_category_id );
 
@@ -91,8 +91,10 @@ if( $f_project_id == ALL_PROJECTS ) {
 	$t_redirect_url = 'manage_proj_edit_page.php?project_id=' . $f_project_id;
 }
 
-html_page_top( null, $t_redirect_url );
+layout_page_header( null, $t_redirect_url );
+
+layout_page_begin( 'manage_overview_page.php' );
 
 html_operation_successful( $t_redirect_url );
 
-html_page_bottom();
+layout_page_end();
