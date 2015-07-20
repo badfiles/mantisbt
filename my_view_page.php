@@ -89,7 +89,6 @@ reset( $t_boxes );
 
 $t_project_id = helper_get_current_project();
 ?>
-<div class="col-md-7 col-xs-12">
 
 <div>
 <?php html_status_legend( STATUS_LEGEND_POSITION_TOP ); ?>
@@ -97,9 +96,7 @@ $t_project_id = helper_get_current_project();
 <div>
 <?php include( $g_core_path . 'timeline_inc.php' ); ?>
 
-<div class="myview_boxes_area">
-
-<table class="hide" cellspacing="3" cellpadding="0">
+<div class="col-md-7 col-xs-12">
 <?php
 $t_number_of_boxes = count( $t_boxes );
 $t_boxes_position = config_get( 'my_view_boxes_fixed_position' );
@@ -138,12 +135,8 @@ while (list ($t_box_title, $t_box_display) = each ($t_boxes)) {
 	}
 }
 ?>
-</div>
 
-<div class="col-md-5 col-xs-12">
-	<?php  include( $g_core_path . 'timeline_inc.php' ); ?>
-	<div class="space-10"></div>
-</div>
 <?php
 html_status_legend( STATUS_LEGEND_POSITION_BOTTOM );
+
 layout_page_end();

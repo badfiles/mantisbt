@@ -131,3 +131,37 @@ div.error-info { text-align: center; margin: 1em; }
 /* manage_config_* colors */
 .color-global		{ background-color: LightBlue; }
 .color-project		{ background-color: LightGreen; }
+
+div.width100 { width: 100%; }
+div.width90 { width: 90%; }
+div.width75 { width: 74%; }
+div.width60 { width: 60%; }
+div.width50 { width: 50%; }
+
+/**
+ * Timeline Styles
+ */
+
+/* timeline header styles */
+div.timeline { width: 40%; float: right; }
+div.timeline div { padding: 0; }
+div.timeline .heading { font-size: x-large; padding-top: 3px; padding-bottom: 3px; }
+div.timeline .date-range { font-size: small; }
+
+/* timeline entry styles */
+div.timeline div.entry { padding-top: 15px; }
+div.timeline * div { overflow: hidden; }
+div.timeline * span.tag_name a { background-color: green; color: white; text-decoration: none; border-radius: 5px; padding-left: 5px; padding-right: 5px; }
+div.timeline * span.username { font-weight:bold; }
+div.timeline p { margin-bottom: 3px; }
+
+/* timeline avatar */
+div.timeline div.no-avatar { display: none; }
+div.timeline div.avatar { float: left; padding-top: 2px; margin-right: 13px; }
+div.timeline * img.avatar { float: left; margin-right: 0; }
+
+/* timeline timestamp */
+div.timeline * div.timestamp { font-size: x-small; color: gray; }
+
+/* timeline action */
+div.timeline * div.action { padding-top: 3px; }

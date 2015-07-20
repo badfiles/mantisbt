@@ -32,8 +32,7 @@ $t_block_css = $t_collapse_block ? 'collapsed' : '';
 $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 ?>
 
-
-<div id="timeline" class="widget-box widget-color-blue2 <?php echo $t_block_css ?>">
+<div class="timeline widget-box widget-color-blue2  <?php echo $t_block_css ?>">
     <div class="widget-header widget-header-small">
         <h4 class="widget-title lighter">
             <i class="ace-icon fa fa-clock-o"></i>
@@ -46,45 +45,32 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
         </div>
     </div>
 
-    <div class="widget-body">
-        <div class="widget-toolbox">
-            <div class="btn-toolbar">
-                <?php
-                $t_short_date_format = config_get( 'short_date_format' );
-                echo '&#160;&#160;';
-                echo '<span class="label label-yellow"> ' . date( $t_short_date_format, $t_start_time ) . ' </span>';
-                echo  ' .. ';
-                echo '<span class="label label-yellow"> ' . date( $t_short_date_format, $t_end_time ) . ' </span>';
-                echo '&#160;&#160;';
 
-                echo '<div class="btn-group">';
-                echo ' <a class="btn btn-primary btn-xs btn-white btn-round" href="my_view_page.php?days=' .
-                    ( $f_days + 7 ) . '">' . lang_get( 'prev' ) . '</a>';
+<?php
+echo '<div class="widget-body"><div class="widget-toolbox"><div class="btn-toolbar">';
+$t_short_date_format = config_get( 'short_date_format' );
+$t_next_days = ( $f_days - 7 ) > 0 ? $f_days - 7 : 0;
+$t_prev_link = ' [<a href="my_view_page.php?days=' . ( $f_days + 7 ) . '">' . lang_get( 'prev' ) . '</a>]';
 
-                $t_next_days = ( $f_days - 7 ) > 0 ? $f_days - 7 : 0;
+if( $t_next_days != $f_days ) {
+    $t_next_link = ' [<a href="my_view_page.php?days=' . $t_next_days . '">' . lang_get( 'next' ) . '</a>]';
 
-                if( $t_next_days != $f_days ) {
-                    echo ' <a class="btn btn-primary btn-xs btn-white btn-round" href="my_view_page.php?days=' .
-                        $t_next_days . '">' . lang_get( 'next' ) . '</a>';
-                }
-
-            echo '</div></div></div><div class="widget-main no-padding"><div class="profile-feed">';
-
-            $t_events = timeline_sort_events( $t_events );
-
-	    echo '<div class="date-range">' . date( $t_short_date_format, $t_start_time ) . ' .. ' . date( $t_short_date_format, $t_end_time ) . $t_prev_link . $t_next_link . '</div>';
-
-	    if( !$f_all && count( $t_events ) > MAX_EVENTS ) {
-			$t_events = array_slice( $t_events, 0, MAX_EVENTS );
-			timeline_print_events( $t_events );
-		        echo '<div class="widget-toolbox">';
-		        echo '<div class="btn-toolbar">';
-			echo '<p>' . $t_prev_link = ' [ <a class="btn btn-primary btn-sm btn-white btn-round" href="my_view_page.php?days=' . $f_days . '&amp;all=1">' . lang_get( 'timeline_more' ) . '</a> ]</p>';
-		        echo '</div>';
-		        echo '</div>';
-
-	    } else {
-			timeline_print_events( $t_events );
-	    }
-
+} else {
+    $t_next_link = '';
+}
 echo '</div></div>';
+echo '<div class="date-range">' . date( $t_short_date_format, $t_start_time ) . ' .. ' . date( $t_short_date_format, $t_end_time ) . $t_prev_link . $t_next_link . '</div>';
+if( !$f_all && count( $t_events ) > MAX_EVENTS ) {
+    $t_events = array_slice( $t_events, 0, MAX_EVENTS );
+    timeline_print_events( $t_events );
+    echo '<p>' . $t_prev_link = ' [ <a  href="my_view_page.php?days=' . $f_days . '&amp;all=1">' . lang_get( 'timeline_more' ) . '</a> ]</p>';
+} else {
+    timeline_print_events( $t_events );
+}
+echo '</div></div>';
+?>
+
+
+
+
+
