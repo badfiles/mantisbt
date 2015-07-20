@@ -129,28 +129,33 @@ if( config_get( 'bug_assigned_status' ) == $f_new_status ) {
 
 $t_status_label = str_replace( ' ', '_', MantisEnum::getLabel( config_get( 'status_enum_string' ), $f_new_status ) );
 
-html_page_top( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
+layout_page_header( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
 
-print_recently_visited();
+layout_page_begin();
 ?>
 
-<br />
-<div id="bug-change-status-div" class="form-container">
+<div class="col-md-12 col-xs-12">
 
-<form id="bug-change-status-form" name="bug_change_status_form" method="post" action="bug_update.php">
+	<div id="bug-change-status-div" class="form-container">
+	<form id="bug-change-status-form" name="bug_change_status_form" method="post" action="bug_update.php">
 
 	<?php echo form_security_field( 'bug_update' ) ?>
-	<table>
+	<div class="widget-box widget-color-blue2">
+	<div class="widget-header widget-header-small">
+		<h4 class="widget-title lighter">
+			<?php echo lang_get( $t_status_label . '_bug_title' ) ?>
+		</h4>
+	</div>
+
+	<div class="widget-body">
+	<div class="widget-main no-padding">
+
+	<div class="table-responsive">
+	<table class="table table-bordered table-condensed table-striped">
 		<thead>
-			<!-- Title -->
-			<tr>
-				<td class="form-title" colspan="2">
 					<input type="hidden" name="bug_id" value="<?php echo $f_bug_id ?>" />
 					<input type="hidden" name="status" value="<?php echo $f_new_status ?>" />
-					<input type="hidden" name="last_updated" value="<?php echo $t_bug->last_updated ?>" />
-					<?php echo lang_get( $t_status_label . '_bug_title' ) ?>
-				</td>
-			</tr>
+                    <input type="hidden" name="last_updated" value="<?php echo $t_bug->last_updated ?>" />
 <?php
 	if( $f_new_status >= $t_resolved ) {
 		if( relationship_can_resolve_bug( $f_bug_id ) == false ) {
@@ -170,7 +175,7 @@ if( ( $f_new_status >= $t_resolved ) && ( ( $f_new_status < $t_closed ) || ( $t_
 					<?php echo lang_get( 'resolution' ) ?>
 				</th>
 				<td>
-					<select name="resolution">
+					<select name="resolution" class="input-sm">
 			<?php
 				$t_resolution = $t_bug_is_open ? config_get( 'bug_resolution_fixed_threshold' ) : $t_current_resolution;
 
@@ -199,7 +204,7 @@ if( $f_new_status >= $t_resolved
 					<?php echo lang_get( 'duplicate_id' ) ?>
 				</th>
 				<td>
-					<input type="text" name="duplicate_id" maxlength="10" />
+					<input type="text" class="input-sm" name="duplicate_id" maxlength="10" />
 				</td>
 			</tr>
 <?php } ?>
@@ -218,7 +223,7 @@ if( access_has_bug_level( config_get( 'update_bug_assign_threshold', config_get(
 					<?php echo lang_get( 'assigned_to' ) ?>
 				</th>
 				<td>
-					<select name="handler_id">
+					<select name="handler_id" class="input-sm">
 						<option value="0"></option>
 						<?php print_assign_to_option_list( $t_suggested_handler_id, $t_bug->project_id ) ?>
 					</select>
@@ -317,7 +322,7 @@ if( ( $f_new_status >= $t_resolved ) ) {
 					<?php echo lang_get( 'fixed_in_version' ) ?>
 				</th>
 				<td>
-					<select name="fixed_in_version">
+					<select name="fixed_in_version" class="input-sm">
 						<?php print_version_option_list( $t_bug->fixed_in_version, $t_bug->project_id, VERSION_ALL ) ?>
 					</select>
 				</td>
@@ -339,7 +344,7 @@ if( ( $f_new_status >= $t_resolved ) ) {
 					<?php echo lang_get( 'add_bugnote_title' ) ?>
 				</th>
 				<td>
-					<textarea name="bugnote_text" cols="80" rows="10"></textarea>
+					<textarea class="form-control" name="bugnote_text" cols="80" rows="10"></textarea>
 				</td>
 			</tr>
 <?php if( access_has_bug_level( config_get( 'private_bugnote_threshold' ), $f_bug_id ) ) { ?>
@@ -352,9 +357,9 @@ if( ( $f_new_status >= $t_resolved ) ) {
 		$t_default_bugnote_view_status = config_get( 'default_bugnote_view_status' );
 		if( access_has_bug_level( config_get( 'set_view_status_threshold' ), $f_bug_id ) ) {
 ?>
-			<input type="checkbox" name="private" <?php check_checked( $t_default_bugnote_view_status, VS_PRIVATE ); ?> />
+			<input type="checkbox" class="ace" name="private" <?php check_checked( $t_default_bugnote_view_status, VS_PRIVATE ); ?> />
+			<label class="lbl"> <?php echo lang_get( 'private' ) ?> </label>
 <?php
-			echo lang_get( 'private' );
 		} else {
 			echo get_enum_element( 'project_view_state', $t_default_bugnote_view_status );
 		}
@@ -371,7 +376,7 @@ if( ( $f_new_status >= $t_resolved ) ) {
 					<?php echo lang_get( 'time_tracking' ) ?>
 				</th>
 				<td>
-					<input type="text" name="time_tracking" size="5" placeholder="hh:mm" />
+					<input type="text" name="time_tracking" class="input-sm" size="5" placeholder="hh:mm" />
 				</td>
 			</tr>
 <?php 		} ?>
@@ -392,7 +397,16 @@ if( ( $f_new_status >= $t_resolved ) ) {
 </form>
 
 </div>
-<br />
+</div>
+<div class="widget-toolbox padding-8 clearfix">
+	<input type="submit" class="btn btn-primary btn-white btn-round" value="<?php echo lang_get( $t_status_label . '_bug_button' ) ?>" />
+</div>
+</div>
+</div>
+</div>
+</form>
+<div class="space-10"></div>
+</div>
 <?php
 define( 'BUG_VIEW_INC_ALLOW', true );
 include( dirname( __FILE__ ) . '/bug_view_inc.php' );

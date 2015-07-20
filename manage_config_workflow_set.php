@@ -76,7 +76,9 @@ $t_redirect_url = 'manage_config_workflow_page.php';
 $t_project = helper_get_current_project();
 $t_access = current_user_get_access_level();
 
-html_page_top( lang_get( 'manage_workflow_config' ), $t_redirect_url );
+layout_page_header( lang_get( 'manage_workflow_config' ), $t_redirect_url );
+
+layout_page_begin( 'manage_overview_page.php' );
 
 # process the changes to threshold values
 $t_valid_thresholds = array(
@@ -221,4 +223,4 @@ form_security_purge( 'manage_config_workflow_set' );
 
 html_operation_successful( $t_redirect_url );
 
-html_page_bottom();
+layout_page_end();
