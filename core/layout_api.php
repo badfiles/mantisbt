@@ -82,7 +82,8 @@ function layout_page_header_begin( $p_page_title = null ) {
 
 	$t_favicon_image = config_get( 'favicon_image' );
 	if( !is_blank( $t_favicon_image ) ) {
-		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
+		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '.ico" type="image/vnd.microsoft.icon" />', "\n";
+		echo "\t", '<link rel="icon" href="',          helper_mantis_url( $t_favicon_image ), '.png" type="image/png">',      "\n";
 	}
 
 	# Advertise the availability of the browser search plug-ins.
@@ -309,7 +310,9 @@ function layout_login_page_begin() {
 
 	$t_favicon_image = config_get( 'favicon_image' );
 	if( !is_blank( $t_favicon_image ) ) {
-		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
+		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '.ico" type=image/vnd.microsoft.icon" />', "\n";
+		echo "\t", '<link rel="icon" href="',          helper_mantis_url( $t_favicon_image ), '.png" type="image/png">',                 "\n";
+
 	}
 
 	# Advertise the availability of the browser search plug-ins.
@@ -972,7 +975,7 @@ function layout_footer() {
 	}
 
 	layout_footer_begin();
-
+/**
 	# Show MantisBT version and copyright statement
 	$t_version_suffix = '';
 	$t_copyright_years = ' 2000 - ' . date( 'Y' );
@@ -1014,7 +1017,7 @@ function layout_footer() {
 		echo '</div>' . "\n";
 		echo '</div>' . "\n";
 	}
-
+*/
 	event_signal( 'EVENT_LAYOUT_PAGE_FOOTER' );
 
 	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get( 'show_queries_count' ) ) {
