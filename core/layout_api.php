@@ -975,7 +975,7 @@ function layout_footer() {
 	}
 
 	layout_footer_begin();
-/**
+
 	# Show MantisBT version and copyright statement
 	$t_version_suffix = '';
 	$t_copyright_years = ' 2000 - ' . date( 'Y' );
@@ -1017,7 +1017,7 @@ function layout_footer() {
 		echo '</div>' . "\n";
 		echo '</div>' . "\n";
 	}
-*/
+
 	event_signal( 'EVENT_LAYOUT_PAGE_FOOTER' );
 
 	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get( 'show_queries_count' ) ) {
