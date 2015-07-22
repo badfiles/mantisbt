@@ -428,7 +428,7 @@ function layout_navbar_user_menu( $p_show_avatar = true ) {
 		return;
 	}
 
-	$t_username = current_user_get_field( 'username' );
+	$t_username = user_get_realname( user_get_id_by_name( current_user_get_field( 'username' ) ) );
 
 	echo '<li class="grey">';
 	echo '<a data-toggle="dropdown" href="#" class="dropdown-toggle">';
@@ -900,11 +900,11 @@ function layout_breadcrumbs() {
 		echo ' <li><i class="fa fa-user home-icon active"></i> ' . lang_get( 'anonymous' ) . ' </li>' . "\n";
 
 		echo '<div class="btn-group btn-corner">' . "\n";
-		echo '	<button href="' . helper_mantis_url( 'login_page.php?return=' . $t_return_page ) .
-			'" class="btn btn-primary btn-xs">' . lang_get( 'login_link' ) . '</button>' . "\n";
+		echo '	<a href="' . helper_mantis_url( 'login_page.php?return=' . $t_return_page ) .
+			'" class="btn btn-primary btn-xs">' . lang_get( 'login_link' ) . '</a>' . "\n";
 		if( config_get_global( 'allow_signup' ) == ON ) {
-			echo '	<button href="' . helper_mantis_url( 'signup_page.php' ) . '" class="btn btn-primary btn-xs">' .
-				lang_get( 'signup_link' ) . '</button>' . "\n";
+			echo '	<a href="' . helper_mantis_url( 'signup_page.php' ) . '" class="btn btn-primary btn-xs">' .
+				lang_get( 'signup_link' ) . '</a>' . "\n";
 		}
 		echo '</div>' . "\n";
 

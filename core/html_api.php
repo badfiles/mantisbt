@@ -1317,3 +1317,136 @@ function html_buttons_view_bug_page( $p_bug_id ) {
 function html_get_status_css_class( $p_status, $p_user = null, $p_project = null ) {
 	return string_attribute( MantisEnum::getLabel( config_get( 'status_enum_string', null, $p_user, $p_project ), $p_status ) . '-color' );
 }
+/**
+ * Defines the top of a HTML page
+ * @param string $p_page_title   Html page title.
+ * @param string $p_redirect_url URL to redirect to if necessary.
+ * @return void
+ */
+function html_page_top( $p_page_title = null, $p_redirect_url = null ) {
+    html_page_top1( $p_page_title );
+    if( $p_redirect_url !== null ) {
+    html_meta_redirect( $p_redirect_url );
+    }
+    html_page_top2();
+}
+/**
+ * Print the part of the page that comes before meta redirect tags should be inserted
+ * @param string $p_page_title Page title.
+ * @return void
+ */
+function html_page_top1( $p_page_title = null ) {
+    html_begin();
+    html_head_begin();
+    html_content_type();
+    $t_meta = config_get_global( 'meta_include_file' );
+    if( !is_blank( $t_meta ) ) {
+    include( $t_meta );
+    }
+    global $g_robots_meta;
+    if( !is_blank( $g_robots_meta ) ) {
+    echo "\t", '<meta name="robots" content="', $g_robots_meta, '" />', "\n";
+    }
+    html_title( $p_page_title );
+    html_css();
+    html_rss_link();
+    $t_favicon_image = config_get( 'favicon_image' );
+    if( !is_blank( $t_favicon_image ) ) {
+    echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
+    }
+    # Advertise the availability of the browser search plug-ins.
+    echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Text Search" href="' . string_sanitize_url( 'browser_search_plugin.php?type=text', true ) . '" />' . "\n";
+    echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Issue Id" href="' . string_sanitize_url( 'browser_search_plugin.php?type=id', true ) . '" />' . "\n";
+    html_head_javascript();
+}
+/**
+ * Print the part of the page that comes after meta tags, but before the actual page content
+ * @return void
+ */
+function html_page_top2() {
+    html_page_top2a();
+    if( !db_is_connected() ) {
+    return;
+    }
+    if( auth_is_user_authenticated() ) {
+    html_login_info();
+    if( ON == config_get( 'show_project_menu_bar' ) ) {
+        print_project_menu_bar();
+        echo '<br />';
+    }
+    }
+    print_menu();
+    echo '<div id="content">', "\n";
+    event_signal( 'EVENT_LAYOUT_CONTENT_BEGIN' );
+}
+/**
+ * Print the part of the page that comes after meta tags and before the
+ *  actual page content, but without login info or menus.  This is used
+ *  directly during the login process and other times when the user may
+ *  not be authenticated
+ * @return void
+ */
+function html_page_top2a() {
+    global $g_error_send_page_header;
+    html_head_end();
+    html_body_begin();
+    $g_error_send_page_header = false;
+    html_top_banner();
+}
+/**
+ * Print the part of the page that comes below the page content
+ * $p_file should always be the __FILE__ variable. This is passed to show source
+ * @param string $p_file Should always be the __FILE__ variable. This is passed to show source.
+ * @return void
+ */
+function html_page_bottom( $p_file = null ) {
+    html_page_bottom1( $p_file );
+}
+/**
+ * Print the part of the page that comes below the page content
+ * $p_file should always be the __FILE__ variable. This is passed to show source
+ * @param string $p_file Should always be the __FILE__ variable. This is passed to show source.
+ * @return void
+ */
+function html_page_bottom1( $p_file = null ) {
+    if( !db_is_connected() ) {
+    return;
+    }
+    event_signal( 'EVENT_LAYOUT_CONTENT_END' );
+    echo '</div>', "\n";
+    if( config_get( 'show_footer_menu' ) ) {
+    echo '<br />';
+    print_menu();
+    }
+    html_page_bottom1a( $p_file );
+}
+/**
+ * Print the part of the page that comes below the page content but leave off
+ * the menu.  This is used during the login process and other times when the
+ * user may not be authenticated.
+ * @param string $p_file Should always be the __FILE__ variable.
+ * @return void
+ */
+function html_page_bottom1a( $p_file = null ) {
+    if( null === $p_file ) {
+    $p_file = basename( $_SERVER['SCRIPT_NAME'] );
+    }
+    error_print_delayed();
+    html_bottom_banner();
+    html_footer();
+    html_body_end();
+    html_end();
+}
+/**
+ * (8) Begin the <body> section
+ * @return void
+ */
+function html_body_begin() {
+    $t_centered_page = is_page_name( 'login_page' ) || is_page_name( 'signup_page' ) || is_page_name( 'signup' ) || is_page_name( 'lost_pwd_page' );
+    echo '<body>', "\n";
+    if( $t_centered_page ) {
+    echo '<div id="mantis" class="centered_page">', "\n";
+    } else {
+    echo '<div id="mantis">', "\n";
+    }
+    event_signal( 'EVENT_LAYOUT_BODY_BEGIN' );
