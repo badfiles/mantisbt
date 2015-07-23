@@ -2932,6 +2932,12 @@ $g_allow_no_category = OFF;
 $g_limit_reporters = OFF;
 
 /**
+ * Access level HIGHER than this overrides limit_reporters
+ * @global integer $g_limit_reporters_override_threshold
+ */
+$g_limit_reporters_override_threshold = REPORTER;
+
+/**
  * reporter can close. Allow reporters to close the bugs they reported, after
  * they are marked resolved.
  * @global integer $g_allow_reporter_close
