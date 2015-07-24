@@ -111,18 +111,10 @@ layout_page_begin();
 <div class="col-md-12 col-xs-12">
 <div class="space-10"></div>
 <table class="width50" cellspacing="1">
-<tr>
-	<td class="center">
-		<strong><?php echo lang_get( 'lost_password_done_title' ) ?></strong>
-	</td>
-</tr>
-<tr>
-	<td>
-		<br/>
+<div class="alert alert-info">
+    <i class="fa fa-info-circle"></i>
 		<?php echo lang_get( 'reset_request_in_progress_msg' ) ?>
-		<br/><br/>
-	</td>
-</tr>
+</div>
 </table>
 <br />
 <?php print_bracket_link( 'login_page.php', lang_get( 'proceed' ) ); ?>
