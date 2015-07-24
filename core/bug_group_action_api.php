@@ -89,30 +89,21 @@ function bug_group_action_print_bottom() {
  * @return void
  */
 function bug_group_action_print_bug_list( array $p_bug_ids_array ) {
-	html_status_legend( STATUS_LEGEND_POSITION_TOP );
-
-	echo '<div id="action-group-issues-div">';
-	echo '<table>';
-	echo '<tr class="row-1">';
-
-	echo '<th class="category" colspan="2">';
-	echo lang_get( 'actiongroup_bugs' );
-	echo '</th>';
-	echo '</tr>';
-
-	foreach( $p_bug_ids_array as $t_bug_id ) {
-		# choose color based on status
-		$t_status_label = html_get_status_css_class( bug_get_field( $t_bug_id, 'status' ), auth_get_current_user_id(), bug_get_field( $t_bug_id, 'project_id' ) );
-#		$t_lead = '<i class="fa fa-square-o fa-xlg ' . $t_status_label . '"></i> ';
-#		$t_lead .= ' ' . string_get_bug_view_link( $t_bug_id );
-		echo sprintf( "<tr class=\"fa fa-square-o fa-xlg \"%s\"> <td>%s</td> <td>%s</td> </tr>\n", $t_status_label, string_get_bug_view_link( $t_bug_id ), string_attribute( bug_get_field( $t_bug_id, 'summary' ) ) );
-#		echo sprintf( "<tr> <td>%s</td> <td>%s</td> </tr>\n", $t_lead                                                                                    , string_attribute( bug_get_field( $t_bug_id, 'summary' ) ) );
-	}
-
-	echo '</table>';
-	echo '</div>';
-
-	html_status_legend( STATUS_LEGEND_POSITION_BOTTOM );
+    html_status_legend( STATUS_LEGEND_POSITION_TOP );
+    echo '<tr class="row-1">';
+    echo '<th class="category" colspan="2">';
+    echo lang_get( 'actiongroup_bugs' );
+    echo '</th>';
+    echo '</tr>';
+    foreach( $p_bug_ids_array as $t_bug_id ) {
+	# choose color based on status
+	$t_status_label = html_get_status_css_class( bug_get_field( $t_bug_id, 'status' ), auth_get_current_user_id(), bug_get_field( $t_bug_id, 'project_id' ) );
+	$t_lead = '<i class="fa fa-square-o fa-xlg ' . $t_status_label . '"></i> ';
+	$t_lead .= ' ' . string_get_bug_view_link( $t_bug_id );
+	echo sprintf( "<tr> <td>%s</td> <td>%s</td> </tr>\n", $t_lead, string_attribute( bug_get_field( $t_bug_id, 'summary' ) ) );
+    }
+    echo '</tr>	<tr class="spacer"></tr>';
+    html_status_legend( STATUS_LEGEND_POSITION_BOTTOM );
 }
 
 /**
