@@ -67,19 +67,18 @@ layout_page_header();
 
 layout_page_begin( 'main_page.php' );
 
-echo '<div class="space-20"></div>';
-echo '<div class="alert alert-success">';
-echo lang_get( 'operation_successful' ) ?>
+echo '<div class="space-20"></div><div class="alert alert-success">';
+echo lang_get( 'operation_successful' ) ;
 
-echo '<br />';
+echo '<br /></div><div class="pull-left padding-right-2">';
 
-print_bracket_link( 'news_edit_page.php?news_id=' . $f_news_id . '&action=edit', lang_get( 'edit_link' ) );
-print_bracket_link( 'news_menu_page.php', lang_get( 'proceed' ) );
+print_button( 'news_edit_page.php?news_id=' . $f_news_id . '&action=edit', lang_get( 'edit_link' ) );
+echo '</div>';
+
+print_button( 'news_menu_page.php', lang_get( 'proceed' ) );
 
 echo '<br /><br />';
 
 print_news_entry( $f_headline, $f_body, $t_row['poster_id'], $f_view_state, $f_announcement, $t_row['date_posted'] );
-
-echo '</div>';
 
 layout_page_end();

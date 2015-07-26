@@ -117,7 +117,7 @@ layout_page_begin();
 </div>
 </table>
 <br />
-<?php print_bracket_link( 'login_page.php', lang_get( 'proceed' ) ); ?>
+<?php print_button( 'login_page.php', lang_get( 'proceed' ) ); ?>
 </div>
 
 <?php
