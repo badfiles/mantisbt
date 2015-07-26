@@ -118,7 +118,9 @@ class MantisPHPSession extends MantisSession {
 		}
 
 		# Initialize the session
-		session_start();
+		if( OFF == config_get( 'put_offline' ) ) {
+			session_start();
+		}
 		$this->id = session_id();
 
 		# Initialize the keyed session store

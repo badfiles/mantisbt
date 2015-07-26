@@ -33,6 +33,28 @@
  */
 
 ##############################
+# MantisBT Offline Settings #
+##############################
+
+/**
+ * Put on MantisBT offline mode
+ * @global integer $g_put_offline
+ */
+$g_put_offline = OFF;
+
+/**
+ * Script to redirect all users to in offline mode
+ * @global string $g_offline_script
+ */
+$g_offline_script = 'mantis_offline.php';
+
+/**
+ * Value to send with '?mbadmin=' to override offline mode
+ * @global string $g_offline_override_key
+ */
+$g_offline_override_key = '1';
+
+##############################
 # MantisBT Database Settings #
 ##############################
 
