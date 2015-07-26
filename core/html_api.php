@@ -1450,3 +1450,4 @@ function html_body_begin() {
     echo '<div id="mantis">', "\n";
     }
     event_signal( 'EVENT_LAYOUT_BODY_BEGIN' );
+}
