@@ -205,7 +205,7 @@ require_api( 'config_api.php' );
  *   Users are redirected to the file in $g_offline_script.
  *   If you have to test MantisBT while it's offline, add the
  *   parameter 'mbadmin=key' to the URL.
- *   key vaue is set by $g_offline_override_key.
+ *   Key value is in $g_offline_override_key.
  */
 
 if( ON == config_get( 'put_offline' ) ) {
