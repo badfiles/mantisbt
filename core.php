@@ -49,20 +49,6 @@
  * @uses utf8/str_pad.php
  */
 
-/**
- * Before doing anything... check if MantisBT is down for maintenance
- *
- *   To make MantisBT 'offline' simply create a file called
- *   'mantis_offline.php' in the MantisBT root directory.
- *   Users are redirected to that file if it exists.
- *   If you have to test MantisBT while it's offline, add the
- *   parameter 'mbadmin=1' to the URL.
- */
-if( file_exists( 'mantis_offline.php' ) && !isset( $_GET['mbadmin'] ) ) {
-	include( 'mantis_offline.php' );
-	exit;
-}
-
 $g_request_time = microtime( true );
 
 ob_start();
@@ -211,6 +197,28 @@ crypto_init();
 # Connect to the database
 require_api( 'database_api.php' );
 require_api( 'config_api.php' );
+
+/**
+ * Check if MantisBT is offline
+ *
+ *   To make MantisBT 'offline' simply set $g_put_offline = ON.
+ *   Users are redirected to the file in $g_offline_script.
+ *   If you have to test MantisBT while it's offline, add the
+ *   parameter 'mbadmin=key' to the URL.
+ *   Key value is in $g_offline_override_key.
+ */
+
+if( ON == config_get( 'put_offline' ) ) {
+	session_start();
+	if( isset( $_GET['mbadmin'] ) ) {
+		$_SESSION['mbadmin'] = $_GET['mbadmin'];
+	}
+	if( isset( $_SESSION['mbadmin'] ) && $_SESSION['mbadmin'] == config_get( 'offline_override_key' ) ) {
+	} else {
+		include( config_get('offline_script' ) );
+		exit;
+		}
+}
 
 if( !defined( 'MANTIS_MAINTENANCE_MODE' ) ) {
 	if( OFF == $g_use_persistent_connections ) {
