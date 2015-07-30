@@ -35,6 +35,7 @@ require_api( 'database_api.php' );
 require_api( 'error_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'file_api.php' );
 
 /**
  * EmailData Structure Definition
@@ -189,6 +190,17 @@ function email_queue_get( $p_email_id ) {
  * @return void
  */
 function email_queue_delete( $p_email_id ) {
+
+	# clean to_send field if an e-mail containing them has been sent
+	$t_query = 'SELECT attachments FROM {email} WHERE email_id=' . db_param();
+	$t_result = db_query( $t_query, array( $p_email_id ) );
+	$t_attached_files = unserialize( db_fetch_array( $t_result )['attachments'] );
+		if( isset( $t_attached_files ) && is_array( $t_attached_files ) ) {
+			foreach( $t_attached_files as $t_attachment ) {
+			file_set_field( $t_attachment['id'], 'to_send', false );
+			}
+		}
+
 	$t_query = 'DELETE FROM {email} WHERE email_id=' . db_param();
 	db_query( $t_query, array( $p_email_id ) );
 

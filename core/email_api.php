@@ -611,13 +611,6 @@ function email_generic_to_recipients( $p_bug_id, $p_notify_type, array $p_recipi
 
 			lang_pop();
 		}
-		
-		# clean to_send field for queued files
-		if( isset( $t_attach_files ) && is_array( $t_attach_files ) ) {
-			foreach( $t_attach_files as $t_attachment ) {
-			file_set_field( $t_attachment['id'], 'to_send', false );
-			}
-		}
 	}
 }
 
