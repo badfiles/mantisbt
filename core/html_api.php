@@ -211,7 +211,7 @@ function html_css() {
  * @return void
  */
 function html_css_link( $p_filename ) {
-	echo "\t", '<link rel="stylesheet" type="text/css" href="', string_sanitize_url( helper_mantis_url( 'css/' . $p_filename ), true ), '" />' . "\n";
+	echo "\t", '<link rel="stylesheet" type="text/css" href="', string_sanitize_url( helper_mantis_url( 'css/' . $p_filename ), false ), '" />' . "\n";
 }
 
 
@@ -267,7 +267,7 @@ function html_head_javascript() {
 	global $g_scripts_included;
 	echo "\t" . '<script type="text/javascript" src="' . helper_mantis_url( 'javascript_config.php' ) . '"></script>' . "\n";
 	echo "\t" . '<script type="text/javascript" src="' . helper_mantis_url( 'javascript_translations.php' ) . '"></script>' . "\n";
-	html_javascript_link( 'jquery-1.11.3.min.js' );
+	html_javascript_link( 'jquery-2.1.4.min.js' );
 	html_javascript_link( 'jquery-ui-1.11.4.min.js' );
 	layout_head_javascript();
 	html_javascript_link( 'common.js' );

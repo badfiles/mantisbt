@@ -234,8 +234,8 @@ function layout_head_css() {
 	# page specific plugin styles
 
 	# theme text fonts
-	html_css_link( 'ace-fonts.css' );
-
+	echo '<link href="https://fonts.googleapis.com/css?family=Open+Sans" rel="stylesheet" type="text/css" />' . "\n";
+	
 	# theme styles -->
 	html_css_link( 'ace.min.css' );
 	html_css_link( 'ace-mantis.css' );
@@ -431,7 +431,7 @@ function layout_navbar_user_menu( $p_show_avatar = true ) {
 		return;
 	}
 
-	$t_username = user_get_realname( user_get_id_by_name( current_user_get_field( 'username' ) ) );
+	$t_username = current_user_get_field( 'username' );
 
 	echo '<li class="grey">';
 	echo '<a data-toggle="dropdown" href="#" class="dropdown-toggle">';
@@ -884,7 +884,7 @@ function layout_page_content_end() {
  * @return null
  */
 function layout_breadcrumbs() {
-	$t_username = current_user_get_field( 'username' );
+	$t_username = user_get_realname( user_get_id_by_name( current_user_get_field( 'username' ) ) );
 	$t_protected = current_user_get_field( 'protected' );
 	$t_access_level = get_enum_element( 'access_levels', current_user_get_access_level() );
 

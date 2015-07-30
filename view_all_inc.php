@@ -255,7 +255,6 @@ write_bug_rows( $t_rows );
 </form>
 </div>
 <?php
-html_status_legend( STATUS_LEGEND_POSITION_BOTTOM, true );
 # -- ====================== FILTER FORM ========================= --
 if( ( $t_filter_position & FILTER_POSITION_BOTTOM ) == FILTER_POSITION_BOTTOM ) {
 	filter_draw_selection_area( $f_page_number );
