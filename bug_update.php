@@ -382,6 +382,21 @@ if( $t_existing_bug->handler_id == NO_USER &&
 	$t_updated_bug->status = config_get( 'bug_assigned_status' );
 }
 
+# Handle automatic assignment on staus change.
+if(  $t_updated_bug->status !== $t_existing_bug->status &&
+	 config_get( 'auto_set_handler_on_status_change' )
+     ) {
+	$t_soft_handler_id = (int)MantisEnum::getLabel( config_get( 'soft_handler_on_status' ), $t_updated_bug->status );
+	$t_hard_handler_id = (int)MantisEnum::getLabel( config_get( 'hard_handler_on_status' ), $t_updated_bug->status );
+	if( $t_soft_handler_id !== 0 &&
+	 $t_updated_bug->handler_id !== $t_existing_bug->handler_id ) {
+	 $t_updated_bug->handler_id = $t_soft_handler_id;
+    }
+    if( $t_hard_handler_id !== 0 ) {
+	 $t_updated_bug->handler_id = $t_hard_handler_id;
+    }
+}
+
 # Allow a custom function to validate the proposed bug updates. Note that
 # custom functions are being deprecated in MantisBT. You should migrate to
 # the new plugin system instead.
