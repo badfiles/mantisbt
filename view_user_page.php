@@ -75,7 +75,7 @@ layout_page_header();
 
 layout_page_begin();
 ?>
-<div class="col-md-12 col-xs-12" xmlns="http://www.w3.org/1999/html">
+<div class="col-md-12 col-xs-12" xmlns="http://www.w3.org/1999/xhtml">
 <div class="widget-box widget-color-blue2">
 <div class="widget-header widget-header-small">
 	<h4 class="widget-title lighter">
@@ -87,7 +87,6 @@ layout_page_begin();
 <div class="widget-main no-padding">
 <div class="table-responsive">
 <table class="table table-bordered table-condensed table-striped">
-	<fieldset>
 	<tr>
 		<th class="category">
 			<?php echo lang_get( 'username' ) ?>
@@ -125,7 +124,6 @@ layout_page_begin();
 			} ?>
 		</td>
 	</tr>
-	</fieldset>
 </table>
 	</div>
 	</div>

@@ -756,7 +756,7 @@ function print_column_title_date_submitted( $p_sort, $p_dir, $p_columns_target =
 function print_column_title_attachment_count( $p_sort, $p_dir, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
 	global $t_icon_path;
 	$t_attachment_count_text = lang_get( 'attachment_count' );
-	$t_attachment_count_icon = "<i class=\"fa fa-paperclip blue\" alt=\"$t_attachment_count_text\" title=\"$t_attachment_count_text\" />";
+	$t_attachment_count_icon = "<i class=\"fa fa-paperclip blue\" title=\"$t_attachment_count_text\" ></i>";
 	echo "\t" . '<th class="column-attachments">' . $t_attachment_count_icon . '</th>' . "\n";
 }
 

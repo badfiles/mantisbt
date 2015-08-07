@@ -130,7 +130,6 @@ print_doc_menu( 'proj_doc_page.php' );
 	<th><?php echo lang_get( 'filename' ); ?></th>
 	<th><?php echo lang_get( 'description' ); ?></th>
 </tr>
-</thead>
 
 <?php
 $i = 0;
@@ -168,10 +167,11 @@ while( $t_row = db_fetch_array( $t_result ) ) {
 		<span class="floatright">
 <?php
 	if( access_has_project_level( config_get( 'upload_project_file_threshold', null, null, $v_project_id ), $v_project_id ) ) {
-		echo '&#160;';
+		echo '&#160;<div class="pull-right">';
 		print_form_button( 'proj_doc_edit_page.php?file_id='.$v_id, lang_get( 'edit_link' ) );
-		echo '&#160;';
+		echo '</div>&#160;<div class="pull-right">';
 		print_form_button( 'proj_doc_delete.php?file_id=' . $v_id, lang_get( 'delete_link' ) );
+		echo '</div>';
 	}
 ?>
 		</span>
