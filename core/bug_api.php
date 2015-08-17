@@ -518,11 +518,15 @@ class BugData {
 		} else {
 			$t_status = $this->status;
 		}
-	
-		$t_replace_reporter_id = $this->reporter_id;
-		if( $t_replace_reporter_id == user_get_id_by_name( config_get( 'anonymous_account' ) ) ) {
+
+		if( $this->reporter_id == user_get_id_by_name( config_get( 'anonymous_account' ) )
+		    || in_array( $this->reporter_id, config_get( 'replace_reporter_ids' ) )
+		  ) {
 			$t_replace_reporter_id = user_get_id_by_name( config_get( 'anonymous_account_replacer' ) );
+		} else {
+			$t_replace_reporter_id = $this->reporter_id;
 		}
+
 		# Insert the rest of the data
 		db_param_push();
 		$t_query = 'INSERT INTO {bug}
