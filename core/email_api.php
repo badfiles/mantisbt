@@ -1174,16 +1174,6 @@ function email_bug_info_to_one_user( array $p_visible_bug_data, $p_message_id, $
 		$t_mail_headers['In-Reply-To'] = $t_message_md5;
 	}
 
-	if( $p_user_id == bug_get_field( $t_bug_id, 'reporter_id' ) ) {
-		$t_reporter_email_replacer = custom_field_get_value( config_get( 'email_replacer_field_id' ), $t_bug_id );
-		if( !($t_reporter_email_replacer == '' || $t_reporter_email_replacer == null) ) {
-			$t_user_email = $t_reporter_email_replacer;
-		}
-		if( $t_user_email == config_get( 'replacer_silet_email' ) ) {
-			return;
-		}
-	}
-
 	# send mail
 	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers, false, $p_attach_files );
 	return;
