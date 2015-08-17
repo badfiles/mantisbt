@@ -80,8 +80,11 @@ $t_max_file_size = (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_nu
 		<input type="hidden" name="max_file_size" value="<?php echo $t_max_file_size ?>" />
 <?php
 	if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) )) {
-			echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
-		}
+		echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
+	}
+	if( access_compare_level( current_user_get_access_level(), config_get( 'create_protected_attachments_threshold' ) )) {
+		echo '<input type="checkbox" id="protected" name="protected" /><label for="protected">' . lang_get( 'label_protected_attachment' ) . '</label><br /><br />';
+	}
 	# Display multiple file upload fields
 	for( $i = 0; $i < $t_file_upload_max_num; $i++ ) {
 ?>

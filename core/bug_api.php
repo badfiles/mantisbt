@@ -1511,7 +1511,7 @@ function bug_get_bugnote_stats( $p_bug_id ) {
 function bug_get_attachments( $p_bug_id, $p_only_to_send = false ) {
 	$t_filter = '';
 	if( $p_only_to_send) $t_filter = ' AND to_send = true ';
-	$t_query = 'SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send
+	$t_query = 'SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send, protected
 		                FROM {bug_file}
 		                WHERE bug_id=' . db_param() . $t_filter . '
 		                ORDER BY date_added';

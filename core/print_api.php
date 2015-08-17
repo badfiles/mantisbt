@@ -1849,6 +1849,9 @@ function print_bug_attachment_header( array $p_attachment ) {
 		if( $p_attachment['to_send'] == true ) {
 			print_file_icon( 'file.eml' );
 		}
+		if( $p_attachment['protected'] == true ) {
+			echo '';
+		}
 		print_file_icon( $p_attachment['display_name'] );
 		if( $p_attachment['can_download'] ) {
 			echo '</a>';
