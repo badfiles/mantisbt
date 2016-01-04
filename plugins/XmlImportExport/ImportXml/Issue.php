@@ -263,33 +263,33 @@ class ImportXml_Issue implements ImportXml_Interface {
 			$this->new_id_ = $this->old_id_;
 			$this->newbug_->id = $this->old_id_;
 			if ( $t_append ) {
-				$this->newbug_->summary					= $t_old_bug->summary . "; " . unserialize( $this->newbug_->summary )[0];
-				$this->newbug_->description				= $t_old_bug->description . "\r\n" . $this->newbug_->description;
+				$this->newbug_->summary			= $t_old_bug->summary . "; " . unserialize( $this->newbug_->summary )[0];
+				$this->newbug_->description		= $t_old_bug->description . "\r\n" . $this->newbug_->description;
 				$this->newbug_->additional_information	= $t_old_bug->additional_information . "\r\n" . $this->newbug_->additional_information;
 			} else {
-				$this->newbug_->summary 				= unserialize( $this->newbug_->summary )[0];
+				$this->newbug_->summary 	= unserialize( $this->newbug_->summary )[0];
 			}
-			$this->newbug_->project_id			= $t_old_bug->project_id;
-			$this->newbug_->handler_id			= $t_old_bug->handler_id;
+			$this->newbug_->project_id		= $t_old_bug->project_id;
+			$this->newbug_->handler_id		= $t_old_bug->handler_id;
 			$this->newbug_->duplicate_id		= $t_old_bug->duplicate_id;
-			$this->newbug_->priority			= $t_old_bug->priority;
-			$this->newbug_->severity			= $t_old_bug->severity;
+			$this->newbug_->priority		= $t_old_bug->priority;
+			$this->newbug_->severity		= $t_old_bug->severity;
 			$this->newbug_->reproducibility		= $t_old_bug->reproducibility;
-			$this->newbug_->status				= $t_old_bug->status;
-			$this->newbug_->resolution			= $t_old_bug->resolution;
-			$this->newbug_->projection			= $t_old_bug->projection;
-			$this->newbug_->category_id			= $t_old_bug->category_id;
-			$this->newbug_->eta					= $t_old_bug->eta;
-			$this->newbug_->os					= $t_old_bug->os;
-			$this->newbug_->os_build			= $t_old_bug->os_build;
-			$this->newbug_->version				= $t_old_bug->version;
-			$this->newbug_->build				= $t_old_bug->build;
+			$this->newbug_->status			= $t_old_bug->status;
+			$this->newbug_->resolution		= $t_old_bug->resolution;
+			$this->newbug_->projection		= $t_old_bug->projection;
+			$this->newbug_->category_id		= $t_old_bug->category_id;
+			$this->newbug_->eta			= $t_old_bug->eta;
+			$this->newbug_->os			= $t_old_bug->os;
+			$this->newbug_->os_build		= $t_old_bug->os_build;
+			$this->newbug_->version			= $t_old_bug->version;
+			$this->newbug_->build			= $t_old_bug->build;
 			$this->newbug_->fixed_in_version	= $t_old_bug->fixed_in_version;
 			$this->newbug_->target_version		= $t_old_bug->target_version;
-			$this->newbug_->view_state			= $t_old_bug->view_state;
-			$this->newbug_->sponsorship_total 	= $t_old_bug->sponsorship_total;
-			$this->newbug_->sticky				= $t_old_bug->sticky;
-			$this->newbug_->due_date 			= $t_old_bug->due_date;
+			$this->newbug_->view_state		= $t_old_bug->view_state;
+			$this->newbug_->sponsorship_total	= $t_old_bug->sponsorship_total;
+			$this->newbug_->sticky			= $t_old_bug->sticky;
+			$this->newbug_->due_date 		= $t_old_bug->due_date;
 			$this->newbug_->steps_to_reproduce	= $t_old_bug->steps_to_reproduce;
 
 			$this->newbug_->update( true, true );
@@ -392,13 +392,7 @@ class ImportXml_Issue implements ImportXml_Interface {
 		if( $t_user_id === false ) {
 			$t_user_id = user_get_id_by_name( $p_username );
 			if( $t_user_id === false ) {
-				# user not found by username -> check real name
-				# keep in mind that the setting config_get( 'show_user_realname_threshold' ) may differ between import and export system!
-				$t_user_id = user_get_id_by_realname( $p_username );
-					if( $t_user_id === false ) {
-						# not found
-						$t_user_id = $p_squash_userid;
-					}
+				$t_user_id = $p_squash_userid;
 			}
 		}
 		return $t_user_id;
