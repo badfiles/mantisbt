@@ -1859,8 +1859,8 @@ function get_dropdown( array $p_control_array, $p_control_name, $p_match = '', $
  * @param string $p_security_token The security token to use for deleting attachments.
  * @return void
  */
-function print_bug_attachments_list( $p_bug_id, $p_security_token ) {
-	$t_attachments = file_get_visible_attachments( $p_bug_id );
+function print_bug_attachments_list( $p_bug_id, $p_security_token, $p_direct_access = false ) {
+	$t_attachments = file_get_visible_attachments( $p_bug_id, $p_direct_access );
 	echo "\n<ul>";
 	foreach ( $t_attachments as $t_attachment ) {
 		echo "\n<li>";

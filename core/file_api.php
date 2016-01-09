@@ -201,9 +201,9 @@ function file_bug_has_attachments( $p_bug_id ) {
  * @param integer $p_uploader_user_id An user identifier.
  * @return boolean
  */
-function file_can_view_bug_attachments( $p_bug_id, $p_uploader_user_id = null ) {
+function file_can_view_bug_attachments( $p_bug_id, $p_uploader_user_id = null, $p_direct_access = false ) {
 	$t_uploaded_by_me = auth_get_current_user_id() === $p_uploader_user_id;
-	$t_can_view = access_has_bug_level( config_get( 'view_attachments_threshold' ), $p_bug_id );
+	$t_can_view = access_has_bug_level( config_get( 'view_attachments_threshold' ), $p_bug_id ) || $p_direct_access;
 	$t_can_view = $t_can_view || ( $t_uploaded_by_me && config_get( 'allow_view_own_attachments' ) );
 	return $t_can_view;
 }
@@ -214,9 +214,9 @@ function file_can_view_bug_attachments( $p_bug_id, $p_uploader_user_id = null ) 
  * @param integer $p_uploader_user_id An user identifier.
  * @return boolean
  */
-function file_can_download_bug_attachments( $p_bug_id, $p_uploader_user_id = null ) {
+function file_can_download_bug_attachments( $p_bug_id, $p_uploader_user_id = null, $p_direct_access = false ) {
 	$t_uploaded_by_me = auth_get_current_user_id() === $p_uploader_user_id;
-	$t_can_download = access_has_bug_level( config_get( 'download_attachments_threshold', null, null, bug_get_field( $p_bug_id, 'project_id' ) ), $p_bug_id );
+	$t_can_download = access_has_bug_level( config_get( 'download_attachments_threshold', null, null, bug_get_field( $p_bug_id, 'project_id' ) ), $p_bug_id ) || $p_direct_access;
 	$t_can_download = $t_can_download || ( $t_uploaded_by_me && config_get( 'allow_download_own_attachments', null, null, bug_get_field( $p_bug_id, 'project_id' ) ) );
 	return $t_can_download;
 }
@@ -348,7 +348,7 @@ function file_normalize_attachment_path( $p_diskfile, $p_project_id ) {
  * @param integer $p_bug_id A bug identifier.
  * @return array
  */
-function file_get_visible_attachments( $p_bug_id ) {
+function file_get_visible_attachments( $p_bug_id, $p_direct_access = false ) {
 	$t_attachment_rows = bug_get_attachments( $p_bug_id );
 	$t_visible_attachments = array();
 
@@ -367,7 +367,8 @@ function file_get_visible_attachments( $p_bug_id ) {
 		$t_row = $t_attachment_rows[$i];
 		$t_user_id = (int)$t_row['user_id'];
 
-		if( !file_can_view_bug_attachments( $p_bug_id, $t_user_id ) ) {
+<<<<<<< f9d988222730841044427cc56ae2596174aaa4b1
+		if( !file_can_view_bug_attachments( $p_bug_id, $t_user_id, $p_direct_access ) ) {
 			continue;
 		}
 
@@ -386,11 +387,14 @@ function file_get_visible_attachments( $p_bug_id ) {
 		$t_attachment['diskfile'] = $t_diskfile;
 		$t_attachment['file_type'] = $t_row['file_type'];
 
-		$t_attachment['can_download'] = file_can_download_bug_attachments( $p_bug_id, (int)$t_row['user_id'] );
+		$t_attachment['can_download'] = file_can_download_bug_attachments( $p_bug_id, (int)$t_row['user_id'], $p_direct_access );
 		$t_attachment['can_delete'] = file_can_delete_bug_attachments( $p_bug_id, (int)$t_row['user_id'] );
 
 		if( $t_attachment['can_download'] ) {
 			$t_attachment['download_url'] = 'file_download.php?file_id=' . $t_id . '&type=bug';
+        	if( $p_direct_access ) {
+				$t_attachment['download_url'] .= '&dak=' . bug_get_field( $p_bug_id, 'direct_access_key' );
+			}    
 		}
 
 		if( $t_image_previewed ) {

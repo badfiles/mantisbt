@@ -41,12 +41,14 @@ $f_bug_id = gpc_get_int( 'bug_id' );
 $f_text = gpc_get_string( 'bugnote_text', '' );
 $f_duration = gpc_get_string( 'time_tracking', '0:00' );
 $f_files = gpc_get_file( 'ufile', array() );
+$f_bug_dak = gpc_get_string( 'bug_dak', '' );
 
 $t_query = array( 'issue_id' => $f_bug_id );
 
 if( count( $f_files ) > 0 && is_blank( $f_text ) && helper_duration_to_minutes( $f_duration ) == 0 ) {
 	$t_payload = array(
-		'files' => helper_array_transpose( $f_files )
+		'files' => helper_array_transpose( $f_files ),
+		'dak' => $f_bug_dak
 	);
 
 	$t_data = array(
@@ -65,7 +67,8 @@ if( count( $f_files ) > 0 && is_blank( $f_text ) && helper_duration_to_minutes( 
 		'time_tracking' => array(
 			'duration' => $f_duration
 		),
-		'files' => helper_array_transpose( $f_files )
+		'files' => helper_array_transpose( $f_files ),
+		'dak' => $f_bug_dak
 	);
 
 	$t_data = array(
@@ -79,4 +82,4 @@ if( count( $f_files ) > 0 && is_blank( $f_text ) && helper_duration_to_minutes( 
 
 form_security_purge( 'bugnote_add' );
 
-print_successful_redirect_to_bug( $f_bug_id );
+print_successful_redirect_to_bug( $f_bug_id, $f_bug_dak );
