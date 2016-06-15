@@ -543,10 +543,11 @@ function file_set_field( $p_file_id, $p_field_name, $p_field_value, $p_table = '
 	trigger_error( ERROR_DB_FIELD_NOT_FOUND, ERROR );
 	}
 
-	$query = "UPDATE $t_bug_file_table SET $p_field_name=" . db_param() . " WHERE id=" . db_param();
-	$result = db_query_bound( $query, array( $p_field_value, (int)$p_file_id ));
+	db_param_push();
+	$t_query = "UPDATE $t_bug_file_table SET $p_field_name=" . db_param() . " WHERE id=" . db_param();
+	$t_result = db_query_bound( $query, array( $p_field_value, (int)$p_file_id ));
 
-	return db_result( $result );
+	return db_result( $t_result );
 }
 
 /**
