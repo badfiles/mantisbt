@@ -59,7 +59,7 @@ $g_cache_file_count = array();
  * @param int $p_bug_id    The bug id.
  * @param array $p_files   The array of files, if null, then do nothing.
  */
-function file_process_posted_files_for_bug( $p_bug_id, $p_files ) {
+function file_process_posted_files_for_bug( $p_bug_id, $p_files, $p_to_send = false, $p_protected = false ) {
 	if( $p_files === null ) {
 		return;
 	}
@@ -67,7 +67,7 @@ function file_process_posted_files_for_bug( $p_bug_id, $p_files ) {
 	$t_files = helper_array_transpose( $p_files );
 	foreach( $t_files as $t_file ) {
 		if( !empty( $t_file['name'] ) ) {
-			file_add( $p_bug_id, $t_file, 'bug' );
+			file_add( $p_bug_id, $t_file, $p_to_send, $p_protected );
 		}
 	}
 }
@@ -158,9 +158,13 @@ function file_bug_has_attachments( $p_bug_id ) {
  * @param integer $p_uploader_user_id An user identifier.
  * @return boolean
  */
-function file_can_view_bug_attachments( $p_bug_id, $p_uploader_user_id = null ) {
+function file_can_view_bug_attachments( $p_bug_id, $p_uploader_user_id = null, $p_file_protected = false, $p_direct_access = false ) {
 	$t_uploaded_by_me = auth_get_current_user_id() === $p_uploader_user_id;
-	$t_can_view = access_has_bug_level( config_get( 'view_attachments_threshold' ), $p_bug_id );
+	if( $p_file_protected ) {
+		$t_can_view = access_compare_level( current_user_get_access_level(), config_get( 'handle_protected_attachments_threshold' ) );
+	} else {
+		$t_can_view = access_has_bug_level( config_get( 'view_attachments_threshold' ), $p_bug_id ) || $p_direct_access;
+	}
 	$t_can_view = $t_can_view || ( $t_uploaded_by_me && config_get( 'allow_view_own_attachments' ) );
 	return $t_can_view;
 }
@@ -171,9 +175,13 @@ function file_can_view_bug_attachments( $p_bug_id, $p_uploader_user_id = null ) 
  * @param integer $p_uploader_user_id An user identifier.
  * @return boolean
  */
-function file_can_download_bug_attachments( $p_bug_id, $p_uploader_user_id = null ) {
+function file_can_download_bug_attachments( $p_bug_id, $p_uploader_user_id = null, $p_file_protected = false, $p_direct_access = false ) {
 	$t_uploaded_by_me = auth_get_current_user_id() === $p_uploader_user_id;
-	$t_can_download = access_has_bug_level( config_get( 'download_attachments_threshold', null, null, bug_get_field( $p_bug_id, 'project_id' ) ), $p_bug_id );
+	if( $p_file_protected ) {
+		$t_can_download = access_compare_level( current_user_get_access_level(), config_get( 'handle_protected_attachments_threshold' ) );
+	} else {
+		$t_can_download = access_has_bug_level( config_get( 'download_attachments_threshold', null, null, bug_get_field( $p_bug_id, 'project_id' ) ), $p_bug_id ) || $p_direct_access;
+	}
 	$t_can_download = $t_can_download || ( $t_uploaded_by_me && config_get( 'allow_download_own_attachments', null, null, bug_get_field( $p_bug_id, 'project_id' ) ) );
 	return $t_can_download;
 }
@@ -305,7 +313,7 @@ function file_normalize_attachment_path( $p_diskfile, $p_project_id ) {
  * @param integer $p_bug_id A bug identifier.
  * @return array
  */
-function file_get_visible_attachments( $p_bug_id ) {
+function file_get_visible_attachments( $p_bug_id, $p_direct_access = false ) {
 	$t_attachment_rows = bug_get_attachments( $p_bug_id );
 	$t_visible_attachments = array();
 
@@ -323,7 +331,7 @@ function file_get_visible_attachments( $p_bug_id ) {
 	for( $i = 0;$i < $t_attachments_count;$i++ ) {
 		$t_row = $t_attachment_rows[$i];
 
-		if( !file_can_view_bug_attachments( $p_bug_id, (int)$t_row['user_id'] ) ) {
+		if( !file_can_view_bug_attachments( $p_bug_id, (int)$t_row['user_id'], (bool)$t_row['protected'], $p_direct_access ) ) {
 			continue;
 		}
 
@@ -340,11 +348,14 @@ function file_get_visible_attachments( $p_bug_id ) {
 		$t_attachment['date_added'] = $t_date_added;
 		$t_attachment['diskfile'] = $t_diskfile;
 
-		$t_attachment['can_download'] = file_can_download_bug_attachments( $p_bug_id, (int)$t_row['user_id'] );
+		$t_attachment['can_download'] = file_can_download_bug_attachments( $p_bug_id, (int)$t_row['user_id'], (bool)$t_row['protected'], $p_direct_access );
 		$t_attachment['can_delete'] = file_can_delete_bug_attachments( $p_bug_id, (int)$t_row['user_id'] );
 
 		if( $t_attachment['can_download'] ) {
 			$t_attachment['download_url'] = 'file_download.php?file_id=' . $t_id . '&type=bug';
+			if( $p_direct_access ) {
+				$t_attachment['download_url'] .= '&dak=' . bug_get_field( $p_bug_id, 'direct_access_key' );
+			}
 		}
 
 		if( $t_image_previewed ) {
@@ -356,6 +367,8 @@ function file_get_visible_attachments( $p_bug_id ) {
 
 		$t_attachment['preview'] = false;
 		$t_attachment['type'] = '';
+		$t_attachment['to_send'] = (bool)$t_row['to_send'];
+		$t_attachment['protected'] = (bool)$t_row['protected'];
 
 		$t_ext = strtolower( pathinfo( $t_attachment['display_name'], PATHINFO_EXTENSION ) );
 		$t_attachment['alt'] = $t_ext;
@@ -473,6 +486,26 @@ function file_get_field( $p_file_id, $p_field_name, $p_table = 'bug' ) {
 	$t_result = db_query( $t_query, array( (int)$p_file_id ), 1 );
 
 	return db_result( $t_result );
+}
+
+/**
+ * Set the specified field value
+ * @param int $p_file_id file id
+ * @param string $p_field_name field name
+ * @param        $p_field_value field value
+ * @param string $p_table table name
+ * @return string
+ */
+function file_set_field( $p_file_id, $p_field_name, $p_field_value, $p_table = 'bug' ) {
+	$t_bug_file_table = db_get_table( $p_table . '_file' );
+	if( !db_field_exists( $p_field_name, $t_bug_file_table ) ) {
+	trigger_error( ERROR_DB_FIELD_NOT_FOUND, ERROR );
+	}
+
+	$query = "UPDATE $t_bug_file_table SET $p_field_name=" . db_param() . " WHERE id=" . db_param();
+	$result = db_query_bound( $query, array( $p_field_value, (int)$p_file_id ));
+
+	return db_result( $result );
 }
 
 /**
@@ -631,6 +664,7 @@ function file_is_name_unique( $p_name, $p_bug_id, $p_table = 'bug' ) {
  *
  * @param integer $p_bug_id          The bug id (should be 0 when adding project doc).
  * @param array   $p_file            The uploaded file info, as retrieved from gpc_get_file().
+ * @param bool    $p_to_send         Mark file to be sent if true
  * @param string  $p_table           Either 'bug' or 'project' depending on attachment type.
  * @param string  $p_title           File title.
  * @param string  $p_desc            File description.
@@ -639,7 +673,7 @@ function file_is_name_unique( $p_name, $p_bug_id, $p_table = 'bug' ) {
  * @param boolean $p_skip_bug_update Skip bug last modification update (useful when importing bug attachments).
  * @return void
  */
-function file_add( $p_bug_id, array $p_file, $p_table = 'bug', $p_title = '', $p_desc = '', $p_user_id = null, $p_date_added = 0, $p_skip_bug_update = false ) {
+function file_add( $p_bug_id, array $p_file, $p_to_send = false, $p_protected = false, $p_table = 'bug', $p_title = '', $p_desc = '', $p_user_id = null, $p_date_added = 0, $p_skip_bug_update = false ) {
 	file_ensure_uploaded( $p_file );
 	$t_file_name = $p_file['name'];
 	$t_tmp_file = $p_file['tmp_name'];
@@ -743,6 +777,8 @@ function file_add( $p_bug_id, array $p_file, $p_table = 'bug', $p_title = '', $p
 		'file_type'   => $p_file['type'],
 		'date_added'  => $p_date_added,
 		'user_id'     => (int)$p_user_id,
+		'to_send'     => (int)$p_to_send,
+		'protected'   => (int)$p_protected,
 	);
 	# Oracle has to update BLOBs separately
 	if( !db_is_oracle() ) {
@@ -1083,19 +1119,21 @@ function file_copy_attachments( $p_source_bug_id, $p_dest_bug_id ) {
 		db_param_push();
 		$t_query = 'INSERT INTO {bug_file} (
 				bug_id, title, description, diskfile, filename, folder,
-				filesize, file_type, date_added, user_id, content
+				filesize, file_type, date_added, user_id, content, to_send, protected
 			)
 			VALUES ( '
 			. db_param() . ', ' . db_param() . ', ' . db_param() . ', '
 			. db_param() . ', ' . db_param() . ', ' . db_param() . ', '
 			. db_param() . ', ' . db_param() . ', ' . db_param() . ', '
-			. db_param() . ', ' . db_param() .
+			. db_param() . ', ' . db_param() . ', ' . db_param() . ', '
+			. db_param() .
 			')';
 		db_query( $t_query, array(
 			$p_dest_bug_id, $t_bug_file['title'], $t_bug_file['description'],
 			$t_new_diskfile_name, $t_new_file_name, $t_file_path,
 			$t_bug_file['filesize'], $t_bug_file['file_type'], $t_bug_file['date_added'],
 			$t_bug_file['user_id'], $t_bug_file['content']
+			, $t_bug_file['to_send'], $t_bug_file['protected']
 		) );
 	}
 }

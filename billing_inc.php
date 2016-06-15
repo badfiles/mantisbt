@@ -125,6 +125,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
             $t_filter[FILTER_PROPERTY_END_DAY] = $t_bugnote_stats_to_d;
             $t_filter[FILTER_PROPERTY_END_MONTH] = $t_bugnote_stats_to_m;
             $t_filter[FILTER_PROPERTY_END_YEAR] = $t_bugnote_stats_to_y;
+            filter_init( $t_filter );
             print_filter_do_filter_by_date( true );
         ?>
     <?php
@@ -234,7 +235,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 			<?php echo db_minutes_to_hhmm( $t_bugnote_stats['total']['minutes'] ); ?>
 		</td>
 <?php	if( $t_cost_col ) { ?>
-		<td class="small-caption bold right">
+		<td class="small-caption pull-right">
 			<?php echo string_attribute( number_format( $t_bugnote_stats['total']['cost'], 2 ) ); ?>
 		</td>
 <?php 	} ?>
@@ -284,7 +285,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 			<?php echo db_minutes_to_hhmm( $t_bugnote_stats['total']['minutes'] ); ?>
 		</td>
 <?php	if( $t_cost_col ) { ?>
-		<td class="small-caption bold right">
+		<td class="small-caption pull-right">
 			<?php echo string_attribute( number_format( $t_bugnote_stats['total']['cost'], 2 ) ); ?>
 		</td>
 <?php	} ?>

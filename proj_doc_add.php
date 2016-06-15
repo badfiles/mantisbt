@@ -67,7 +67,7 @@ if( is_blank( $f_title ) ) {
 	trigger_error( ERROR_EMPTY_FIELD, ERROR );
 }
 
-file_add( 0, $f_file, 'project', $f_title, $f_description );
+file_add( 0, $f_file, false, false, 'project', $f_title, $f_description );
 
 form_security_purge( 'proj_doc_add' );
 

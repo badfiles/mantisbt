@@ -393,7 +393,7 @@ get_capability_row( lang_get( 'update_view_status' ), 'change_view_status_thresh
 get_capability_row( lang_get( 'show_list_of_users_monitoring_issue' ), 'show_monitor_list_threshold' );
 get_capability_boolean( lang_get( 'set_status_assigned' ), 'auto_set_status_to_assigned' );
 get_capability_enum( lang_get( 'assigned_status' ), 'bug_assigned_status', 'status' );
-get_capability_boolean( lang_get( 'limit_access' ), 'limit_reporters', true );
+get_capability_boolean( lang_get( 'limit_access' ), 'limit_reporters' );
 get_section_end();
 
 # Notes

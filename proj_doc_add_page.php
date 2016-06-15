@@ -77,7 +77,7 @@ print_doc_menu('proj_doc_add_page.php');
 <table class="table table-bordered table-condensed table-striped">
 <tr>
 	<th class="category" width="25%">
-		<span class="required">*</span> <?php echo lang_get( 'title' ) ?>
+		<label class="required"><span><?php echo lang_get( 'title' ) ?></span></label>
 	</th>
 	<td width="75%">
 		<input type="text" name="title" class="input-sm" size="70" maxlength="250" />
@@ -93,7 +93,7 @@ print_doc_menu('proj_doc_add_page.php');
 </tr>
 <tr>
 	<td class="category">
-		<span class="required">*</span> <?php echo lang_get( 'select_file' ); ?>
+		<label class="required"><span><?php echo lang_get( 'select_file' ) ?></span></label>
 		<br />
 		<?php print_max_filesize( $t_max_file_size ); ?>
 	</td>

@@ -1237,7 +1237,7 @@ function filter_get_bug_rows( &$p_page_number, &$p_per_page, &$p_page_count, &$p
 
 		foreach( $t_project_ids as $t_pid ) {
 			# limit reporters to visible projects
-			if( ( ON === $t_limit_reporters ) && ( !access_has_project_level( config_get( 'report_bug_threshold', null, $t_user_id, $t_pid ) + 1, $t_pid, $t_user_id ) ) ) {
+			if( ( ON === $t_limit_reporters ) && ( !access_has_project_level( config_get( 'limit_reporters_override_threshold', null, $t_user_id, $t_pid ) + 1, $t_pid, $t_user_id ) ) ) {
 				array_push( $t_limited_projects, '({bug}.project_id=' . $t_pid . ' AND ({bug}.reporter_id=' . $t_user_id . ') )' );
 			} else {
 				$t_access_required_to_view_private_bugs = config_get( 'private_bug_threshold', null, null, $t_pid );
@@ -2138,9 +2138,11 @@ function filter_cache_result( array $p_rows, array $p_id_array_lastmod ) {
  * @see filter_draw_selection_area2
  */
 function filter_draw_selection_area( $p_page_number, $p_for_screen = true ) {
+	if( access_compare_level( current_user_get_access_level(), config_get( 'filter_view_threshold' ) )) {
 	echo '<div class="col-md-12 col-xs-12">';
 	filter_draw_selection_area2( $p_page_number, $p_for_screen, true );
 	echo '</div>';
+	}
 }
 
 /**
@@ -3487,7 +3489,7 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 
 	# expanded
 	echo '<div class="form-inline">';
-	echo '<label>', lang_get( 'search' ) . '&#160', '</label>';
+	echo '<label>', lang_get( 'search' ) . '&#160;', '</label>';
 	echo '<input type="text" class="input-sm" size="16" name="', FILTER_PROPERTY_SEARCH, '" value="', string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ), '" />';
 	?>
 	<input type="submit" class="btn btn-primary btn-sm btn-white btn-round no-float" name="filter" value="<?php echo lang_get( 'filter_button' )?>" />
@@ -3587,7 +3589,7 @@ function print_filter_reporter_id() {
 	# @@@ thraxisp - access_has_project_level checks greater than or equal to,
 	#   this assumed that there aren't any holes above REPORTER where the limit would apply
 	#
-	if( ( ON === config_get( 'limit_reporters' ) ) && ( !access_has_project_level( config_get( 'report_bug_threshold' ) + 1 ) ) ) {
+	if( ( ON === config_get( 'limit_reporters' ) ) && ( !access_has_project_level( config_get( 'limit_reporters_override_threshold' ) + 1 ) ) ) {
 		$t_id = auth_get_current_user_id();
 		$t_username = user_get_field( $t_id, 'username' );
 		$t_realname = user_get_field( $t_id, 'realname' );

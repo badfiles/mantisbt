@@ -51,6 +51,7 @@ require_api( 'print_api.php' );
 require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
+require_api( 'profile_api.php' );
 
 auth_ensure_user_authenticated();
 
@@ -61,8 +62,7 @@ $t_row = user_get_row( $f_user_id );
 
 extract( $t_row, EXTR_PREFIX_ALL, 'u' );
 
-$t_can_manage = access_has_global_level( config_get( 'manage_user_threshold' ) ) &&
-	access_has_global_level( $u_access_level );
+$t_can_manage = access_has_global_level( config_get( 'manage_user_threshold' ) ) && access_has_global_level( $u_access_level );
 $t_can_see_realname = access_has_project_level( config_get( 'show_user_realname_threshold' ) );
 $t_can_see_email = access_has_project_level( config_get( 'show_user_email_threshold' ) );
 
@@ -75,7 +75,7 @@ layout_page_header();
 
 layout_page_begin();
 ?>
-<div class="col-md-12 col-xs-12" xmlns="http://www.w3.org/1999/html">
+<div class="col-md-12 col-xs-12" xmlns="http://www.w3.org/1999/xhtml">
 <div class="widget-box widget-color-blue2">
 <div class="widget-header widget-header-small">
 	<h4 class="widget-title lighter">
@@ -87,15 +87,6 @@ layout_page_begin();
 <div class="widget-main no-padding">
 <div class="table-responsive">
 <table class="table table-bordered table-condensed table-striped">
-	<fieldset>
-	<tr>
-		<th class="category">
-			<?php echo lang_get( 'username' ) ?>
-		</th>
-		<td>
-			<?php echo string_display_line( $u_username ) ?>
-		</td>
-	</tr>
 	<tr>
 		<th class="category">
 			<?php echo lang_get( 'email' ) ?>
@@ -118,14 +109,34 @@ layout_page_begin();
 		<?php echo lang_get( 'realname' ) ?>
 		</th>
 		<td><?php
-			if( ! ( $t_can_manage || $t_can_see_realname ) ) {
+			if( ! ( $t_can_manage || $t_can_see_email ) ) {
 				print error_string( ERROR_ACCESS_DENIED );
 			} else {
 				echo string_display_line( $u_realname );
 			} ?>
 		</td>
 	</tr>
-	</fieldset>
+<?php
+	if( $t_can_manage || $t_can_see_email ) {
+		foreach( profile_get_all_for_user( $u_id ) as $t_profile ) {
+			echo '<tr><th class="category">';
+			echo lang_get( 'platform' ) . '</th><td>';
+			echo string_display_line( $t_profile[platform] ) . '</td></tr>';
+
+			echo '<tr><th class="category">';
+			echo lang_get( 'os' ) . '</th><td>';
+			echo string_display_line( $t_profile[os] ) . '</td></tr>';
+
+			echo '<tr><th class="category">';
+			echo lang_get( 'os_version' ) . '</th><td>';
+			echo string_display_line( $t_profile[os_build] ) . '</td></tr>';
+
+			echo '<tr><th class="category">';
+			echo lang_get( 'additional_description' ) . '</th><td>';
+			echo string_display_line( $t_profile[description] ) . '</td></tr>';
+			}
+	}
+?>
 </table>
 	</div>
 	</div>

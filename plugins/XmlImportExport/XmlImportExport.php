@@ -38,7 +38,7 @@ class XmlImportExportPlugin extends MantisPlugin {
 
 		$this->version = '1.3.0';
 		$this->requires = array(
-			'MantisCore' => '1.3.0',
+			'MantisCore' => '2.0.0',
 		);
 
 		$this->author = 'MantisBT Team';
@@ -53,7 +53,7 @@ class XmlImportExportPlugin extends MantisPlugin {
 	public function config() {
 		return array(
 			"import_threshold" => ADMINISTRATOR,
-			"export_threshold" => DEVELOPER,
+			"export_threshold" => ADMINISTRATOR,
 		);
 	}
 

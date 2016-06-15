@@ -502,16 +502,20 @@ function print_news_entry( $p_headline, $p_body, $p_poster_id, $p_view_state, $p
 	$t_body = string_display_links( $p_body );
 	$t_date_posted = date( config_get( 'normal_date_format' ), $p_date_posted );
 
-	$t_news_css = VS_PRIVATE == $p_view_state ? 'hidden' : '';
+	$t_news_css = VS_PRIVATE == $p_view_state ? 'widget-color-red' : 'widget-color-blue2';
 	?>
 
 	<div class="space-10"></div>
-	<div class="widget-box widget-color-blue2">
-		<div class="widget-header widget-header-small <?php echo $t_news_css; ?>">
+	<div class="widget-box <?php echo $t_news_css; ?>">
+		<div class="widget-header widget-header-small">
 			<h4 class="widget-title lighter">
-				<i class="ace-icon fa fa-edit"></i>
-				<?php echo $t_headline ?>
+				<i class="ace-icon fa fa-edit"></i><?php echo $t_headline ?>
 			</h4>
+			<div class="widget-toolbar">
+				<a data-action="collapse" href="#">
+					<i class="1 ace-icon fa fa-chevron-up bigger-125"></i>
+				</a>
+			</div>
 		</div>
 
 		<div class="widget-body">
@@ -521,13 +525,13 @@ function print_news_entry( $p_headline, $p_body, $p_poster_id, $p_view_state, $p
 				<i class="fa fa-clock-o"></i> <?php echo $t_date_posted; ?>
 			</div>
 			<div class="widget-main">
-				<?php
+				<!-- <?php
 			if( 1 == $p_announcement ) { ?>
 				<span class="news-announcement"><?php echo lang_get( 'announcement' ); ?></span><?php
 			}
 			if( VS_PRIVATE == $p_view_state ) { ?>
 				<span class="news-private"><?php echo lang_get( 'private' ); ?></span><?php
-			} ?>
+			} ?> -->
 				<p class="news-body"><?php echo $t_body; ?></p>
 			</div>
 		</div>
@@ -1249,6 +1253,16 @@ function print_plugin_priority_list( $p_priority ) {
 }
 
 /**
+ * Prints list of available summaries.
+ * @return void
+ */
+function print_summaries_list() {
+	foreach ( config_get( 'summaries' ) as $t_summary ) {
+		echo '<option value="', $t_summary, '">', $t_summary, '</option>';
+	}
+}
+
+/**
  * prints a link to VIEW a bug given an ID
  *  account for the user preference and site override
  * @param integer $p_bug_id      A bug identifier.
@@ -1415,7 +1429,7 @@ function print_manage_project_sort_link( $p_page, $p_string, $p_field, $p_dir, $
  * @see form_security_token()
  * @return void
  */
-function print_form_button( $p_action_page, $p_label, $p_args_to_post = null, $p_security_token = null, $p_class = '' ) {
+function print_form_button( $p_action_page, $p_label, array $p_args_to_post = null, $p_security_token = null, $p_class = '' ) {
 	$t_form_name = explode( '.php', $p_action_page, 2 );
 	# TODO: ensure all uses of print_button supply arguments via $p_args_to_post (POST)
 	# instead of via $p_action_page (GET). Then only add the CSRF form token if
@@ -1878,8 +1892,9 @@ function get_dropdown( array $p_control_array, $p_control_name, $p_match = '', $
  * @param integer $p_bug_id ID of the bug to print attachments list for.
  * @return void
  */
-function print_bug_attachments_list( $p_bug_id ) {
-	$t_attachments = file_get_visible_attachments( $p_bug_id );
+
+function print_bug_attachments_list( $p_bug_id, $p_direct_access = false  ) {
+	$t_attachments = file_get_visible_attachments( $p_bug_id, $p_direct_access );
 	$t_security_token = form_security_token( 'bug_file_delete' );
 	echo "\n<ul>";
 	foreach ( $t_attachments as $t_attachment ) {
@@ -1948,6 +1963,12 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 		if( $p_attachment['can_download'] ) {
 			echo '<a href="' . string_attribute( $p_attachment['download_url'] ) . '">';
 		}
+		if( $p_attachment['to_send'] == true ) {
+			echo '<i class="ace-icon fa fa-envelope"></i>&nbsp;';
+		}
+		if( $p_attachment['protected'] == true ) {
+			echo '<i class="ace-icon fa fa-lock"></i>&nbsp;';
+		}
 		print_file_icon( $p_attachment['display_name'] );
 		if( $p_attachment['can_download'] ) {
 			echo '</a>';
@@ -1960,7 +1981,8 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 		if( $p_attachment['can_download'] ) {
 			echo '</a>';
 		}
-		echo lang_get( 'word_separator' ) . '(' . number_format( $p_attachment['size'] ) . lang_get( 'word_separator' ) . lang_get( 'bytes' ) . ')';
+		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0 ) . '">';
+		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get( 'file_size_system' ) ) . ')</span>';
 		echo lang_get( 'word_separator' ) . '<span class="italic">' . date( config_get( 'normal_date_format' ), $p_attachment['date_added'] ) . '</span>';
 		event_signal( 'EVENT_VIEW_BUG_ATTACHMENT', array( $p_attachment ) );
 	} else {
@@ -1972,6 +1994,18 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 		echo lang_get( 'word_separator' ) . '&#160;&#160;';
 		print_button( 'bug_file_delete.php?file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_delete', $p_security_token ),
 			lang_get( 'delete_link' ), 'btn-xs' );
+	}
+	
+	if( access_compare_level( current_user_get_access_level( ), config_get( 'send_attachments_threshold' ) ) ) {
+		echo lang_get( 'word_separator' ) . '&#160;&#160;';
+		print_button( 'bug_file_toggle.php?action=s&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_to_send_toggle' ),
+			 lang_get( $p_attachment['to_send'] ? 'rem_send_link' : 'set_send_link' ), 'btn-xs' );
+	}
+
+	if( access_compare_level( current_user_get_access_level( ), config_get( 'handle_protected_attachments_threshold' ) ) ) {
+		echo lang_get( 'word_separator' ) . '&#160;&#160;';
+		print_button( 'bug_file_toggle.php?action=l&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_protected_toggle' ),
+			 lang_get( $p_attachment['protected'] ? 'rem_lock_link' : 'set_lock_link' ), 'btn-xs' );
 	}
 }
 
@@ -2037,7 +2071,7 @@ function print_bug_attachment_preview_image( array $p_attachment ) {
  * @return void
  */
 function print_timezone_option_list( $p_timezone ) {
-	$t_identifiers = timezone_identifiers_list( DateTimeZone::ALL );
+	$t_identifiers = timezone_identifiers_list( DateTimeZone::PER_COUNTRY, "RU" );
 
 	foreach( $t_identifiers as $t_identifier ) {
 		$t_zone = explode( '/', $t_identifier, 2 );
@@ -2064,26 +2098,56 @@ function print_timezone_option_list( $p_timezone ) {
 }
 
 /**
- * Return file size information
- * @param integer $p_size File size.
- * @param string  $p_unit File size unit.
+ * Returns file size information in units of a chosen system.
+ * @param integer $p_size file Size in bytes
+ * @param integer $p_unit_type Base to display sizes (BINARY OR DECIMAL). Defaults to BINARY (1024).
+ * @param integer $p_force_unit Force using file size unit in terms of base power (0 for bytes, 1 for kilo, 2 for mega, etc).
+ *				Defaults to auto (-1)
  * @return string
- */
-function get_filesize_info( $p_size, $p_unit ) {
-	return sprintf( lang_get( 'file_size_info' ), number_format( $p_size ), $p_unit );
+*/
+function get_filesize_info( $p_size, $p_unit_type = BINARY, $p_force_unit = -1 ) {
+	if( ( $p_force_unit == 0 ) || ( ( $p_force_unit == -1 ) && ( $p_size <= 10 * $p_unit_type ) ) ) {
+		$t_unit = 'unit_bytes';
+		$t_divider = 1;
+		$t_point = 0;
+	} else {
+		$t_point = 1;
+		if( $p_unit_type == BINARY ) {
+			$t_system = 'binary';
+		} else {
+			$t_system = 'decimal';
+		}
+		switch( $p_force_unit ) {
+			case -1:
+				if( ( $t_divider = $p_unit_type * $p_unit_type ) <= $p_size )  {
+					$t_unit = 'unit_m_' . $t_system;
+					break;
+				}
+				$t_unit = 'unit_k_' . $t_system;
+				$t_divider = $p_unit_type;
+				break;
+			case 1:
+				$t_unit = 'unit_k_' . $t_system;
+				$t_divider = $p_unit_type;
+				break;
+			case 2:
+				$t_unit = 'unit_m_' . $t_system;
+				$t_divider = $p_unit_type * $p_unit_type;
+				break;
+		}
+	}
+	return sprintf( lang_get( 'file_size_info' ), number_format( $p_size / $t_divider, $t_point ), lang_get( $t_unit ) ) ;
 }
 
 /**
  * Print maximum file size information
- * @param integer $p_size    Size in bytes.
- * @param integer $p_divider Optional divider, defaults to 1000.
- * @param string  $p_unit    Optional language string of unit, defaults to KB.
+ * @param integer $p_size    Size in bytes
  * @return void
  */
-function print_max_filesize( $p_size, $p_divider = 1000, $p_unit = 'kb' ) {
-	echo '<span class="small" title="' . get_filesize_info( $p_size, lang_get( 'bytes' ) ) . '">';
+function print_max_filesize( $p_size ) {
+	echo '<span class="small" title="' . get_filesize_info( $p_size, BINARY, 0 ) . '">';
 	echo lang_get( 'max_file_size_label' )
 		. lang_get( 'word_separator' )
-		. get_filesize_info( $p_size / $p_divider, lang_get( $p_unit ) );
+		. get_filesize_info( $p_size, config_get( 'file_size_system' ) );
 	echo '</span>';
 }

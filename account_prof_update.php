@@ -91,7 +91,8 @@ switch( $f_action ) {
 			access_ensure_global_level( config_get( 'add_profile_threshold' ) );
 		}
 
-		profile_create( $t_user_id, $f_platform, $f_os, $f_os_build, $f_description );
+		$t_new_profile_id = profile_create( $t_user_id, $f_platform, $f_os, $f_os_build, $f_description );
+		current_user_set_pref( 'default_profile', $t_new_profile_id );
 		form_security_purge( 'profile_update' );
 
 		if( ALL_USERS == $t_user_id ) {

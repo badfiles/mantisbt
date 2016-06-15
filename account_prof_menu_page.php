@@ -114,7 +114,7 @@ if( $g_global_profiles ) {
 					<span class="required">*</span> <?php echo lang_get( 'platform' ) ?>
 				</td>
 				<td>
-					<input id="platform" type="text" name="platform" class="input-sm" size="32" maxlength="32" />
+					<input id="platform" type="text" name="platform" class="input-sm" size="50" maxlength="50" />
 				</td>
 			</tr>
 			<tr>
@@ -122,7 +122,7 @@ if( $g_global_profiles ) {
 					<span class="required">*</span> <?php echo lang_get( 'os' ) ?>
 				</td>
 				<td>
-					<input id="os" type="text" name="os" class="input-sm" size="32" maxlength="32" />
+					<input id="os" type="text" name="os" class="input-sm" size="50" maxlength="50" />
 				</td>
 			</tr>
 			<tr>
@@ -130,7 +130,7 @@ if( $g_global_profiles ) {
 					<span class="required">*</span> <?php echo lang_get( 'os_version' ) ?>
 				</td>
 				<td>
-					<input id="os-version" type="text" name="os_build" class="input-sm" size="16" maxlength="16" />
+					<input id="os-version" type="text" name="os_build" class="input-sm" size="50" maxlength="50" />
 				</td>
 			</tr>
 			<tr>
@@ -141,12 +141,12 @@ if( $g_global_profiles ) {
 					<textarea class="form-control" id="description" name="description" cols="80" rows="8"></textarea>
 				</td>
 			</tr>
-		</fieldset>
-	</table>
+				</fieldset>
+			</table>
 </div>
 </div>
 <div class="widget-toolbox padding-8 clearfix">
-				<span class="required pull-right"> * required</span>
+				<span class="required pull-right">* <?php echo lang_get( 'required' ); ?></span>
 				<input type="submit" class="btn btn-primary btn-white btn-round" value="<?php echo lang_get('add_profile_button') ?>"/>
 </div>
 </div>

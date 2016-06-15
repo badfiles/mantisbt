@@ -60,6 +60,7 @@ layout_page_header( lang_get( 'configuration_report' ) );
 layout_page_begin( 'manage_overview_page.php' );
 
 print_manage_menu( 'adm_permissions_report.php' );
+
 print_manage_config_menu( 'adm_config_report.php' );
 
 $t_config_types = array(
@@ -605,7 +606,7 @@ if( $t_read_write_access ) {
 		<div class="widget-toolbox padding-4 clearfix">
 			<input type="hidden" name="action" value="<?php echo $t_edit_action; ?>" />
 			<input type="submit" name="config_set" class="btn btn-primary btn-white btn-round"
-				value="<?php echo lang_get('set_configuration_option') ?>"/>
+				value="<?php echo lang_get( 'set_configuration_option_' . $t_edit_action ) ?>"/>
 		</div>
 	</div>
 	</div>

@@ -74,39 +74,74 @@ if( helper_get_current_project() != $t_existing_bug->project_id ) {
 }
 
 $t_updated_bug = clone $t_existing_bug;
-
-$t_updated_bug->additional_information = gpc_get_string( 'additional_information', $t_existing_bug->additional_information );
-$t_updated_bug->build = gpc_get_string( 'build', $t_existing_bug->build );
-$t_updated_bug->category_id = gpc_get_int( 'category_id', $t_existing_bug->category_id );
-$t_updated_bug->description = gpc_get_string( 'description', $t_existing_bug->description );
-$t_due_date = gpc_get_string( 'due_date', null );
-if( $t_due_date !== null ) {
+if( $f_update_type == BUG_UPDATE_TYPE_NORMAL ) {
+    $t_updated_bug->additional_information = gpc_get_string( 'additional_information', $t_existing_bug->additional_information );
+    $t_updated_bug->build = gpc_get_string( 'build', $t_existing_bug->build );
+    $t_updated_bug->category_id = gpc_get_int( 'category_id', $t_existing_bug->category_id );
+    $t_updated_bug->description = gpc_get_string( 'description', $t_existing_bug->description );
+    $t_due_date = gpc_get_string( 'due_date', null );
+    if( $t_due_date !== null ) {
 	if( is_blank( $t_due_date ) ) {
 		$t_updated_bug->due_date = 1;
 	} else {
 		$t_updated_bug->due_date = strtotime( $t_due_date );
 	}
+    }
+    $t_updated_bug->duplicate_id = gpc_get_int( 'duplicate_id', 0 );
+    $t_updated_bug->eta = gpc_get_int( 'eta', $t_existing_bug->eta );
+    $t_updated_bug->fixed_in_version = gpc_get_string( 'fixed_in_version', $t_existing_bug->fixed_in_version );
+    $t_updated_bug->handler_id = gpc_get_int( 'handler_id', $t_existing_bug->handler_id );
+    $t_updated_bug->last_updated = gpc_get_string( 'last_updated' );
+    $t_updated_bug->os = gpc_get_string( 'os', $t_existing_bug->os );
+    $t_updated_bug->os_build = gpc_get_string( 'os_build', $t_existing_bug->os_build );
+    $t_updated_bug->platform = gpc_get_string( 'platform', $t_existing_bug->platform );
+    $t_updated_bug->priority = gpc_get_int( 'priority', $t_existing_bug->priority );
+    $t_updated_bug->projection = gpc_get_int( 'projection', $t_existing_bug->projection );
+    $t_updated_bug->reporter_id = gpc_get_int( 'reporter_id', $t_existing_bug->reporter_id );
+    $t_updated_bug->reproducibility = gpc_get_int( 'reproducibility', $t_existing_bug->reproducibility );
+    $t_updated_bug->resolution = gpc_get_int( 'resolution', $t_existing_bug->resolution );
+    $t_updated_bug->severity = gpc_get_int( 'severity', $t_existing_bug->severity );
+    $t_updated_bug->status = gpc_get_int( 'status', $t_existing_bug->status );
+    $t_updated_bug->steps_to_reproduce = gpc_get_string( 'steps_to_reproduce', $t_existing_bug->steps_to_reproduce );
+    $t_updated_bug->summary = gpc_get_string( 'summary', $t_existing_bug->summary );
+    $t_updated_bug->target_version = gpc_get_string( 'target_version', $t_existing_bug->target_version );
+    $t_updated_bug->version = gpc_get_string( 'version', $t_existing_bug->version );
+    $t_updated_bug->view_state = gpc_get_int( 'view_state', $t_existing_bug->view_state );
+} else {
+    $t_updated_bug->additional_information = $t_existing_bug->additional_information;
+    $t_updated_bug->build = $t_existing_bug->build;
+    $t_updated_bug->category_id = (int)$t_existing_bug->category_id;
+    $t_updated_bug->description = $t_existing_bug->description;
+    $t_due_date = gpc_get_string( 'due_date', null );
+    if( $t_due_date !== null ) {
+	if( is_blank( $t_due_date ) ) {
+	    $t_updated_bug->due_date = 1;
+	} else {
+	    $t_updated_bug->due_date = strtotime( $t_due_date );
+	}
+    }
+    $t_updated_bug->duplicate_id = gpc_get_int( 'duplicate_id', 0 );
+    $t_updated_bug->eta = (int)$t_existing_bug->eta;
+    $t_updated_bug->fixed_in_version = $t_existing_bug->fixed_in_version;
+    $t_updated_bug->handler_id = gpc_get_int( 'handler_id', $t_existing_bug->handler_id );
+    $t_updated_bug->last_updated = gpc_get_string( 'last_updated' );
+    $t_updated_bug->os = $t_existing_bug->os;
+    $t_updated_bug->os_build = $t_existing_bug->os_build;
+    $t_updated_bug->platform = $t_existing_bug->platform;
+    $t_updated_bug->priority = (int)$t_existing_bug->priority;
+    $t_updated_bug->projection = (int)$t_existing_bug->projection;
+    $t_updated_bug->reporter_id = (int)$t_existing_bug->reporter_id;
+    $t_updated_bug->reproducibility = (int)$t_existing_bug->reproducibility;
+    $t_updated_bug->resolution = gpc_get_int( 'resolution', $t_existing_bug->resolution );
+    $t_updated_bug->severity = (int)$t_existing_bug->severity;
+    $t_updated_bug->status = gpc_get_int( 'status', $t_existing_bug->status );
+    $t_updated_bug->steps_to_reproduce = $t_existing_bug->steps_to_reproduce;
+    $t_updated_bug->summary = $t_existing_bug->summary;
+    $t_updated_bug->target_version = $t_existing_bug->target_version;
+    $t_updated_bug->version = $t_existing_bug->version;
+    $t_updated_bug->view_state = (int)$t_existing_bug->view_state;
 }
-$t_updated_bug->duplicate_id = gpc_get_int( 'duplicate_id', 0 );
-$t_updated_bug->eta = gpc_get_int( 'eta', $t_existing_bug->eta );
-$t_updated_bug->fixed_in_version = gpc_get_string( 'fixed_in_version', $t_existing_bug->fixed_in_version );
-$t_updated_bug->handler_id = gpc_get_int( 'handler_id', $t_existing_bug->handler_id );
-$t_updated_bug->last_updated = gpc_get_string( 'last_updated' );
-$t_updated_bug->os = gpc_get_string( 'os', $t_existing_bug->os );
-$t_updated_bug->os_build = gpc_get_string( 'os_build', $t_existing_bug->os_build );
-$t_updated_bug->platform = gpc_get_string( 'platform', $t_existing_bug->platform );
-$t_updated_bug->priority = gpc_get_int( 'priority', $t_existing_bug->priority );
-$t_updated_bug->projection = gpc_get_int( 'projection', $t_existing_bug->projection );
-$t_updated_bug->reporter_id = gpc_get_int( 'reporter_id', $t_existing_bug->reporter_id );
-$t_updated_bug->reproducibility = gpc_get_int( 'reproducibility', $t_existing_bug->reproducibility );
-$t_updated_bug->resolution = gpc_get_int( 'resolution', $t_existing_bug->resolution );
-$t_updated_bug->severity = gpc_get_int( 'severity', $t_existing_bug->severity );
-$t_updated_bug->status = gpc_get_int( 'status', $t_existing_bug->status );
-$t_updated_bug->steps_to_reproduce = gpc_get_string( 'steps_to_reproduce', $t_existing_bug->steps_to_reproduce );
-$t_updated_bug->summary = gpc_get_string( 'summary', $t_existing_bug->summary );
-$t_updated_bug->target_version = gpc_get_string( 'target_version', $t_existing_bug->target_version );
-$t_updated_bug->version = gpc_get_string( 'version', $t_existing_bug->version );
-$t_updated_bug->view_state = gpc_get_int( 'view_state', $t_existing_bug->view_state );
+
 
 $t_bug_note = new BugNoteData();
 $t_bug_note->note = gpc_get_string( 'bugnote_text', '' );
@@ -155,8 +190,9 @@ if ( !$t_reporter_reopening && !$t_reporter_closing ) {
 	# Ensure that the user has permission to update bugs. This check also factors
 	# in whether the user has permission to view private bugs. The
 	# $g_limit_reporters option is also taken into consideration.
-	access_ensure_bug_level( config_get( 'update_bug_threshold' ), $f_bug_id );
-
+	if( $f_update_type !== BUG_UPDATE_TYPE_CHANGE_STATUS ) {
+	    access_ensure_bug_level( config_get( 'update_bug_threshold' ), $f_bug_id );
+	}
 	# Check if the bug is in a read-only state and whether the current user has
 	# permission to update read-only bugs.
 	if( bug_is_readonly( $f_bug_id ) ) {
@@ -382,6 +418,23 @@ if( $t_existing_bug->handler_id == NO_USER &&
 	$t_updated_bug->status = config_get( 'bug_assigned_status' );
 }
 
+# Handle automatic assignment on staus change.
+$t_same_status = $t_updated_bug->status === $t_existing_bug->status;
+if( !$t_same_status
+	&& config_get( 'auto_set_handler_on_status_change' )
+	) {
+	$t_soft_handler_id = (int)MantisEnum::getLabel( config_get( 'soft_handler_on_status' ), $t_updated_bug->status );
+	$t_hard_handler_id = (int)MantisEnum::getLabel( config_get( 'hard_handler_on_status' ), $t_updated_bug->status );
+	if( $t_soft_handler_id !== 0
+		&& $t_updated_bug->handler_id == $t_existing_bug->handler_id 
+		) {
+		$t_updated_bug->handler_id = $t_soft_handler_id;
+	}
+	if( $t_hard_handler_id !== 0 ) {
+		$t_updated_bug->handler_id = $t_hard_handler_id;
+	}
+}
+
 # Allow a custom function to validate the proposed bug updates. Note that
 # custom functions are being deprecated in MantisBT. You should migrate to
 # the new plugin system instead.
@@ -403,7 +456,7 @@ foreach ( $t_custom_fields_to_set as $t_custom_field_to_set ) {
 
 # Add a bug note if there is one.
 if( $t_bug_note->note || helper_duration_to_minutes( $t_bug_note->time_tracking ) > 0 ) {
-	$t_bugnote_id = bugnote_add( $f_bug_id, $t_bug_note->note, $t_bug_note->time_tracking, $t_bug_note->view_state == VS_PRIVATE, 0, '', null, false );
+	$t_bugnote_id = bugnote_add( $f_bug_id, $t_bug_note->note, $t_bug_note->time_tracking, $t_bug_note->view_state == VS_PRIVATE, 0, '', null, $t_same_status );
 	bugnote_process_mentions( $f_bug_id, $t_bugnote_id, $t_bug_note->note );
 }
 
@@ -430,7 +483,6 @@ helper_call_custom_function( 'issue_update_notify', array( $f_bug_id ) );
 
 # Send a notification of changes via email.
 if( $t_resolve_issue ) {
-	email_resolved( $f_bug_id );
 	email_relationship_child_resolved( $f_bug_id );
 } else if( $t_close_issue ) {
 	email_close( $f_bug_id );
@@ -440,11 +492,15 @@ if( $t_resolve_issue ) {
 } else if( $t_existing_bug->handler_id != $t_updated_bug->handler_id ) {
 	email_owner_changed( $f_bug_id, $t_existing_bug->handler_id, $t_updated_bug->handler_id );
 } else if( $t_existing_bug->status != $t_updated_bug->status ) {
+} else {
+	email_bug_updated( $f_bug_id );
+}
+
+# Always send a notification of status changes via email.
+if( !$t_same_status ) {
 	$t_new_status_label = MantisEnum::getLabel( config_get( 'status_enum_string' ), $t_updated_bug->status );
 	$t_new_status_label = str_replace( ' ', '_', $t_new_status_label );
 	email_bug_status_changed( $f_bug_id, $t_new_status_label );
-} else {
-	email_bug_updated( $f_bug_id );
 }
 
 form_security_purge( 'bug_update' );

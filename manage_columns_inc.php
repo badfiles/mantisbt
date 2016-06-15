@@ -100,7 +100,6 @@ if( $t_account_page ) {
 <div class="widget-main no-padding">
 	<div class="table-responsive">
 		<table class="table table-bordered table-condensed table-striped">
-		<fieldset>
 			<?php echo form_security_field( 'manage_config_columns_set' ) ?>
 			<input type="hidden" name="project_id" value="<?php echo $t_project_id ?>" />
 			<input type="hidden" name="form_page" value="<?php echo $t_account_page ? 'account' : 'manage'; ?>" />
@@ -144,12 +143,11 @@ if( $t_account_page ) {
 					<textarea class="form-control" id="excel-columns" <?php echo helper_get_tab_index() ?> name="excel_columns" cols="80" rows="5"><?php echo $t_excel ?></textarea>
 				</td>
 			</tr>
-		</fieldset>
 		</table>
 	</div>
 	</div>
 	<div class="widget-toolbox padding-8 clearfix">
-		<span class="required pull-right"> * required</span>
+		<span class="required pull-right">* <?php echo lang_get( 'required' ); ?></span>
 			<?php
 			if( $t_account_page ) {
 				if( $t_project_id == ALL_PROJECTS ) { ?>

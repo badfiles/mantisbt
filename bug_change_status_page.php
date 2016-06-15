@@ -97,10 +97,7 @@ if( $f_new_status == $t_reopen && $f_change_type == BUG_UPDATE_TYPE_REOPEN ) {
 
 $t_can_update_due_date = access_has_bug_level( config_get( 'due_date_update_threshold' ), $f_bug_id );
 if( $t_can_update_due_date ) {
-	require_js( 'jscalendar/calendar.js' );
-	require_js( 'jscalendar/lang/calendar-en.js' );
-	require_js( 'jscalendar/calendar-setup.js' );
-	require_css( 'calendar-blue.css' );
+	print_datetimepicker_js();
 }
 
 # get new issue handler if set, otherwise default to original handler
@@ -192,21 +189,6 @@ if( ( $f_new_status >= $t_resolved ) && ( ( $f_new_status < $t_closed ) || ( $t_
 				</td>
 			</tr>
 <?php
-if( $f_new_status >= $t_resolved
-	&& $f_new_status < $t_closed
-	&& $t_resolution != config_get( 'bug_duplicate_resolution' ) ) { ?>
-<!-- Duplicate ID -->
-			<tr>
-				<th class="category">
-					<?php echo lang_get( 'duplicate_id' ) ?>
-				</th>
-				<td>
-					<input type="text" class="input-sm" name="duplicate_id" maxlength="10" />
-				</td>
-			</tr>
-<?php } ?>
-
-<?php
 	}
 
 	if( access_has_bug_level( config_get( 'update_bug_assign_threshold', config_get( 'update_bug_threshold' ) ), $f_bug_id ) ) {
@@ -245,10 +227,8 @@ if( $f_new_status >= $t_resolved
 			<?php echo lang_get( 'due_date' ) ?>
 		</th>
 		<td>
-			<input type="text" id="due_date" name="due_date"
-				class="datetime" size="20" maxlength="16"
-				<?php helper_get_tab_index() ?>
-				value="<?php echo $t_date_to_display ?>" />
+			<?php echo '<input ' . helper_get_tab_index() . ' type="text" id="due_date" name="due_date" class="datetimepicker" size="20" maxlength="16" value="' . $t_date_to_display . '" />' ?>
+			<script type="text/javascript">$( ".datetimepicker" ).datetimepicker({hourMin: 10, hourMax: 16});</script>
 		</td>
 	</tr>
 
@@ -265,7 +245,7 @@ if( $f_new_status >= $t_resolved
 	 * display or required fields on resolve or close
 	 */
 	$t_custom_status_label = 'update'; # Don't show custom fields by default
-	if( ( $f_new_status == $t_resolved ) && ( $f_new_status < $t_closed ) ) {
+	if( ( $f_new_status >= $t_resolved ) && ( $f_new_status < $t_closed ) ) {
 		$t_custom_status_label = 'resolved';
 	}
 	if( $t_closed == $f_new_status ) {

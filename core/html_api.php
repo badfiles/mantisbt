@@ -19,6 +19,39 @@
  *
  * These functions control the HTML output of each page.
  *
+ * This is the call order of these functions, should you need to figure out
+ * which to modify or which to leave out:
+ *
+ * html_page_top
+ *   html_page_top1
+ *     html_begin
+ *     html_head_begin
+ *     html_content_type
+ *     (Additional META tags: {@see $g_meta_include_file} and {@see robots_meta config})
+ *     html_title
+ *     html_css
+ *     html_rss_link
+ *     html_head_javascript
+ *   (html_meta_redirect)
+ *   html_page_top2
+ *     html_page_top2a
+ *       html_head_end
+ *       html_body_begin
+ *       html_top_banner
+ *     html_login_info
+ *     (print_project_menu_bar)
+ *     print_menu
+ *
+ * ...Page content here...
+ *
+ * html_page_bottom
+ *   html_page_bottom1
+ *     (print_menu)
+ *     html_page_bottom1a
+ *       html_bottom_banner
+ *       html_footer
+ *       html_body_end
+ *       html_end
  *
  * @package CoreAPI
  * @subpackage HTMLAPI
@@ -131,8 +164,130 @@ function html_javascript_link( $p_filename ) {
 }
 
 /**
- * Prints a <script> tag to include a JavaScript file.
- * @param string $p_url fully qualified domain name for the cdn js file
+ * Defines the top of a HTML page
+ * @param string $p_page_title   Html page title.
+ * @param string $p_redirect_url URL to redirect to if necessary.
+ * @return void
+ */
+function html_page_top( $p_page_title = null, $p_redirect_url = null ) {
+	html_page_top1( $p_page_title );
+	if( $p_redirect_url !== null ) {
+		html_meta_redirect( $p_redirect_url );
+	}
+	html_page_top2();
+}
+
+/**
+ * Print the part of the page that comes before meta redirect tags should be inserted
+ * @param string $p_page_title Page title.
+ * @return void
+ */
+function html_page_top1( $p_page_title = null ) {
+	html_begin();
+	html_head_begin();
+
+	html_content_type();
+	$t_meta = config_get_global( 'meta_include_file' );
+	if( !is_blank( $t_meta ) ) {
+		include( $t_meta );
+	}
+	global $g_robots_meta;
+	if( !is_blank( $g_robots_meta ) ) {
+		echo "\t", '<meta name="robots" content="', $g_robots_meta, '" />', "\n";
+	}
+
+	html_title( $p_page_title );
+	html_css();
+	html_rss_link();
+
+	$t_favicon_image = config_get( 'favicon_image' );
+	if( !is_blank( $t_favicon_image ) ) {
+		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
+	}
+
+	# Advertise the availability of the browser search plug-ins.
+	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Text Search" href="' . string_sanitize_url( 'browser_search_plugin.php?type=text', true ) . '" />' . "\n";
+	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Issue Id" href="' . string_sanitize_url( 'browser_search_plugin.php?type=id', true ) . '" />' . "\n";
+
+	html_head_javascript();
+}
+
+/**
+ * Print the part of the page that comes after meta tags, but before the actual page content
+ * @return void
+ */
+function html_page_top2() {
+	html_page_top2a();
+
+	if( !db_is_connected() ) {
+		return;
+	}
+
+	if( auth_is_user_authenticated() ) {
+		html_login_info();
+
+		if( ON == config_get( 'show_project_menu_bar' ) ) {
+			print_project_menu_bar();
+			echo '<br />';
+		}
+	}
+	print_menu();
+	echo '<div id="content">', "\n";
+	event_signal( 'EVENT_LAYOUT_CONTENT_BEGIN' );
+}
+
+/**
+ * Print the part of the page that comes after meta tags and before the
+ *  actual page content, but without login info or menus.  This is used
+ *  directly during the login process and other times when the user may
+ *  not be authenticated
+ * @return void
+ */
+function html_page_top2a() {
+	global $g_error_send_page_header;
+
+	html_head_end();
+	html_body_begin();
+	$g_error_send_page_header = false;
+	html_top_banner();
+}
+
+/**
+ * Print the part of the page that comes below the page content
+ * $p_file should always be the __FILE__ variable. This is passed to show source
+ * @param string $p_file Should always be the __FILE__ variable. This is passed to show source.
+ * @return void
+ */
+function html_page_bottom( $p_file = null ) {
+	html_page_bottom1( $p_file );
+}
+
+/**
+ * Print the part of the page that comes below the page content
+ * $p_file should always be the __FILE__ variable. This is passed to show source
+ * @param string $p_file Should always be the __FILE__ variable. This is passed to show source.
+ * @return void
+ */
+function html_page_bottom1( $p_file = null ) {
+	if( !db_is_connected() ) {
+		return;
+	}
+
+	event_signal( 'EVENT_LAYOUT_CONTENT_END' );
+	echo '</div>', "\n";
+	if( config_get( 'show_footer_menu' ) ) {
+		echo '<br />';
+		print_menu();
+	}
+
+	html_page_bottom1a( $p_file );
+}
+
+/**
+ * Print the part of the page that comes below the page content but leave off
+ * the menu.  This is used during the login process and other times when the
+ * user may not be authenticated.
+ * @param string $p_file Should always be the __FILE__ variable.
  * @return void
  */
 function html_javascript_cdn_link( $p_url ) {
@@ -140,7 +295,7 @@ function html_javascript_cdn_link( $p_url ) {
 }
 
 /**
- * Print the document type and the opening <html> tag
+ * (1) Print the document type and the opening <html> tag
  * @return void
  */
 function html_begin() {
@@ -149,7 +304,7 @@ function html_begin() {
 }
 
 /**
- * Begin the <head> section
+ * (2) Begin the <head> section
  * @return void
  */
 function html_head_begin() {
@@ -157,7 +312,7 @@ function html_head_begin() {
 }
 
 /**
- * Print the content-type
+ * (3) Print the content-type
  * @return void
  */
 function html_content_type() {
@@ -165,7 +320,7 @@ function html_content_type() {
 }
 
 /**
- * Print the window title
+ * (4) Print the window title
  * @param string $p_page_title Window title.
  * @return void
  */
@@ -196,7 +351,7 @@ function require_css( $p_stylesheet_path ) {
 }
 
 /**
- * Print the link to include the CSS file
+ * (5) Print the link to include the CSS file
  * @return void
  */
 function html_css() {
@@ -204,7 +359,7 @@ function html_css() {
 	html_css_link( config_get( 'css_include_file' ) );
 
 	if ( config_get_global( 'cdn_enabled' ) == ON ) {
-		html_css_cdn_link( 'https://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERY_UI_VERSION . '/themes/smoothness/jquery-ui.css' );
+		html_css_cdn_link( '//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERY_UI_VERSION . '/themes/smoothness/jquery-ui.css' );
 	} else {
 		html_css_link( 'jquery-ui-' . JQUERY_UI_VERSION . '.min.css' );
 	}
@@ -225,7 +380,7 @@ function html_css() {
  * @return void
  */
 function html_css_link( $p_filename ) {
-	echo "\t", '<link rel="stylesheet" type="text/css" href="', string_sanitize_url( helper_mantis_url( 'css/' . $p_filename ), true ), '" />' . "\n";
+	echo "\t", '<link rel="stylesheet" type="text/css" href="', string_sanitize_url( helper_mantis_url( 'css/' . $p_filename ), false ), '" />' . "\n";
 }
 
 /**
@@ -238,7 +393,7 @@ function html_css_cdn_link( $p_url ) {
 }
 
 /**
- * Print an HTML meta tag to redirect to another page
+ * (6) Print an HTML meta tag to redirect to another page
  * This function is optional and may be called by pages that need a redirect.
  * $p_time is the number of seconds to wait before redirecting.
  * If we have handled any errors on this page return false and don't redirect.
@@ -266,7 +421,7 @@ function html_meta_redirect( $p_url, $p_time = null, $p_sanitize = true ) {
 
 	$t_url = htmlspecialchars( $t_url );
 
-	echo "\t" . '<meta http-equiv="Refresh" content="' . $p_time . ';URL=' . $t_url . '" />' . "\n";
+	echo "\t" . '<meta http-equiv="Refresh" content="' . $p_time . '; URL=' . $t_url . '" />' . "\n";
 
 	return true;
 }
@@ -282,17 +437,18 @@ function require_js( $p_script_path ) {
 }
 
 /**
- * Javascript...
+ * (6a) Javascript...
  * @return void
  */
 function html_head_javascript() {
 	global $g_scripts_included;
+
 	echo "\t" . '<script type="text/javascript" src="' . helper_mantis_url( 'javascript_config.php' ) . '"></script>' . "\n";
 	echo "\t" . '<script type="text/javascript" src="' . helper_mantis_url( 'javascript_translations.php' ) . '"></script>' . "\n";
 
 	if ( config_get_global( 'cdn_enabled' ) == ON ) {
-		echo "\t" . '<script src="https://ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js"></script>' . "\n";
-		echo "\t" . '<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERY_UI_VERSION . '/jquery-ui.min.js"></script>' . "\n";
+		echo "\t" . '<script src="//ajax.googleapis.com/ajax/libs/jquery/' . JQUERY_VERSION . '/jquery.min.js"></script>' . "\n";
+		echo "\t" . '<script src="//ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERY_UI_VERSION . '/jquery-ui.min.js"></script>' . "\n";
 	} else {
 		html_javascript_link( 'jquery-' . JQUERY_VERSION . '.min.js' );
 		html_javascript_link( 'jquery-ui-' . JQUERY_UI_VERSION . '.min.js' );
@@ -305,7 +461,7 @@ function html_head_javascript() {
 }
 
 /**
- * End the <head> section
+ * (7) End the <head> section
  * @return void
  */
 function html_head_end() {
@@ -360,6 +516,113 @@ function html_top_banner() {
 }
 
 /**
+ * (10) Print the user's account information
+ * Also print the select box where users can switch projects
+ * @return void
+ */
+function html_login_info() {
+	$t_username = current_user_get_field( 'username' );
+	$t_access_level = get_enum_element( 'access_levels', current_user_get_access_level() );
+	$t_now = date( config_get( 'complete_date_format' ) );
+	$t_realname = current_user_get_field( 'realname' );
+
+	echo '<div class="info-bar">' . "\n";
+
+	# Login information
+	echo '<div id="login-info">' . "\n";
+	if( current_user_is_anonymous() ) {
+		$t_return_page = $_SERVER['SCRIPT_NAME'];
+		if( isset( $_SERVER['QUERY_STRING'] ) ) {
+			$t_return_page .= '?' . $_SERVER['QUERY_STRING'];
+		}
+
+		$t_return_page = string_url( $t_return_page );
+
+		echo "\t" . '<span id="logged-anon-label">' . lang_get( 'anonymous' ) . '</span>' . "\n";
+		echo "\t" . '<span id="login-link"><a href="' . helper_mantis_url( 'login_page.php?return=' . $t_return_page ) . '">' . lang_get( 'login_link' ) . '</a></span>' . "\n";
+		if( config_get_global( 'allow_signup' ) == ON ) {
+			echo "\t" . '<span id="signup-link"><a href="' . helper_mantis_url( 'signup_page.php' ) . '">' . lang_get( 'signup_link' ) . '</a></span>' . "\n";
+		}
+	} else {
+		echo "\t" . '<span id="logged-in-label">' . lang_get( 'logged_in_as' ) . '</span>' . "\n";
+		echo "\t" . '<span id="logged-in-user">' . string_html_specialchars( $t_username ) . '</span>' . "\n";
+		echo "\t" . '<span id="logged-in">';
+		echo !is_blank( $t_realname ) ?  "\t" . '<span id="logged-in-realname">' . string_html_specialchars( $t_realname ) . '</span>' . "\n" : '';
+		echo "\t" . '<span id="logged-in-accesslevel" class="' . $t_access_level . '">' . $t_access_level . '</span>' . "\n";
+		echo "\t" . '</span>' . "\n";
+	}
+	echo '</div>' . "\n";
+
+	# RSS feed
+	if( OFF != config_get( 'rss_enabled' ) ) {
+		echo '<div id="rss-feed">' . "\n";
+		# Link to RSS issues feed for the selected project, including authentication details.
+		echo "\t" . '<a href="' . htmlspecialchars( rss_get_issues_feed_url() ) . '">' . "\n";
+		echo "\t" . '<img src="' . helper_mantis_url( 'images/rss.png' ) . '" alt="' . lang_get( 'rss' ) . '" title="' . lang_get( 'rss' ) . '" />' . "\n";
+		echo "\t" . '</a>' . "\n";
+		echo '</div>' . "\n";
+	}
+
+	# Project Selector (hidden if only one project visisble to user)
+	$t_show_project_selector = true;
+	$t_project_ids = current_user_get_accessible_projects();
+	if( count( $t_project_ids ) == 1 ) {
+		$t_project_id = (int)$t_project_ids[0];
+		if( count( current_user_get_accessible_subprojects( $t_project_id ) ) == 0 ) {
+			$t_show_project_selector = false;
+		}
+	}
+
+	if( $t_show_project_selector ) {
+		echo '<div id="project-selector-div">';
+		echo '<form method="post" id="form-set-project" action="' . helper_mantis_url( 'set_project.php' ) . '">';
+		echo '<fieldset id="project-selector">';
+		# CSRF protection not required here - form does not result in modifications
+
+		echo '<label for="form-set-project-id">' . lang_get( 'email_project' ) . '</label>';
+		echo '<select id="form-set-project-id" name="project_id">';
+		print_project_option_list( join( ';', helper_get_current_project_trace() ), true, null, true );
+		echo '</select> ';
+		echo '<input type="submit" class="button" value="' . lang_get( 'switch' ) . '" />';
+		echo '</fieldset>';
+		echo '</form>';
+		echo '</div>';
+	} else {
+		# User has only one project, set it as both current and default
+		if( ALL_PROJECTS == helper_get_current_project() ) {
+			helper_set_current_project( $t_project_id );
+
+			if( !current_user_is_protected() ) {
+				current_user_set_default_project( $t_project_id );
+			}
+
+			# Force reload of current page, except if we got here after
+			# creating the first project
+			$t_redirect_url = str_replace( config_get( 'short_path' ), '', $_SERVER['REQUEST_URI'] );
+			if( 'manage_proj_create.php' != $t_redirect_url ) {
+				html_meta_redirect( $t_redirect_url, 0, false );
+			}
+		}
+	}
+
+	# Current time
+	echo '<div id="current-time">' . $t_now . '</div>';
+	echo '</div>' . "\n";
+}
+
+/**
+ * (11) Print a user-defined banner at the bottom of the page if there is one.
+ * @return void
+ */
+function html_bottom_banner() {
+	$t_page = config_get( 'bottom_include_page' );
+
+	if( !is_blank( $t_page ) && file_exists( $t_page ) && !is_dir( $t_page ) ) {
+		include( $t_page );
+	}
+}
+
+/**
  * A function that outputs that an operation was successful and provides a redirect link.
  * @param string $p_redirect_url The url to redirect to.
  * @param string $p_message      Message to display to the user.
@@ -384,6 +647,7 @@ function html_operation_successful( $p_redirect_url, $p_message = '' ) {
  * @return void
  */
 function html_body_end() {
+
 	# Should code need to be added to this function in the future, it should be
 	# placed *above* this event, which needs to be the last thing to occur
 	# before the actual body ends (see #20084)
@@ -395,7 +659,7 @@ function html_body_end() {
 }
 
 /**
- * Print the closing <html> tag
+ * (15) Print the closing <html> tag
  * @return void
  */
 function html_end() {
@@ -714,25 +978,6 @@ function print_account_menu( $p_page = '' ) {
  * @return void
  */
 function print_doc_menu( $p_page = '' ) {
-	# User Documentation
-	$t_doc_url = config_get( 'manual_url' );
-	if( is_null( parse_url( $t_doc_url, PHP_URL_SCHEME ) ) ) {
-		# URL has no scheme, so it is relative to MantisBT root
-		if( is_blank( $t_doc_url ) ||
-			!file_exists( config_get_global( 'absolute_path' ) . $t_doc_url )
-		) {
-			# Local documentation not available, use online docs
-			$t_doc_url = 'http://www.mantisbt.org/documentation.php';
-		} else {
-			$t_doc_url = helper_mantis_url( $t_doc_url );
-		}
-	}
-
-	$t_pages[$t_doc_url] = array(
-		'url'   => $t_doc_url,
-		'label' => 'user_documentation'
-	);
-
 	# Project Documentation
 	$t_pages['proj_doc_page.php'] = array(
 		'url'   => helper_mantis_url( 'proj_doc_page.php' ),
@@ -798,7 +1043,7 @@ function print_summary_menu( $p_page = '' ) {
 
 	# Plugins menu items - these are cooked links
 	foreach ( $t_menu_options as $t_menu_item ) {
-		echo '<li>' . $t_menu_item . '</li>';
+		echo '<li>', $t_menu_item, '</li>';
 	}
 
 	echo '</ul>' . "\n";
@@ -841,6 +1086,24 @@ function print_admin_menu_bar( $p_page ) {
 	echo '</li>' . "\n";
 
 	echo '</ul>' . "\n";
+}
+
+/**
+ * Print required js for datetimepicker
+ * @return void
+ * @access public
+ */
+function print_datetimepicker_js() {
+	require_js( 'jquery-ui-timepicker.min.js' );
+	$t_current_lang = lang_get_current();
+	$t_fallback_lang = config_get( 'fallback_language' );
+	if( $t_fallback_lang !== $t_current_lang &&
+		file_exists( $g_absolute_path . 'js' . DIRECTORY_SEPARATOR . 'jquery-ui-timepicker-' . $t_current_lang . '.js' ) ) {
+		require_js( 'jquery-ui-timepicker-' . $t_current_lang . '.js' );
+	} else {
+		require_js( 'jquery-ui-timepicker-' . $t_fallback_lang . '.js' );
+	}
+	require_css( 'jquery-ui-timepicker.min.css' );
 }
 
 /**

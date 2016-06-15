@@ -366,11 +366,9 @@ if ( config_get( 'subprojects_enabled') == ON ) {
 		# End of subprojects listing / update form
 	} else {
 		# If there are no subprojects, clear floats to h2 overlap on div border
-?>
-		<br />
-<?php }
+	}
+} # are sub-projects enabled?
 
-	} # are sub-projects enabled?
 ?>
 
 <div class="col-md-12 col-xs-12">
@@ -814,7 +812,7 @@ event_signal( 'EVENT_MANAGE_PROJECT_PAGE', array( $f_project_id ) );
 				array( 'project_id' => $f_project_id ),
 				$t_token_remove_user );
 	}
-	?>
+?>
 </div>
 </div>
 </div>

@@ -47,6 +47,7 @@
  * @uses string_api.php
  * @uses utility_api.php
  * @uses version_api.php
+ * @uses user_api.php
  */
 
 $g_allow_browser_cache = 1;
@@ -76,6 +77,7 @@ require_api( 'relationship_api.php' );
 require_api( 'string_api.php' );
 require_api( 'utility_api.php' );
 require_api( 'version_api.php' );
+require_api( 'user_api.php' );
 
 $f_master_bug_id = gpc_get_int( 'm_id', 0 );
 
@@ -220,10 +222,7 @@ $t_show_attachments = in_array( 'attachments', $t_fields ) && file_allow_bug_upl
 $t_show_view_state = in_array( 'view_state', $t_fields ) && access_has_project_level( config_get( 'set_view_status_threshold' ) );
 
 if( $t_show_due_date ) {
-	require_js( 'jscalendar/calendar.js' );
-	require_js( 'jscalendar/lang/calendar-en.js' );
-	require_js( 'jscalendar/calendar-setup.js' );
-	require_css( 'calendar-blue.css' );
+	print_datetimepicker_js();
 }
 
 # don't index bug report page
@@ -355,14 +354,15 @@ if( $t_show_attachments ) {
 			<label for="due_date"><?php print_documentation_link( 'due_date' ) ?></label>
 		</th>
 		<td>
-			<?php echo '<input ' . helper_get_tab_index() . ' type="text" id="due_date" name="due_date" class="datetime" size="20" maxlength="16" value="' . $t_date_to_display . '" />' ?>
+			<?php echo '<input ' . helper_get_tab_index() . ' type="text" id="due_date" name="due_date" class="datetimepicker" size="20" maxlength="16" value="' . $t_date_to_display . '" />' ?>
+			<script type="text/javascript">$( ".datetimepicker" ).datetimepicker({ hourMin: 10, hourMax: 16, minDate: 2, maxDate: 60});</script>
 		</td>
 	</tr>
 <?php } ?>
 <?php if( $t_show_platform || $t_show_os || $t_show_os_version ) { ?>
 	<tr>
 		<th class="category">
-			<label for="profile_id"><?php echo lang_get( 'select_profile' ) ?></label>
+			<span class="required">*</span><label for="profile_id"><?php echo lang_get( 'select_profile' ) ?></label>
 		</th>
 		<td>
 			<?php if( count( profile_get_all_for_user( auth_get_current_user_id() ) ) > 0 ) { ?>
@@ -374,8 +374,8 @@ if( $t_show_attachments ) {
 			<?php echo lang_get( 'or_fill_in' ); ?>
 			<table class="table-bordered table-condensed">
 				<tr>
-					<th class="category" width="30%">
-						<label for="platform"><?php echo lang_get( 'platform' ) ?></label>
+					<th class="category">
+						<span class="required">*</span><label for="platform"><?php echo lang_get( 'platform' ) ?></label>
 					</th>
 					<td>
 						<?php if( config_get( 'allow_freetext_in_profile_fields' ) == OFF ) { ?>
@@ -385,7 +385,7 @@ if( $t_show_attachments ) {
 						</select>
 						<?php
 							} else {
-								echo '<input type="text" id="platform" name="platform" class="autocomplete input-sm" size="32" maxlength="32" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_platform ) . '" />';
+								echo '<input type="text" id="platform" name="platform" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_platform ) . '" />';
 							}
 						?>
 					</td>
@@ -402,7 +402,7 @@ if( $t_show_attachments ) {
 						</select>
 						<?php
 							} else {
-								echo '<input type="text" id="os" name="os" class="autocomplete input-sm" size="32" maxlength="32" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os ) . '" />';
+								echo '<input type="text" id="os" name="os" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os ) . '" />';
 							}
 						?>
 					</td>
@@ -421,7 +421,7 @@ if( $t_show_attachments ) {
 							</select>
 						<?php
 							} else {
-								echo '<input type="text" id="os_build" name="os_build" class="autocomplete input-sm" size="16" maxlength="16" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os_build ) . '" />';
+								echo '<input type="text" id="os_build" name="os_build" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os_build ) . '" />';
 							}
 						?>
 					</td>
@@ -538,9 +538,16 @@ if( $t_show_attachments ) {
 			<span class="required">*</span><label for="summary"><?php print_documentation_link( 'summary' ) ?></label>
 		</th>
 		<td>
-			<input <?php echo helper_get_tab_index() ?> type="text" id="summary" name="summary" size="105" maxlength="128" value="<?php echo string_attribute( $f_summary ) ?>" />
+	<?php if( access_has_project_level( config_get( 'allow_summary_edit_threshold' ) ) ) { ?>
+	<input <?php echo helper_get_tab_index() ?> type="text" id="summary" name="summary[]" size="105" maxlength="128" value="<?php echo string_attribute( $f_summary ) ?>" />
+	<?php } else { ?>
+	<select data-placeholder="<?php echo lang_get( 'select_option' ) ?>" multiple="multiple" class="chosen-multiselect" <?php echo helper_get_tab_index() ?> id="summary" name="summary[]">
+			<option></option><?php print_summaries_list() ?>
+	</select>
+	<?php } ?>
 		</td>
 	</tr>
+	<script type="text/javascript">$(".chosen-multiselect").chosen({width: "100%", max_selected_options: 6});</script>
 	<tr>
 		<th class="category">
 			<span class="required">*</span><label for="description"><?php print_documentation_link( 'description' ) ?></label>
@@ -624,7 +631,7 @@ if( $t_show_attachments ) {
 ?>
 	<tr>
 		<th class="category">
-			<label for="file"><?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file' : 'upload_files' ) ?></label>
+			<label for="ufile[]"><?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file' : 'upload_files' ) ?></label>
 			<br />
 			<?php echo print_max_filesize( $t_max_file_size ); ?>
 		</th>
@@ -640,12 +647,7 @@ if( $t_show_attachments ) {
 <?php
 		# Display multiple file upload fields
 		for( $i = 0; $i < $t_file_upload_max_num; $i++ ) {
-?>
-			<input <?php echo helper_get_tab_index() ?> id="ufile[]" name="ufile[]" type="file" size="60" />
-<?php
-			if( $t_file_upload_max_num > 1 ) {
-				echo '<br />';
-			}
+			echo '<input ' . helper_get_tab_index() . ' id="ufile[]" name="ufile[]" type="file" size="60" />';
 		}
 ?>
 			</div>
@@ -725,6 +727,9 @@ if( $t_show_attachments ) {
 <div class="widget-toolbox padding-8 clearfix">
 	<span class="required pull-right"> * <?php echo lang_get( 'required' ) ?></span>
 	<input <?php echo helper_get_tab_index() ?> type="submit" class="btn btn-primary btn-white btn-round" value="<?php echo lang_get( 'submit_report_button' ) ?>" />
+	<?php if( auth_get_current_user_id() == user_get_id_by_name( config_get( 'anonymous_account' ) ) ) {
+	echo '<div class="alert alert-danger"><i class="fa fa-info-circle"></i>&nbsp'. lang_get( 'anonymous_report_message' ) . '</div>';
+	}?>
 </div>
 </div>
 </div>

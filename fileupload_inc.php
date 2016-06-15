@@ -43,7 +43,8 @@ html_javascript_link( 'dropzone.min.js');
 				previewsContainer: '#' + classPrefix + '-previews-box',
 				uploadMultiple: true,
 				parallelUploads: 100,
-				maxFilesize: <?php echo ceil( ( config_get( 'max_file_size' ) / (1000 * 1024) ) ) ?>,
+				maxFilesize: <?php echo ceil( ( config_get( 'max_file_size' ) / (1024 * 1024) ) ) ?>,
+				acceptedFiles: '<?php echo config_get( 'allowed_files' )  ?>',
 				addRemoveLinks: !autoUpload,
 				previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-details\">\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n    <div class=\"dz-size\" data-dz-size></div>\n    <img data-dz-thumbnail />\n  </div>\n  <div class=\"progress progress-small progress-striped active\"><div class=\"progress-bar progress-bar-success\" data-dz-uploadprogress></div></div>\n  <div class=\"dz-success-mark\"><span></span></div>\n  <div class=\"dz-error-mark\"><span></span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n</div>",
 				dictDefaultMessage: "<?php echo lang_get( 'dropzone_default_message' ) ?>",
@@ -91,7 +92,7 @@ html_javascript_link( 'dropzone.min.js');
 			enableDropzone( "dropzone", false );
 		}
 		if( $( ".auto-dropzone-form" ).length ) {
-			enableDropzone( "auto-dropzone", true );
+			enableDropzone( "auto-dropzone", false );
 		}
 	});
 

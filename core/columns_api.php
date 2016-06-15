@@ -344,7 +344,7 @@ function column_get_title( $p_column ) {
 		case 'attachment_count':
 			return lang_get( 'attachments' );
 		case 'bugnotes_count':
-			return '#';
+			return lang_get( 'bgnts' );
 		case 'category_id':
 			return lang_get( 'category' );
 		case 'edit':
@@ -659,6 +659,10 @@ function print_column_title_view_state( $p_sort, $p_dir, $p_columns_target = COL
 	global $t_icon_path;
 	echo '<th class="column-view-state">';
 	$t_view_state_text = lang_get( 'view_status' );
+/**<<<<<<< HEAD
+	$t_view_state_icon = '<i class="ace-icon fa fa-lock"></i>&nbsp;';
+=======
+*/
 	$t_view_state_icon = ' <i class="fa fa-lock" alt="' . $t_view_state_text . '" title="' . $t_view_state_text . '"></i>';
 	print_view_bug_sort_link( $t_view_state_icon, 'view_state', $p_sort, $p_dir, $p_columns_target );
 	print_sort_icon( $p_dir, $p_sort, 'view_state' );
@@ -777,7 +781,7 @@ function print_column_title_date_submitted( $p_sort, $p_dir, $p_columns_target =
 function print_column_title_attachment_count( $p_sort, $p_dir, $p_columns_target = COLUMNS_TARGET_VIEW_PAGE ) {
 	global $t_icon_path;
 	$t_attachment_count_text = lang_get( 'attachment_count' );
-	$t_attachment_count_icon = "<i class=\"fa fa-paperclip blue\" alt=\"$t_attachment_count_text\" title=\"$t_attachment_count_text\" />";
+	$t_attachment_count_icon = "<i class=\"fa fa-paperclip blue\" title=\"$t_attachment_count_text\" ></i>";
 	echo "\t" . '<th class="column-attachments">' . $t_attachment_count_icon . '</th>' . "\n";
 }
 
@@ -1091,9 +1095,8 @@ function print_column_edit( BugData $p_bug, $p_columns_target = COLUMNS_TARGET_V
 
 	if( !bug_is_readonly( $p_bug->id ) && access_has_bug_level( config_get( 'update_bug_threshold' ), $p_bug->id ) ) {
 		echo '<a href="' . string_get_bug_update_url( $p_bug->id ) . '">';
-		echo '<i class="fa fa-pencil bigger-130 padding-2 grey';
-		echo '" alt="' . lang_get( 'update_bug_button' ) . '"';
-		echo ' title="' . lang_get( 'update_bug_button' ) . '"></i></a>';
+		echo '<i class="fa fa-pencil blue"';
+		echo ' title="' . lang_get( 'update_bug_button' ) . '" ></i></a>';
 	} else {
 		echo '&#160;';
 	}
@@ -1327,7 +1330,7 @@ function print_column_status( BugData $p_bug, $p_columns_target = COLUMNS_TARGET
 	echo '<div class="align-left">';
 	echo '<i class="fa fa-square-o fa-xlg ' . $status_label . '"></i> ';
 	printf( '<span title="%s">%s</span>',
-		get_enum_element( 'resolution', $p_bug->resolution, auth_get_current_user_id(), $p_bug->project_id ),
+		$p_bug->description,
 		get_enum_element( 'status', $p_bug->status, auth_get_current_user_id(), $p_bug->project_id )
 	);
 
@@ -1531,6 +1534,7 @@ function print_column_view_state( BugData $p_bug, $p_columns_target = COLUMNS_TA
 
 	if( VS_PRIVATE == $p_bug->view_state ) {
 		$t_view_state_text = lang_get( 'private' );
+//		echo '<i class="ace-icon fa fa-lock"></i>&nbsp;';
 		echo ' <i class="fa fa-lock" alt="' . $t_view_state_text . '" title="' . $t_view_state_text . '"></i>';
 	} else {
 		echo '&#160;';

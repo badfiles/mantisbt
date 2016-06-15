@@ -186,6 +186,7 @@ $s_select_option = '(select)';
 # bug_actiongroup_page.php : mass treatment
 $s_bug_actiongroup_access = 'You did not have appropriate permissions to perform that action.';
 $s_bug_actiongroup_status = 'This issue cannot be changed to the requested status';
+$s_bug_actiongroup_same_status = 'You tried to set status the issue was already in';
 $s_bug_actiongroup_category = 'This issue cannot be changed to the requested category';
 $s_bug_actiongroup_handler = 'The requested user is not allowed to handle this issue';
 $s_bug_actiongroup_version = 'The requested version does not exist in this issue\'s project';
@@ -515,6 +516,7 @@ $s_upload_file_button = 'Upload File';
 $s_upload_files_button = 'Upload Files';
 $s_max_file_size_label = 'Maximum size:';
 $s_file_size_info = '%1$s %2$s'; # $1 = size, $2 = unit (e.g. kb, bytes)
+$s_label_to_send = 'Attach file(s) to the nearest notification e-mail';
 
 # bug_reopen.php
 $s_bug_reopened_msg = 'Issue has been reopened...';
@@ -1224,6 +1226,8 @@ $s_note_user_id_label = 'Note By:';
 $s_filter_match_type_label = 'Match Type:';
 $s_filter_match_all = 'All Conditions';
 $s_filter_match_any = 'Any Condition';
+$s_bgnts = '#';
+$s_bugnotes = 'Bugnotes';
 
 # view_all_inc.php
 $s_none = 'none';
@@ -1348,6 +1352,11 @@ $s_kb = 'KB';
 $s_attachment_missing = 'Attachment missing';
 $s_attachment_count = 'Attachment count';
 $s_view_attachments_for_issue = 'View %1$d attachment(s) for issue #%2$d';
+$s_unit_bytes = 'bytes';
+$s_unit_k_binary = 'KiB';
+$s_unit_m_binary = 'MiB';
+$s_unit_k_decimal = 'KB';
+$s_unit_m_decimal = 'MB';
 
 # PHPMailer
 $s_phpmailer_language = 'en';

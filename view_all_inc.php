@@ -116,9 +116,9 @@ if( ( $t_filter_position & FILTER_POSITION_TOP ) == FILTER_POSITION_TOP ) {
 			<div class="btn-group pull-left">
 		<?php
 			# -- Print and Export links --
-			print_small_button( 'print_all_bug_page.php', lang_get( 'print_all_bug_page_link' ) );
-			print_small_button( 'csv_export.php', lang_get( 'csv_export' ) );
-			print_small_button( 'excel_xml_export.php', lang_get( 'excel_export' ) );
+#			print_small_button( 'print_all_bug_page.php', lang_get( 'print_all_bug_page_link' ) );
+#			print_small_button( 'csv_export.php', lang_get( 'csv_export' ) );
+#			print_small_button( 'excel_xml_export.php', lang_get( 'excel_export' ) );
 
 			$t_event_menu_options = $t_links = event_signal('EVENT_MENU_FILTER');
 
@@ -223,16 +223,16 @@ write_bug_rows( $t_rows );
 <?php
 		if( $g_checkboxes_exist ) {
 			echo '<label class="inline">';
-			echo '<input class="ace check_all" type="checkbox" id="bug_arr_all" name="bug_arr_all" value="all" class="check_all input-small" />';
+			echo '<input class="ace check_all input-small" type="checkbox" id="bug_arr_all" name="bug_arr_all" value="all" />';
 			echo '<span class="lbl"> ' . lang_get( 'select_all' ) . ' </span > ';
 			echo '</label>';
 		}
 		if( $g_checkboxes_exist ) {
 ?>
-			<select name="action" class="input-sm">
+			<select name="action" class="input-sm" onchange="this.form.submit()">
 				<?php print_all_bug_action_option_list($t_unique_project_ids) ?>
 			</select>
-			<input type="submit" class="btn btn-primary btn-white btn-sm btn-round" value="<?php echo lang_get('ok'); ?>"/>
+			<noscript><input type="submit" class="btn btn-primary btn-white btn-sm btn-round" value="<?php echo lang_get('ok'); ?>"/></noscript>
 <?php
 		} else {
 			echo '&#160;';

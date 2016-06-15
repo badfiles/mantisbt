@@ -129,12 +129,12 @@ layout_login_page_begin();
 
 <div class="col-md-offset-3 col-md-6 col-sm-10 col-sm-offset-1">
 	<div class="login-container">
-		<div class="space-12 hidden-480"></div>
+		<!-- <div class="space-12 hidden-480"></div>
 		<a href="<?php echo config_get( 'logo_url' ) ?>">
 			<h1 class="center white">
 				<img src="<?php echo helper_mantis_url( config_get( 'logo_image' ) ); ?>">
 			</h1>
-		</a>
+		</a> -->
 		<div class="space-24 hidden-480"></div>
 <?php
 if( $f_error || $f_cookie_error ) {
@@ -245,7 +245,7 @@ if( config_get_global( 'admin_checks' ) == ON && file_exists( dirname( __FILE__ 
 
 			<label for="username" class="block clearfix">
 				<span class="block input-icon input-icon-right">
-					<input id="username" name="username" type="text" placeholder="<?php echo lang_get( 'username' ) ?>"
+					<input id="username" name="username" type="text" placeholder="<?php echo $t_username_label ?>"
 						   size="32" maxlength="<?php echo DB_FIELD_SIZE_USERNAME;?>" value="<?php echo string_attribute( $f_username ); ?>"
 						   class="form-control <?php echo $t_username_field_autofocus ?>">
 					<i class="ace-icon fa fa-user"></i>

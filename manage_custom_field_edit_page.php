@@ -310,6 +310,7 @@ $t_definition = custom_field_get_definition( $f_field_id );
            * We may need to add extra checks to exclude projects from the list that the user
 		   * can't link/unlink fields from/to. */
 ?>
+
 <div class="col-md-12 col-xs-12">
 	<div class="space-10"></div>
 
@@ -325,17 +326,17 @@ $t_definition = custom_field_get_definition( $f_field_id );
 		<div class="widget-main no-padding">
 			<div class="table-responsive">
 			<table class="table table-bordered table-condensed table-striped">
+			
+			<form id="manage-custom-field-link-form" method="post" action="manage_custom_field_proj_add.php">
+			<div class="form-container" id="manage-custom-field-link-div">
 				<tr id="custom-field-link-project">
 				<td class="category">
-					<?php echo lang_get( 'link_custom_field_to_project_title' ) ?>
+					<?php echo lang_get( 'linked_projects_label' ) ?>
 				</td>
 				<td>
 					<?php print_custom_field_projects_list( $f_field_id ); ?>
 				</td>
 				</tr>
-
-				<form method="post" action="manage_custom_field_proj_add.php">
-				<div class="form-container">
 
 				<input type="hidden" name="field_id" value="<?php echo $f_field_id ?>" />
 				<?php echo form_security_field( 'manage_custom_field_proj_add' ); ?>

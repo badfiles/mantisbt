@@ -66,14 +66,13 @@ if( auth_is_user_authenticated() ) {
 	auth_logout();
 }
 
-$f_username = gpc_get_string( 'username' );
 $f_email = gpc_get_string( 'email' );
 
 email_ensure_valid( $f_email );
 
 # @todo Consider moving this query to user_api.php
-$t_query = 'SELECT id FROM {user} WHERE username = ' . db_param() . ' AND email = ' . db_param() . ' AND enabled=' . db_param();
-$t_result = db_query( $t_query, array( $f_username, $f_email, true ) );
+$t_query = 'SELECT id FROM {user} WHERE email = ' . db_param() . ' AND enabled=' . db_param();
+$t_result = db_query( $t_query, array( $f_email, true ) );
 $t_row = db_fetch_array( $t_result );
 
 if( !$t_row ) {
@@ -112,18 +111,10 @@ layout_page_begin();
 <div class="col-md-12 col-xs-12">
 <div class="space-10"></div>
 <table class="width50" cellspacing="1">
-<tr>
-	<td class="center">
-		<strong><?php echo lang_get( 'lost_password_done_title' ) ?></strong>
-	</td>
-</tr>
-<tr>
-	<td>
-		<br/>
+<div class="alert alert-info">
+    <i class="fa fa-info-circle"></i>
 		<?php echo lang_get( 'reset_request_in_progress_msg' ) ?>
-		<br/><br/>
-	</td>
-</tr>
+</div>
 </table>
 <br />
 <?php print_button( 'login_page.php', lang_get( 'proceed' ) ); ?>

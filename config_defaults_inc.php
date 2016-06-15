@@ -33,6 +33,28 @@
  */
 
 ##############################
+# MantisBT Offline Settings #
+##############################
+
+/**
+ * Put on MantisBT offline mode
+ * @global integer $g_put_offline
+ */
+$g_put_offline = OFF;
+
+/**
+ * Script to redirect all users to in offline mode
+ * @global string $g_offline_script
+ */
+$g_offline_script = 'mantis_offline.php';
+
+/**
+ * Value to send with '?mbadmin=' to override offline mode
+ * @global string $g_offline_override_key
+ */
+$g_offline_override_key = '1';
+
+##############################
 # MantisBT Database Settings #
 ##############################
 
@@ -224,7 +246,7 @@ $g_path	= $t_protocol . '://' . $t_host . $t_path;
  * requires trailing /
  * @global string $g_icon_path
  */
-$g_icon_path = '%path%images/';
+$g_icon_path = 'images/';
 
 /**
  * Short web path without the domain name
@@ -999,6 +1021,17 @@ $g_excel_columns = array (
 $g_show_bug_project_links = ON;
 
 /**
+ * Position of the status color legend
+ * Allowed values are:
+ * - STATUS_LEGEND_POSITION_NONE - do not display the legend at all
+ * - STATUS_LEGEND_POSITION_TOP
+ * - STATUS_LEGEND_POSITION_BOTTOM (default)
+ * - STATUS_LEGEND_POSITION_BOTH
+ * @global integer $g_status_legend_position
+ */
+$g_status_legend_position = STATUS_LEGEND_POSITION_BOTTOM;
+
+/**
  * Show a legend with percentage of bug status
  * x% of all bugs are new, y% of all bugs are assigned and so on.
  * If set to ON it will printed below the status colour legend.
@@ -1139,12 +1172,16 @@ $g_normal_date_format = 'Y-m-d H:i';
 $g_complete_date_format = 'Y-m-d H:i T';
 
 /**
- * jscalendar date format string
- * go to http://www.php.net/manual/en/function.date.php
- * for detailed instructions on date formatting
+ * jquery-ui datepicker date format string
  * @global string $g_calendar_js_date_format
  */
-$g_calendar_js_date_format = '\%Y-\%m-\%d \%H:\%M';
+$g_calendar_js_date_format = 'yy-mm-dd';
+
+/**
+ * jquery-ui datepicker time addon time format string
+ * @global string $g_calendar_js_date_format
+ */
+$g_calendar_js_time_format = 'HH:mm';
 
 /**
  * jscalendar date format string
@@ -1712,10 +1749,17 @@ $g_attachments_file_permissions = 0400;
 
 /**
  * Maximum file size that can be uploaded
- * Also check your PHP settings (default is usually 2MBs)
+ * Also check your PHP settings (default is usually 2MiBs)
  * @global integer $g_max_file_size
  */
-$g_max_file_size = 5000000;
+$g_max_file_size = 5 * 1024 * 1024;
+
+/**
+ * Default unit system to dislpay file sizes
+ * BINARY or DECIMAL
+ * @global int $g_file_size_system
+ */
+$g_file_size_system = BINARY;
 
 /**
  * Maximum number of files that can be uploaded simultaneously
@@ -1771,6 +1815,13 @@ $g_file_download_xsendfile_enabled = OFF;
  * @global string $g_file_download_xsendfile_header_name
  */
 $g_file_download_xsendfile_header_name = 'X-Sendfile';
+
+/**
+* Threshold for showing 'Include files to the nearest notification' checkbox
+* in the file upload dialog in bug view.
+* @global int $g_send_attachments_threshold
+*/
+$g_send_attachments_threshold = MANAGER;
 
 ##########################
 # MantisBT HTML Settings #
@@ -2932,6 +2983,12 @@ $g_allow_no_category = OFF;
 $g_limit_reporters = OFF;
 
 /**
+ * Access level HIGHER than this overrides limit_reporters
+ * @global integer $g_limit_reporters_override_threshold
+ */
+$g_limit_reporters_override_threshold = REPORTER;
+
+/**
  * reporter can close. Allow reporters to close the bugs they reported, after
  * they are marked resolved.
  * @global integer $g_allow_reporter_close
@@ -3574,6 +3631,8 @@ $g_file_type_icons = array(
 	'reg'	=> 'fa-file',
 	'rtf'	=> 'fa-file-word-o',
 	'tar'	=> 'fa-file-archive-o',
+	'tif'	=> 'fa-file-image-o',
+	'tiff'	=> 'fa-file-image-o',
 	'tgz'	=> 'fa-file-archive-o',
 	'txt'	=> 'fa-file-text-o',
 	'uc2'	=> 'fa-file-archive-o',

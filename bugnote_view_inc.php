@@ -87,7 +87,6 @@ $t_num_notes = count( $t_bugnotes );
 
 <?php # Bugnotes BEGIN ?>
 <div class="col-md-12 col-xs-12">
-<a id="bugnotes"></a>
 <div class="space-10"></div>
 
 <?php
@@ -112,6 +111,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 	<div class="widget-main no-padding">
 	<div class="table-responsive">
 	<table class="table table-bordered table-condensed table-striped">
+
 <?php
 	# no bugnotes
 	if( 0 == $t_num_notes ) {
@@ -173,7 +173,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 		<td class="category">
 		<div class="pull-left padding-2"><?php print_avatar( $t_bugnote->reporter_id ); ?>
 		</div>
-		<div class="pull-left padding-2">
+		<div class="padding-2">
 		<p class="no-margin">
 			<?php
 			echo '<i class="fa fa-user grey"></i> ';
@@ -192,7 +192,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 			if( user_exists( $t_bugnote->reporter_id ) ) {
 				$t_access_level = access_get_project_level( null, (int)$t_bugnote->reporter_id );
 				$t_label = layout_is_rtl() ? 'arrowed-right' : 'arrowed-in-right';
-				echo '<span class="label label-sm label-default ' . $t_label . '">', get_enum_element( 'access_levels', $t_access_level ), '</span>';
+				echo '<span class="label label-sm label-default ' . $t_label . '">', access_level_get_string( $t_access_level ), '</span>';
 			}
 			?>
 			&#160;
@@ -352,4 +352,3 @@ if( $t_total_time > 0 && $t_show_time_tracking ) {
 }
 ?>
 </div>
-

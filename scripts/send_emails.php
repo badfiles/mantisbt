@@ -23,6 +23,7 @@
 /**
  * Global Bypass http headers
  */
+
 global $g_bypass_headers;
 $g_bypass_headers = 1;
 
@@ -36,8 +37,8 @@ if( php_sapi_name() != 'cli' ) {
 	exit( 1 );
 }
 
-echo "Sending emails...\n";
+#echo "Sending emails...\n";
 email_send_all();
-echo "Done.\n";
+#echo "Done.\n";
 
 exit( 0 );

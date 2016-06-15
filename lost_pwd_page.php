@@ -60,11 +60,11 @@ layout_login_page_begin();
 <div class="col-md-offset-3 col-md-6 col-sm-10 col-sm-offset-1">
 <div id="lost-password-div" class="login-container">
 	<div class="space-12 hidden-480"></div>
-	<a href="<?php echo config_get( 'logo_url' ) ?>">
+	<!-- <a href="<?php echo config_get( 'logo_url' ) ?>">
 		<h1 class="center white">
 			<img src="<?php echo helper_mantis_url( config_get( 'logo_image' ) ); ?>">
 		</h1>
-	</a>
+	</a> -->
 	<div class="space-24 hidden-480"></div>
 	<div class="position-relative">
 	<div class="signup-box visible widget-box no-border" id="login-box">
@@ -82,13 +82,6 @@ layout_login_page_begin();
 
 			$t_allow_passwd = helper_call_custom_function( 'auth_can_change_password', array() );
 			if( $t_allow_passwd ) { ?>
-				<label for="username" class="block clearfix">
-				<span class="block input-icon input-icon-right">
-					<input id="username" name="username" type="text"
-						size="32" maxlength="<?php echo DB_FIELD_SIZE_USERNAME;?>" class="form-control autofocus">
-					<i class="ace-icon fa fa-user"></i>
-				</span>
-				</label>
 				<label for="email-field" class="block clearfix">
 				<span class="block input-icon input-icon-right">
 					<input id="email-field" name="email" type="text"
@@ -112,7 +105,9 @@ layout_login_page_begin();
 	</div>
 		<div class="toolbar center">
 			<a class="back-to-login-link pull-left" href="login_page.php"><?php echo lang_get( 'login_link' ); ?></a>
+			<?php if( ON == config_get_global( 'allow_signup' ) ) { ?>
 			<a class="back-to-login-link pull-right" href="signup_page.php"><?php echo lang_get( 'signup_link' ); ?></a>
+			<?php } ?>
 			<div class="clearfix"></div>
 		</div>
 	</div>

@@ -30,6 +30,7 @@
  * @uses category_api.php
  * @uses config_api.php
  * @uses constant_inc.php
+ * @uses current_user_api.php
  * @uses custom_field_api.php
  * @uses event_api.php
  * @uses form_api.php
@@ -51,6 +52,7 @@ require_api( 'bugnote_api.php' );
 require_api( 'category_api.php' );
 require_api( 'config_api.php' );
 require_api( 'constant_inc.php' );
+require_api( 'current_user_api.php' );
 require_api( 'custom_field_api.php' );
 require_api( 'event_api.php' );
 require_api( 'form_api.php' );
@@ -206,20 +208,34 @@ foreach( $f_bug_arr as $t_bug_id ) {
 		case 'UP_STATUS':
 			$f_status = gpc_get_int( 'status' );
 			if( access_has_bug_level( access_get_status_threshold( $f_status, $t_bug->project_id ), $t_bug_id ) ) {
-				if( true == bug_check_workflow( $t_status, $f_status ) ) {
+				if( true == bug_check_workflow( $t_status, $f_status )
+					|| access_compare_level( current_user_get_access_level(), config_get_access( 'status_enum_workflow' ) )
+					) {
 					# @todo we need to issue a helper_call_custom_function( 'issue_update_validate', array( $t_bug_id, $t_bug_data, $f_bugnote_text ) );
-					bug_set_field( $t_bug_id, 'status', $f_status );
-
-					# Add bugnote if supplied
+					$t_status_changed = $t_status !== $f_status;
 					if( !is_blank( $f_bug_notetext ) ) {
-						$t_bugnote_id = bugnote_add( $t_bug_id, $f_bug_notetext, null, $f_bug_noteprivate );
+						$t_bugnote_id = bugnote_add( $t_bug_id, $f_bug_notetext, null, $f_bug_noteprivate, BUGNOTE, '', null, !$t_status_changed );
 						bugnote_process_mentions( $t_bug_id, $t_bugnote_id, $f_bug_notetext );
-						# No need to call email_generic(), bugnote_add() does it
-					} else {
-						email_bug_updated( $t_bug_id );
 					}
-
-					helper_call_custom_function( 'issue_update_notify', array( $t_bug_id ) );
+					if( $t_status_changed ) {
+						bug_set_field( $t_bug_id, 'status', $f_status );
+						
+						if( config_get( 'auto_set_handler_on_status_change' ) ) {
+							$t_handler_id = (int)MantisEnum::getLabel( config_get( 'soft_handler_on_status' ), $f_status );
+							if( $t_handler_id !== 0 ) {
+								bug_assign( $t_bug_id, $t_handler_id );
+							}
+						}
+						
+						$t_new_status_label = MantisEnum::getLabel( config_get( 'status_enum_string' ), $f_status );
+						$t_new_status_label = str_replace( ' ', '_', $t_new_status_label );
+						email_bug_status_changed( $t_bug_id, $t_new_status_label );
+					} else {
+						$t_failed_ids[$t_bug_id] = lang_get( 'bug_actiongroup_same_status' );
+					}
+					if( $t_status_changed || !is_blank( $f_bug_notetext ) ) {
+						helper_call_custom_function( 'issue_update_notify', array( $t_bug_id ) );
+					}
 				} else {
 					$t_failed_ids[$t_bug_id] = lang_get( 'bug_actiongroup_status' );
 				}
@@ -356,7 +372,8 @@ if( count( $t_failed_ids ) > 0 ) {
 	$separator = lang_get( 'word_separator' );
 	foreach( $t_failed_ids as $t_id => $t_reason ) {
 		$label = sprintf( lang_get( 'label' ), string_get_bug_view_link( $t_id ) ) . $separator;
-		printf( "<tr><td width=\"50%%\">%s%s</td><td>%s</td></tr>\n", $label, bug_get_field( $t_id, 'summary' ), $t_reason );
+		printf( "<tr><td width=\"50%%\"><div class=\"alert alert-info\">%s%s</div></td><td><div class=\"alert alert-danger\">%s</div></td></tr>\n", $label, bug_get_field( $t_id, 'summary' ), $t_reason );
+
 	}
 	echo '</div>';
 	echo '</table><br />';

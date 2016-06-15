@@ -71,28 +71,6 @@ layout_page_begin();
 
 echo '<div class="col-md-6 col-xs-12">';
 
-if( !current_user_is_anonymous() ) {
-	$t_current_user_id = auth_get_current_user_id();
-	$t_hide_status = config_get( 'bug_resolved_status_threshold' );
-	echo '<span class="bigger-120">';
-	echo lang_get( 'open_and_assigned_to_me_label' ) . lang_get( 'word_separator' );
-	print_link( "view_all_set.php?type=1&handler_id=$t_current_user_id&hide_status=$t_hide_status", current_user_get_assigned_open_bug_count() );
-
-	echo '<br />';
-
-	echo lang_get( 'open_and_reported_to_me_label' ) . lang_get( 'word_separator' );
-	print_link( "view_all_set.php?type=1&reporter_id=$t_current_user_id&hide_status=$t_hide_status", current_user_get_reported_open_bug_count() );
-
-	echo '<br />';
-
-	echo lang_get( 'last_visit_label' ) . lang_get( 'word_separator' );
-	echo date( config_get( 'normal_date_format' ), current_user_get_field( 'last_visit' ) );
-	echo '</span>';
-}
-
-echo '</div>';
-echo '<div class="col-md-6 col-xs-12">';
-
 if( news_is_enabled() && access_has_project_level( config_get( 'manage_news_threshold' ) ) ) {
 	# Admin can edit news for All Projects (site-wide)
 	if( ALL_PROJECTS != helper_get_current_project() || current_user_is_administrator() ) {

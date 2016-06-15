@@ -81,6 +81,7 @@ require_api( 'version_api.php' );
 require_css( 'status_config.php' );
 
 $f_bug_id = gpc_get_int( 'id' );
+$f_bug_dak = gpc_get_string( 'dak', '');
 
 bug_ensure_exists( $f_bug_id );
 
@@ -91,7 +92,13 @@ $t_bug = bug_get( $f_bug_id, true );
 # per-project function calls use the project ID of this bug.
 $g_project_override = $t_bug->project_id;
 
-access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
+if( ( $f_bug_dak == '' ) ||
+    ( $f_bug_dak !== $t_bug->direct_access_key ) ) {
+	$t_direct_access = false;
+	access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
+} else {
+	$t_direct_access = true;
+}
 
 $f_history = gpc_get_bool( 'history', config_get( 'history_default_visible' ) );
 
@@ -179,7 +186,7 @@ $t_bug_overdue = bug_is_overdue( $f_bug_id );
 $t_show_view_state = in_array( 'view_state', $t_fields );
 $t_bug_view_state_enum = $t_show_view_state ? string_display_line( get_enum_element( 'view_state', $t_bug->view_state ) ) : '';
 
-$t_show_due_date = in_array( 'due_date', $t_fields ) && access_has_bug_level( config_get( 'due_date_view_threshold' ), $f_bug_id );
+$t_show_due_date = in_array( 'due_date', $t_fields ) && ( access_has_bug_level( config_get( 'due_date_view_threshold' ), $f_bug_id ) || $t_direct_access );
 
 if( $t_show_due_date ) {
 	if( !date_is_null( $t_bug->due_date ) ) {
@@ -310,17 +317,16 @@ echo '</div>';
 echo '<div class="widget-main no-padding">';
 echo '<div class="table-responsive">';
 echo '<table class="table table-bordered table-condensed">';
-echo '<thead><tr class="bug-nav">';
 
 if( $t_top_buttons_enabled ) {
+	echo '<thead><tr class="bug-nav">';
 	echo '<tr class="top-buttons">';
 	echo '<td colspan="6">';
 	html_buttons_view_bug_page( $t_bug_id );
 	echo '</td>';
 	echo '</tr>';
+	echo '</thead>';
 }
-
-echo '</thead>';
 
 if( $t_bottom_buttons_enabled ) {
 	echo '<tfoot>';
@@ -664,7 +670,7 @@ if( $t_show_summary ) {
 if( $t_show_description ) {
 	echo '<tr>';
 	echo '<th class="bug-description category">', lang_get( 'description' ), '</th>';
-	echo '<td class="bug-description" colspan="5">', $t_description, '</td>';
+	echo '<td class="bug-description bigger-150" colspan="5">', $t_description, '</td>';
 	echo '</tr>';
 }
 
@@ -715,14 +721,16 @@ foreach( $t_related_custom_field_ids as $t_id ) {
 		continue;
 	} # has read access
 
-	$t_custom_fields_found = true;
 	$t_def = custom_field_get_definition( $t_id );
-
-	echo '<tr>';
-	echo '<th class="bug-custom-field category">', string_display( lang_get_defaulted( $t_def['name'] ) ), '</th>';
-	echo '<td class="bug-custom-field" colspan="5">';
-	print_custom_field_value( $t_def, $t_id, $f_bug_id );
-	echo '</td></tr>';
+	$t_val = string_custom_field_value( $t_def, $t_id, $f_bug_id );
+	if( $t_val <> '' ) {
+		$t_custom_fields_found = true;
+		echo '<tr>';
+		echo '<th class="bug-custom-field category">', string_display( lang_get_defaulted( $t_def['name'] ) ), '</th>';
+		echo '<td class="bug-custom-field" colspan="5">';
+		echo $t_val;
+		echo '</td></tr>';
+	}
 }
 
 if( $t_custom_fields_found ) {
@@ -736,7 +744,7 @@ if( $t_show_attachments ) {
 	echo '<tr id="attachments">';
 	echo '<th class="bug-attachments category">', lang_get( 'attached_files' ), '</th>';
 	echo '<td class="bug-attachments" colspan="5">';
-	print_bug_attachments_list( $t_bug_id );
+	print_bug_attachments_list( $t_bug_id, $t_direct_access );
 	echo '</td></tr>';
 }
 
@@ -755,7 +763,7 @@ if( $t_show_relationships_box ) {
 }
 
 # File upload box
-if( $t_show_upload_form ) {
+if( $t_show_upload_form && !$t_direct_access ) {
 	define( 'BUG_FILE_UPLOAD_INC_ALLOW', true );
 	include( $t_mantis_dir . 'bug_file_upload_inc.php' );
 }

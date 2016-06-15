@@ -54,6 +54,7 @@ require_api( 'print_api.php' );
 form_security_validate( 'bugnote_add' );
 
 $f_bug_id		= gpc_get_int( 'bug_id' );
+$f_bug_dak		= gpc_get_string( 'bug_dak' );
 $f_private		= gpc_get_bool( 'private' );
 $f_time_tracking	= gpc_get_string( 'time_tracking', '0:00' );
 $f_bugnote_text	= trim( gpc_get_string( 'bugnote_text', '' ) );
@@ -71,7 +72,13 @@ if( bug_is_readonly( $t_bug->id ) ) {
 	trigger_error( ERROR_BUG_READ_ONLY_ACTION_DENIED, ERROR );
 }
 
-access_ensure_bug_level( config_get( 'add_bugnote_threshold' ), $t_bug->id );
+if( ( $f_bug_dak == '' ) || ( $f_bug_dak !== $t_bug->direct_access_key ) ) {
+	$t_direct_access = false;
+	access_ensure_bug_level( config_get( 'add_bugnote_threshold' ), $t_bug->id );
+} else {
+	$t_direct_access = true;
+}
+
 
 if( $f_private ) {
 	access_ensure_bug_level( config_get( 'set_view_status_threshold' ), $t_bug->id );
@@ -83,12 +90,12 @@ if( $f_files !== null ) {
 		access_denied();
 	}
 
-	file_process_posted_files_for_bug( $f_bug_id, $f_files );
+	file_process_posted_files_for_bug( $f_bug_id, $f_files, false, $f_private );
 }
 
 # We always set the note time to BUGNOTE, and the API will overwrite it with TIME_TRACKING
 # if $f_time_tracking is not 0 and the time tracking feature is enabled.
-$t_bugnote_id = bugnote_add( $t_bug->id, $f_bugnote_text, $f_time_tracking, $f_private, BUGNOTE );
+$t_bugnote_id = bugnote_add( $t_bug->id, $f_bugnote_text, $f_time_tracking, $f_private, BUGNOTE, '', null, !$t_direct_access );
 if( !$t_bugnote_id ) {
 	error_parameters( lang_get( 'bugnote' ) );
 	trigger_error( ERROR_EMPTY_FIELD, ERROR );
@@ -115,4 +122,8 @@ if( config_get( 'reassign_on_feedback' ) &&
 
 form_security_purge( 'bugnote_add' );
 
-print_successful_redirect_to_bug( $t_bug->id );
+if( !$t_direct_access )  {
+	print_successful_redirect_to_bug( $t_bug->id ); 
+} else {
+	header( "Location: " . $_SERVER["HTTP_REFERER"] );
+}
