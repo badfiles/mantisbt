@@ -1951,10 +1951,10 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 			echo '<a href="' . string_attribute( $p_attachment['download_url'] ) . '">';
 		}
 		if( $p_attachment['to_send'] == true ) {
-			print_file_icon( 'file.eml' );
+			echo '<i class="ace-icon fa fa-envelope"></i>&nbsp;';
 		}
 		if( $p_attachment['protected'] == true ) {
-			echo '';
+			echo '<i class="ace-icon fa fa-lock"></i>&nbsp;';
 		}
 		print_file_icon( $p_attachment['display_name'] );
 		if( $p_attachment['can_download'] ) {
@@ -1983,18 +1983,16 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 			lang_get( 'delete_link' ), 'btn-xs' );
 	}
 
-	if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) ) ) {
-		echo lang_get( 'word_separator' ) . '[';
-		print_link( 'bug_file_toggle.php?action=s&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_to_send_toggle' ),
-		lang_get( $p_attachment['to_send'] ? 'rem_send_link' : 'set_send_link' ), false, 'small' );
-		echo ']';
+	if( access_compare_level( current_user_get_access_level( ), config_get( 'send_attachments_threshold' ) ) ) {
+		echo lang_get( 'word_separator' ) . '&#160;&#160;';
+		print_button( 'bug_file_toggle.php?action=s&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_to_send_toggle' ),
+			 lang_get( $p_attachment['to_send'] ? 'rem_send_link' : 'set_send_link' ), 'btn-xs' );
 	}
 
-	if( access_compare_level( current_user_get_access_level(), config_get( 'handle_protected_attachments_threshold' ) ) ) {
-		echo lang_get( 'word_separator' ) . '[';
-		print_link( 'bug_file_toggle.php?action=l&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_protected_toggle' ),
-		lang_get( $p_attachment['protected'] ? 'rem_lock_link' : 'set_lock_link' ), false, 'small' );
-		echo ']';
+	if( access_compare_level( current_user_get_access_level( ), config_get( 'handle_protected_attachments_threshold' ) ) ) {
+		echo lang_get( 'word_separator' ) . '&#160;&#160;';
+		print_button( 'bug_file_toggle.php?action=l&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_protected_toggle' ),
+			 lang_get( $p_attachment['protected'] ? 'rem_lock_link' : 'set_lock_link' ), 'btn-xs' );
 	}
 }
 
