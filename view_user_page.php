@@ -91,14 +91,6 @@ layout_page_begin();
 	<fieldset>
 	<tr>
 		<th class="category">
-			<?php echo lang_get( 'username' ) ?>
-		</th>
-		<td>
-			<?php echo string_display_line( $u_username ) ?>
-		</td>
-	</tr>
-	<tr>
-		<th class="category">
 			<?php echo lang_get( 'email' ) ?>
 		</th>
 		<td>
@@ -119,7 +111,7 @@ layout_page_begin();
 		<?php echo lang_get( 'realname' ) ?>
 		</th>
 		<td><?php
-			if( ! ( $t_can_manage || $t_can_see_realname ) ) {
+			if( ! ( $t_can_manage || $t_can_see_email ) ) {
 				print error_string( ERROR_ACCESS_DENIED );
 			} else {
 				echo string_display_line( $u_realname );
