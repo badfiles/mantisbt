@@ -74,34 +74,38 @@ class ImportXml_Issue implements ImportXml_Interface {
 	 */
 	public function process( XMLreader $t_reader ) {
 		# print "\nImportIssue process()\n";
-		$t_project_id = helper_get_current_project(); # TODO: category_get_id_by_name could work by default on current project
-		$t_user_id = auth_get_current_user_id( );
+#		$t_project_id = helper_get_current_project(); # TODO: category_get_id_by_name could work by default on current project
+#		$t_user_id = auth_get_current_user_id();
 
 		$t_custom_fields = array();
 		$t_bugnotes = array();
 		$t_attachments = array();
-
+		$t_email = '';
 		$t_depth = $t_reader->depth;
 		while( $t_reader->read() &&
 				($t_reader->depth > $t_depth ||
 				 $t_reader->nodeType != XMLReader::END_ELEMENT)) {
 			if( $t_reader->nodeType == XMLReader::ELEMENT ) {
 				switch( $t_reader->localName ) {
+					
+					case 'email':
+						$t_reader->read( );
+						preg_match_all( '/([a-z0-9_\.\-])+\@(([a-z0-9\-])+\.)+([a-zа-я0-9]{2,9})+/i', $t_reader->value, $t_emails );
+						$t_email = $t_emails[0][0];
+					break;
+					
+					case 'append':
+						$t_reader->read( );
+						$t_append = (bool)$t_reader->value;
+					break;
+
 					case 'reporter':
 						$t_old_id = $t_reader->getAttribute( 'id' );
 						$t_reader->read( );
-						$this->newbug_->reporter_id = $this->get_user_id( $t_reader->value, $t_user_id );
+						$this->newbug_->reporter_id = $this->get_user_id( $t_reader->value, $t_email, $t_old_id );
 
 						# echo "reporter: old id = $t_old_id - new id = {$this->newbug_->reporter_id}\n";
-						break;
-
-					case 'handler':
-						$t_old_id = $t_reader->getAttribute( 'id' );
-						$t_reader->read( );
-						$this->newbug_->handler_id = $this->get_user_id( $t_reader->value, $t_user_id );
-
-						# echo "handler: old id = $t_old_id - new id = {$this->newbug_->handler_id}\n";
-						break;
+					break;
 
 					case 'category':
 						$this->newbug_->category_id = $this->defaultCategory_;
@@ -124,7 +128,7 @@ class ImportXml_Issue implements ImportXml_Interface {
 
 							# echo "new id = {$this->newbug_->category_id}\n";
 						}
-						break;
+					break;
 
 					case 'eta':
 					case 'priority':
@@ -135,24 +139,33 @@ class ImportXml_Issue implements ImportXml_Interface {
 					case 'status':
 					case 'view_state':
 						$t_field = $t_reader->localName;
-						$t_id = $t_reader->getAttribute( 'id' );
+						$t_id = (int)$t_reader->getAttribute( 'id' );
 						$t_reader->read( );
 						$t_value = $t_reader->value;
 
 						# Here we assume ids have the same meaning in both installations
 						# TODO add a check for customized values
 						$this->newbug_->$t_field = $t_id;
-						break;
+					break;
 
 					case 'id':
 						$t_reader->read( );
 						$this->old_id_ = $t_reader->value;
 						break;
 
+					case 'handler':
+						$t_old_id = $t_reader->getAttribute( 'id' );
+						$t_reader->read( );
+#						$this->newbug_->handler_id = $t_old_id;
+						$this->newbug_->handler_id = 0;
+					break;
+
 					case 'project';
-						# ignore original value, use current project
-						$this->newbug_->project_id = $t_project_id;
-						break;
+						$t_proj_id = $t_reader->getAttribute( 'id' );
+						$t_reader->read( );
+#						$this->newbug_->project_id = $t_proj_id;
+						$this->newbug_->project_id = 3;
+					break;
 
 					case 'custom_fields':
 						# store custom fields
@@ -173,7 +186,7 @@ class ImportXml_Issue implements ImportXml_Interface {
 								}
 							}
 						}
-						break;
+					break;
 
 					case 'bugnotes':
 						# store bug notes
@@ -206,7 +219,7 @@ class ImportXml_Issue implements ImportXml_Interface {
 								}
 							}
 						}
-						break;
+					break;
 
 					case 'attachments':
 						# store attachments
@@ -227,7 +240,13 @@ class ImportXml_Issue implements ImportXml_Interface {
 								}
 							}
 						}
-						break;
+					break;
+
+					case 'summary':
+						$t_reader->read( );
+						$this->newbug_->summary = serialize( array( $t_reader->value ) );
+					break;
+
 					default:
 						$t_field = $t_reader->localName;
 
@@ -238,15 +257,61 @@ class ImportXml_Issue implements ImportXml_Interface {
 			}
 		}
 
-		# now save the new bug
-		$this->new_id_ = $this->newbug_->create();
+		# now save the new bug or update existing
+		if( bug_exists( $this->old_id_ ) ) {
+			$t_old_bug = bug_get( $this->old_id_, true );
+			$this->new_id_ = $this->old_id_;
+			$this->newbug_->id = $this->old_id_;
+			if ( $t_append ) {
+				$this->newbug_->summary			= $t_old_bug->summary . "; " . unserialize( $this->newbug_->summary )[0];
+				$this->newbug_->description		= $t_old_bug->description . "\r\n" . $this->newbug_->description;
+				$this->newbug_->additional_information	= $t_old_bug->additional_information . "\r\n" . $this->newbug_->additional_information;
+			} else {
+				$this->newbug_->summary 	= unserialize( $this->newbug_->summary )[0];
+			}
+			$this->newbug_->project_id		= $t_old_bug->project_id;
+			$this->newbug_->handler_id		= $t_old_bug->handler_id;
+			$this->newbug_->duplicate_id		= $t_old_bug->duplicate_id;
+			$this->newbug_->priority		= $t_old_bug->priority;
+			$this->newbug_->severity		= $t_old_bug->severity;
+			$this->newbug_->reproducibility		= $t_old_bug->reproducibility;
+			$this->newbug_->status			= $t_old_bug->status;
+			$this->newbug_->resolution		= $t_old_bug->resolution;
+			$this->newbug_->projection		= $t_old_bug->projection;
+			$this->newbug_->category_id		= $t_old_bug->category_id;
+			$this->newbug_->eta			= $t_old_bug->eta;
+			$this->newbug_->os			= $t_old_bug->os;
+			$this->newbug_->os_build		= $t_old_bug->os_build;
+			$this->newbug_->version			= $t_old_bug->version;
+			$this->newbug_->build			= $t_old_bug->build;
+			$this->newbug_->fixed_in_version	= $t_old_bug->fixed_in_version;
+			$this->newbug_->target_version		= $t_old_bug->target_version;
+			$this->newbug_->view_state		= $t_old_bug->view_state;
+			$this->newbug_->sponsorship_total	= $t_old_bug->sponsorship_total;
+			$this->newbug_->sticky			= $t_old_bug->sticky;
+			$this->newbug_->due_date 		= $t_old_bug->due_date;
+			$this->newbug_->steps_to_reproduce	= $t_old_bug->steps_to_reproduce;
+
+			$this->newbug_->update( true, true );
+		} else {
+			$this->new_id_ = $this->newbug_->create();
+		}
 
 		# add custom fields
 		if( $this->new_id_ > 0 && is_array( $t_custom_fields ) && count( $t_custom_fields ) > 0 ) {
 			foreach( $t_custom_fields as $t_custom_field ) {
 				$t_custom_field_id = custom_field_get_id_from_name( $t_custom_field->name );
-				if( custom_field_ensure_exists( $t_custom_field_id ) && custom_field_is_linked( $t_custom_field_id, $t_project_id ) ) {
-					custom_field_set_value( $t_custom_field->id, $this->new_id_, $t_custom_field->value );
+				if( custom_field_ensure_exists( $t_custom_field_id ) && custom_field_is_linked( $t_custom_field_id, $t_proj_id ) ) {
+					if( $t_custom_field_id == 7) {
+						custom_field_set_value( $t_custom_field_id, $this->new_id_, $t_email );
+					} else {
+						if ( $t_append ) {
+							$t_old_cs_value = custom_field_get_value( $t_custom_field_id, $this->new_id_ ) . " ";
+						} else {
+							$t_old_cs_value = '';
+						}
+						custom_field_set_value( $t_custom_field_id, $this->new_id_, $t_old_cs_value . $t_custom_field->value );
+					}
 				} else {
 					error_parameters( $t_custom_field->name, $t_custom_field_id );
 					trigger_error( ERROR_CUSTOM_FIELD_NOT_LINKED_TO_PROJECT, ERROR );
@@ -275,9 +340,8 @@ class ImportXml_Issue implements ImportXml_Interface {
 		# add attachments
 		if( $this->new_id_ > 0 && is_array( $t_attachments ) && count( $t_attachments ) > 0 ) {
 			foreach ( $t_attachments as $t_attachment ) {
-				# Create a temporary file in the temporary files directory using sys_get_temp_dir()
-				$t_temp_file_name = tempnam( sys_get_temp_dir(), 'MantisImport' );
-				file_put_contents( $t_temp_file_name, base64_decode( $t_attachment->content ) );
+#				$t_temp_file_name = "file:///var/ftp/out.jpg";
+				$t_temp_file_name = "file:///var/ftp/out.file";
 				$t_file_data = array(
 					'name'     => $t_attachment->filename,
 					'type'     => $t_attachment->file_type,
@@ -285,9 +349,9 @@ class ImportXml_Issue implements ImportXml_Interface {
 					'size'     => filesize( $t_temp_file_name ),
 					'error'    => UPLOAD_ERR_OK,
 				);
-				# unfortunately we have no clue who has added the attachment (this could only be fetched from history -> feel free to implement this)
-				# also I have no clue where description should come from...
-				file_add( $this->new_id_, $t_file_data, false, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, $t_attachment->date_added, true );
+				$t_no_send = (bool)$t_attachment->no_send;
+				file_add( $this->new_id_, $t_file_data, !$t_no_send , false, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, 0, true );
+#				file_add( $this->new_id_, $t_file_data, true, false, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, 0, true );
 				unlink( $t_temp_file_name );
 			}
 		}
@@ -323,14 +387,11 @@ class ImportXml_Issue implements ImportXml_Interface {
 	 * @param integer $p_squash_userid Fallback userid.
 	 * @return integer
 	*/
-	private function get_user_id( $p_username, $p_squash_userid = 0 ) {
-		$t_user_id = user_get_id_by_name( $p_username );
+	private function get_user_id( $p_username, $p_user_email = 'blah', $p_squash_userid = 0 ) {
+		$t_user_id = user_get_id_by_email( $p_user_email );
 		if( $t_user_id === false ) {
-			# user not found by username -> check real name
-			# keep in mind that the setting config_get( 'show_user_realname_threshold' ) may differ between import and export system!
-			$t_user_id = user_get_id_by_realname( $p_username );
+			$t_user_id = user_get_id_by_name( $p_username );
 			if( $t_user_id === false ) {
-				# not found
 				$t_user_id = $p_squash_userid;
 			}
 		}

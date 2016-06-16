@@ -129,7 +129,11 @@ class ImportXML {
 		$this->keepCategory_ = $p_keep_category;
 		$this->defaultCategory_ = $p_default_category;
 
-		$this->reader_->open( $p_filename['tmp_name'] );
+		if( is_string( $p_filename ) ) {
+			$this->reader_->open( $p_filename );
+		} else {
+			$this->reader_->open( $p_filename['tmp_name'] );
+		}
 	}
 
 	/**
@@ -146,7 +150,7 @@ class ImportXML {
 			$this->source_->format = $this->reader_->getAttribute( 'format' );
 		}
 
-		echo 'Importing file, please wait...';
+#		echo 'Importing file, please wait...';
 
 		# loop through the elements
 		while( $this->reader_->read( ) ) {
@@ -163,9 +167,12 @@ class ImportXML {
 					break;
 			}
 		}
+		
+		$t_imported_issues = $this->itemsMap_->getall( 'issue' );
+#		printf( 'Processed %s issues', count( $t_imported_issues ) );
+#		echo "\n";
 
-		echo " Done\n";
-
+/**
 		# replace bug references
 		$t_imported_issues = $this->itemsMap_->getall( 'issue' );
 		printf( 'Processing cross-references for %s issues...', count( $t_imported_issues ) );
@@ -187,6 +194,7 @@ class ImportXML {
 
 		# @todo: replace references within bug notes
 		echo " Done\n";
+**/
 	}
 
 	/**
