@@ -420,7 +420,7 @@ function access_has_bug_level( $p_access_level, $p_bug_id, $p_user_id = null ) {
 		# build a static array holding that threshold for each project
 		static $s_thresholds = array();
 		if( !isset( $s_thresholds[$t_project_id] ) ) {
-			$t_report_bug_threshold = config_get( 'report_bug_threshold', null, $p_user_id, $t_project_id );
+			$t_report_bug_threshold = config_get( 'limit_reporters_override_threshold', null, $p_user_id, $t_project_id );
 			if( !is_array( $t_report_bug_threshold ) ) {
 				$s_thresholds[$t_project_id] = $t_report_bug_threshold + 1;
 			} else if( empty( $t_report_bug_threshold ) ) {
