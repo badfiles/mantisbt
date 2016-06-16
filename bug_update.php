@@ -418,6 +418,23 @@ if( $t_existing_bug->handler_id == NO_USER &&
 	$t_updated_bug->status = config_get( 'bug_assigned_status' );
 }
 
+# Handle automatic assignment on staus change.
+$t_same_status = $t_updated_bug->status === $t_existing_bug->status;
+if( !$t_same_status
+	&& config_get( 'auto_set_handler_on_status_change' )
+	) {
+	$t_soft_handler_id = (int)MantisEnum::getLabel( config_get( 'soft_handler_on_status' ), $t_updated_bug->status );
+	$t_hard_handler_id = (int)MantisEnum::getLabel( config_get( 'hard_handler_on_status' ), $t_updated_bug->status );
+	if( $t_soft_handler_id !== 0
+		&& $t_updated_bug->handler_id == $t_existing_bug->handler_id 
+		) {
+		$t_updated_bug->handler_id = $t_soft_handler_id;
+	}
+	if( $t_hard_handler_id !== 0 ) {
+		$t_updated_bug->handler_id = $t_hard_handler_id;
+	}
+}
+
 # Allow a custom function to validate the proposed bug updates. Note that
 # custom functions are being deprecated in MantisBT. You should migrate to
 # the new plugin system instead.
@@ -439,7 +456,7 @@ foreach ( $t_custom_fields_to_set as $t_custom_field_to_set ) {
 
 # Add a bug note if there is one.
 if( $t_bug_note->note || helper_duration_to_minutes( $t_bug_note->time_tracking ) > 0 ) {
-	$t_bugnote_id = bugnote_add( $f_bug_id, $t_bug_note->note, $t_bug_note->time_tracking, $t_bug_note->view_state == VS_PRIVATE, 0, '', null, false );
+	$t_bugnote_id = bugnote_add( $f_bug_id, $t_bug_note->note, $t_bug_note->time_tracking, $t_bug_note->view_state == VS_PRIVATE, 0, '', null, $t_same_status );
 	bugnote_process_mentions( $f_bug_id, $t_bugnote_id, $t_bug_note->note );
 }
 
@@ -466,7 +483,6 @@ helper_call_custom_function( 'issue_update_notify', array( $f_bug_id ) );
 
 # Send a notification of changes via email.
 if( $t_resolve_issue ) {
-	email_resolved( $f_bug_id );
 	email_relationship_child_resolved( $f_bug_id );
 } else if( $t_close_issue ) {
 	email_close( $f_bug_id );
@@ -475,12 +491,15 @@ if( $t_resolve_issue ) {
 	email_bug_reopened( $f_bug_id );
 } else if( $t_existing_bug->handler_id != $t_updated_bug->handler_id ) {
 	email_owner_changed( $f_bug_id, $t_existing_bug->handler_id, $t_updated_bug->handler_id );
-} else if( $t_existing_bug->status != $t_updated_bug->status ) {
+} else {
+	email_bug_updated( $f_bug_id );
+}
+
+# Always send a notification of status changes via email.
+if( !$t_same_status ) {
 	$t_new_status_label = MantisEnum::getLabel( config_get( 'status_enum_string' ), $t_updated_bug->status );
 	$t_new_status_label = str_replace( ' ', '_', $t_new_status_label );
 	email_bug_status_changed( $f_bug_id, $t_new_status_label );
-} else {
-	email_bug_updated( $f_bug_id );
 }
 
 form_security_purge( 'bug_update' );
