@@ -344,7 +344,7 @@ function column_get_title( $p_column ) {
 		case 'attachment_count':
 			return lang_get( 'attachments' );
 		case 'bugnotes_count':
-			return '#';
+			return lang_get( 'bgnts' );
 		case 'category_id':
 			return lang_get( 'category' );
 		case 'edit':
