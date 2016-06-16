@@ -265,7 +265,7 @@ if( $t_show_handler || $t_show_due_date ) {
 #
 # Priority, Severity, Reproducibility
 #
-
+/**
 if( $t_show_priority || $t_show_severity || $t_show_reproducibility ) {
 	echo '<tr>';
 
@@ -298,7 +298,7 @@ if( $t_show_priority || $t_show_severity || $t_show_reproducibility ) {
 
 	echo '</tr>';
 }
-
+*/
 #
 # Status, Resolution
 #
@@ -507,7 +507,7 @@ if( $t_show_tags ) {
 echo '<tr class="print">';
 echo '<td class="print-category">' . lang_get( 'bug_relationships' ) . '</td>';
 echo '<td class="print" colspan="5">' . relationship_get_summary_html_preview( $f_bug_id ) . '</td></tr>';
-
+/**
 if( $t_show_attachments ) {
 	echo '<tr>';
 	echo '<th class="bold">', lang_get( 'attached_files' ), '</th>';
@@ -542,11 +542,13 @@ if( $t_show_attachments ) {
 	echo '</td></tr>';
 	echo '<tr class="spacer"><td colspan="6"></td></tr>';
 }
+*/
 echo '</table>';
 
 define( 'PRINT_BUGNOTE_INC_ALLOW', true );
 include( dirname( __FILE__ ) . '/print_bugnote_inc.php' ) ;
 
+/**
 #
 # Issue History
 #
@@ -579,6 +581,7 @@ if( $t_show_history ) {
 	echo '<tr class="spacer"><td colspan="4"></td></tr>';
 	echo '</table>';
 }
+*/
 
 last_visited_issue( $f_bug_id );
 ?>
