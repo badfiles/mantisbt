@@ -540,12 +540,12 @@ function file_get_field( $p_file_id, $p_field_name, $p_table = 'bug' ) {
 function file_set_field( $p_file_id, $p_field_name, $p_field_value, $p_table = 'bug' ) {
 	$t_bug_file_table = db_get_table( $p_table . '_file' );
 	if( !db_field_exists( $p_field_name, $t_bug_file_table ) ) {
-	trigger_error( ERROR_DB_FIELD_NOT_FOUND, ERROR );
+		trigger_error( ERROR_DB_FIELD_NOT_FOUND, ERROR );
 	}
 
 	db_param_push();
-	$t_query = "UPDATE $t_bug_file_table SET $p_field_name=" . db_param() . " WHERE id=" . db_param();
-	$t_result = db_query_bound( $query, array( $p_field_value, (int)$p_file_id ));
+	$t_query = 'UPDATE ' . $t_bug_file_table . ' SET ' . $p_field_name . '=' . db_param() . ' WHERE id=' . db_param();
+	$t_result = db_query( $t_query, array( $p_field_value, (int)$p_file_id ), 1 );
 
 	return db_result( $t_result );
 }
