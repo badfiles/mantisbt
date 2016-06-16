@@ -57,6 +57,7 @@ require_api( 'bug_revision_api.php' );
 require_api( 'category_api.php' );
 require_api( 'config_api.php' );
 require_api( 'constant_inc.php' );
+require_api( 'crypto_api.php' );
 require_api( 'custom_field_api.php' );
 require_api( 'database_api.php' );
 require_api( 'date_api.php' );
@@ -528,8 +529,8 @@ class BugData {
 					      last_updated,eta, bug_text_id,
 					      os, os_build,platform, version,build,
 					      profile_id, summary, view_state, sponsorship_total, sticky, fixed_in_version,
-					      target_version, due_date
-					    )
+					      target_version, due_date, direct_access_key
+                          )
 					  VALUES
 					    ( ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
@@ -537,8 +538,9 @@ class BugData {
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
-					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ')';
-		db_query( $t_query, array( $this->project_id, $this->reporter_id, $this->handler_id, $this->duplicate_id, $this->priority, $this->severity, $this->reproducibility, $t_status, $this->resolution, $this->projection, $this->category_id, $this->date_submitted, $this->last_updated, $this->eta, $t_text_id, $this->os, $this->os_build, $this->platform, $this->version, $this->build, $this->profile_id, $this->summary, $this->view_state, $this->sponsorship_total, $this->sticky, $this->fixed_in_version, $this->target_version, $this->due_date ) );
+					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
+					      ' . db_param() . ')';
+		db_query( $t_query, array( $this->project_id, $this->reporter_id, $this->handler_id, $this->duplicate_id, $this->priority, $this->severity, $this->reproducibility, $t_status, $this->resolution, $this->projection, $this->category_id, $this->date_submitted, $this->last_updated, $this->eta, $t_text_id, $this->os, $this->os_build, $this->platform, $this->version, $this->build, $this->profile_id, $this->summary, $this->view_state, $this->sponsorship_total, $this->sticky, $this->fixed_in_version, $this->target_version, $this->due_date, crypto_generate_uri_safe_nonce( 32 ) ) );
 
 		$this->id = db_insert_id( db_get_table( 'bug' ) );
 
@@ -1578,18 +1580,21 @@ function bug_get_bugnote_stats( $p_bug_id ) {
 /**
  * Get array of attachments associated with the specified bug id.  The array will be
  * sorted in terms of date added (ASC).  The array will include the following fields:
- * id, title, diskfile, filename, filesize, file_type, date_added, user_id.
+ * id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send.
  * @param integer $p_bug_id Integer representing bug identifier.
+ * @param bool $p_only_to_send select files to be sent only
  * @return array array of results or empty array
  * @access public
  * @uses database_api.php
  * @uses file_api.php
  */
-function bug_get_attachments( $p_bug_id ) {
+function bug_get_attachments( $p_bug_id, $p_only_to_send = false ) {
 	db_param_push();
-	$t_query = 'SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id
+	$t_filter = '';
+	if( $p_only_to_send) $t_filter = ' AND to_send = true ';
+	$t_query = 'SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send, protected
 		                FROM {bug_file}
-		                WHERE bug_id=' . db_param() . '
+		                WHERE bug_id=' . db_param() . $t_filter . '
 		                ORDER BY date_added';
 	$t_db_result = db_query( $t_query, array( $p_bug_id ) );
 
