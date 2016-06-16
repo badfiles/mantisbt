@@ -390,9 +390,9 @@ function file_get_visible_attachments( $p_bug_id, $p_direct_access = false ) {
 
 		if( $t_attachment['can_download'] ) {
 			$t_attachment['download_url'] = 'file_download.php?file_id=' . $t_id . '&type=bug';
-        	if( $p_direct_access ) {
+			if( $p_direct_access ) {
 				$t_attachment['download_url'] .= '&dak=' . bug_get_field( $p_bug_id, 'direct_access_key' );
-			}    
+			}
 		}
 
 		if( $t_image_previewed ) {
