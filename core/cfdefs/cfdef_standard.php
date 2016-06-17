@@ -202,7 +202,7 @@ function cfdef_prepare_list_value_for_email( $p_value ) {
  * @return string
  */
 function cfdef_prepare_email_value_for_email( $p_value ) {
-	return 'mailto:' . $p_value;
+	return $p_value;
 }
 
 /**
