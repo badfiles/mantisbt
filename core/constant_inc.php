@@ -606,12 +606,12 @@ define( 'FTP', 1 );                                 # DISK
 define( 'ERROR_FTP_CONNECT_ERROR', 16 );            # N/A
 
 # JQuery and JQuery UI
-define ( 'JQUERY_VERSION', '2.1.4' );
+define ( 'JQUERY_VERSION', '2.2.4' );
 define ( 'JQUERY_UI_VERSION', '1.11.4' );
 
 # Bootstrap & FontAwesome
-define ( 'BOOTSTRAP_VERSION', '3.3.5' );
-define ( 'FONT_AWESOME_VERSION', '4.4.0' );
+define ( 'BOOTSTRAP_VERSION', '3.3.6' );
+define ( 'FONT_AWESOME_VERSION', '4.6.3' );
 
 # Byte Order Markers
 define( 'UTF8_BOM', "\xEF\xBB\xBF" );
