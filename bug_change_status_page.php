@@ -196,7 +196,7 @@ layout_page_begin();
 <?php
 		if( $t_resolution != config_get( 'bug_duplicate_resolution' ) ) {
 ?>
-<!-- Duplicate ID -->
+<!-- Duplicate ID
 			<tr>
 				<th class="category">
 					<?php echo lang_get( 'duplicate_id' ) ?>
@@ -204,7 +204,7 @@ layout_page_begin();
 				<td>
 					<input type="text" class="input-sm" name="duplicate_id" maxlength="10" />
 				</td>
-			</tr>
+			</tr> -->
 
 <?php
 		}

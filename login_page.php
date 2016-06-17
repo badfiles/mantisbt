@@ -150,11 +150,11 @@ layout_login_page_begin();
 <div class="col-md-offset-3 col-md-6 col-sm-10 col-sm-offset-1">
 	<div class="login-container">
 		<div class="space-12 hidden-480"></div>
-		<a href="<?php echo config_get( 'logo_url' ) ?>">
+		<!-- <a href="<?php echo config_get( 'logo_url' ) ?>">
 			<h1 class="center white">
 				<img src="<?php echo helper_mantis_url( config_get( 'logo_image' ) ); ?>">
 			</h1>
-		</a>
+		</a> -->
 		<div class="space-24 hidden-480"></div>
 <?php
 if( $f_error || $f_cookie_error || $f_reauthenticate ) {

@@ -86,7 +86,7 @@ function layout_page_header_begin( $p_page_title = null ) {
 	if( !is_blank( $t_favicon_image ) ) {
 		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
 	}
-
+/**
 	# Advertise the availability of the browser search plug-ins.
 	$t_title = config_get( 'search_title' );
 	$t_searches = array( 'text', 'id' );
@@ -98,7 +98,7 @@ function layout_page_header_begin( $p_page_title = null ) {
 				'"/>',
 			"\n";
 	}
-
+*/
 	html_head_javascript();
 }
 
@@ -345,11 +345,11 @@ function layout_login_page_begin() {
 	if( !is_blank( $t_favicon_image ) ) {
 		echo "\t", '<link rel="shortcut icon" href="', helper_mantis_url( $t_favicon_image ), '" type="image/x-icon" />', "\n";
 	}
-
+/**
 	# Advertise the availability of the browser search plug-ins.
 	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Text Search" href="' . string_sanitize_url( 'browser_search_plugin.php?type=text', true) . '" />' . "\n";
 	echo "\t", '<link rel="search" type="application/opensearchdescription+xml" title="MantisBT: Issue Id" href="' . string_sanitize_url( 'browser_search_plugin.php?type=id', true) . '" />' . "\n";
-	
+*/
 	html_head_javascript();
 	
 	event_signal( 'EVENT_LAYOUT_RESOURCES' );
