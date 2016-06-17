@@ -218,6 +218,14 @@ foreach( $f_bug_arr as $t_bug_id ) {
 						bugnote_process_mentions( $t_bug_id, $t_bugnote_id, $f_bug_notetext );
 					}
 					if( $t_status_changed ) {
+
+						if( config_get( 'auto_set_handler_on_status_change' ) ) {
+							$t_handler_id = (int)MantisEnum::getLabel( config_get( 'soft_handler_on_status' ), $f_status );
+							if( $t_handler_id !== 0 ) {
+								bug_assign( $t_bug_id, $t_handler_id );
+							}
+						}
+
 						bug_set_field( $t_bug_id, 'status', $f_status );
 						$t_new_status_label = MantisEnum::getLabel( config_get( 'status_enum_string' ), $f_status );
 						$t_new_status_label = str_replace( ' ', '_', $t_new_status_label );

@@ -491,6 +491,7 @@ if( $t_resolve_issue ) {
 	email_bug_reopened( $f_bug_id );
 } else if( $t_existing_bug->handler_id != $t_updated_bug->handler_id ) {
 	email_owner_changed( $f_bug_id, $t_existing_bug->handler_id, $t_updated_bug->handler_id );
+} else if( $t_existing_bug->status != $t_updated_bug->status ) {
 } else {
 	email_bug_updated( $f_bug_id );
 }
