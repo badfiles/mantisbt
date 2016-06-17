@@ -372,7 +372,13 @@ if( count( $t_failed_ids ) > 0 ) {
 	$separator = lang_get( 'word_separator' );
 	foreach( $t_failed_ids as $t_id => $t_reason ) {
 		$label = sprintf( lang_get( 'label' ), string_get_bug_view_link( $t_id ) ) . $separator;
-		printf( "<tr><td width=\"50%%\">%s%s</td><td>%s</td></tr>\n", $label, bug_get_field( $t_id, 'summary' ), $t_reason );
+		printf(
+		<tr><td width=\"50%%\">
+		<div class=\"alert alert-info\">%s%s</div>
+		</td><td>
+		<div class=\"alert alert-danger\">%s</div>
+		</td></tr>\n"
+		, $label, bug_get_field( $t_id, 'summary' ), $t_reason );
 	}
 	echo '</div>';
 	echo '</table><br />';
