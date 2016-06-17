@@ -527,7 +527,7 @@ class BugData {
 		} else {
 			$t_replace_reporter_id = $this->reporter_id;
 		}
-		
+
 		$t_summary = '';
 		foreach( unserialize( $this->summary ) as $t_summary_part ) {
 			if( $t_summary == '') {
