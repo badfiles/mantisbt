@@ -516,7 +516,7 @@ if( $t_show_platform || $t_show_os || $t_show_os_version ) {
 			print_platform_option_list( $t_bug->platform );
 			echo '</select>';
 		} else {
-			echo '<input type="text" id="platform" name="platform" class="autocomplete input-sm" size="16" maxlength="32" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $t_bug->platform ) . '" />';
+			echo '<input type="text" id="platform" name="platform" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $t_bug->platform ) . '" />';
 		}
 
 		echo '</td>';
