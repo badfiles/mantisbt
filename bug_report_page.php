@@ -545,9 +545,16 @@ if( $t_show_attachments ) {
 			<span class="required">*</span><label for="summary"><?php print_documentation_link( 'summary' ) ?></label>
 		</th>
 		<td>
-			<input <?php echo helper_get_tab_index() ?> type="text" id="summary" name="summary" size="105" maxlength="128" value="<?php echo string_attribute( $f_summary ) ?>" />
+		<?php if( access_has_project_level( config_get( 'allow_summary_edit_threshold' ) ) ) { ?>
+			<input <?php echo helper_get_tab_index() ?> type="text" id="summary" name="summary[]" size="105" maxlength="128" value="<?php echo string_attribute( $f_summary ) ?>" />
+		<?php } else { ?>
+			<select data-placeholder="<?php echo lang_get( 'select_option' ) ?>" multiple="multiple" class="chosen-multiselect" <?php echo helper_get_tab_index() ?> id="summary" name="summary[]">
+				<option></option><?php print_summaries_list() ?>
+			</select>
+		<?php }?>
 		</td>
 	</tr>
+	<script type="text/javascript">$(".chosen-multiselect").chosen({width: "100%", max_selected_options: 6});</script>
 	<tr>
 		<th class="category">
 			<span class="required">*</span><label for="description"><?php print_documentation_link( 'description' ) ?></label>

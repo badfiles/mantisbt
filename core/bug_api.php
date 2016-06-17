@@ -525,6 +525,15 @@ class BugData {
 		# Check if bug was pre-assigned or auto-assigned.
 		$t_status = bug_get_status_for_assign( NO_USER, $this->handler_id, $this->status);
 
+		$t_summary = '';
+		foreach( unserialize( $this->summary ) as $t_summary_part ) {
+			if( $t_summary == '') {
+				$t_summary = $t_summary_part;
+			} else {
+				$t_summary = $t_summary . '; ' . $t_summary_part;
+			}
+		}
+
 		# Insert the rest of the data
 		db_param_push();
 		$t_query = 'INSERT INTO {bug}
@@ -544,7 +553,7 @@ class BugData {
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ',
 					      ' . db_param() . ',' . db_param() . ',' . db_param() . ',' . db_param() . ')';
-		db_query( $t_query, array( $this->project_id, $this->reporter_id, $this->handler_id, $this->duplicate_id, $this->priority, $this->severity, $this->reproducibility, $t_status, $this->resolution, $this->projection, $this->category_id, $this->date_submitted, $this->last_updated, $this->eta, $t_text_id, $this->os, $this->os_build, $this->platform, $this->version, $this->build, $this->profile_id, $this->summary, $this->view_state, $this->sponsorship_total, $this->sticky, $this->fixed_in_version, $this->target_version, $this->due_date ) );
+		db_query( $t_query, array( $this->project_id, $this->reporter_id, $this->handler_id, $this->duplicate_id, $this->priority, $this->severity, $this->reproducibility, $t_status, $this->resolution, $this->projection, $this->category_id, $this->date_submitted, $this->last_updated, $this->eta, $t_text_id, $this->os, $this->os_build, $this->platform, $this->version, $this->build, $this->profile_id, $t_summary, $this->view_state, $this->sponsorship_total, $this->sticky, $this->fixed_in_version, $this->target_version, $this->due_date ) );
 
 		$this->id = db_insert_id( db_get_table( 'bug' ) );
 
