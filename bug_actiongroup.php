@@ -357,7 +357,7 @@ if( count( $t_failed_ids ) > 0 ) {
 	foreach( $t_failed_ids as $t_id => $t_reason ) {
 		$label = sprintf( lang_get( 'label' ), string_get_bug_view_link( $t_id ) ) . $separator;
 		printf(
-		<tr><td width=\"50%%\">
+		"<tr><td width=\"50%%\">
 		<div class=\"alert alert-info\">%s%s</div>
 		</td><td>
 		<div class=\"alert alert-danger\">%s</div>
