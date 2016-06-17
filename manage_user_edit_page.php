@@ -201,7 +201,7 @@ print_manage_menu( 'manage_user_page.php' );
 					<td class="category"> <?php echo lang_get( 'notify_user' ) ?> </td>
 					<td>
 						<label>
-							<input type="checkbox" class="ace" id="send-email" name="send_email_notification" checked="checked" ?>
+							<input type="checkbox" class="ace" id="send-email" name="send_email_notification" ?>
 							<span class="lbl"></span>
 						</label>
 					</td>
