@@ -192,7 +192,7 @@ if( ( $f_new_status >= $t_resolved ) && ( ( $f_new_status < $t_closed ) || ( $t_
 if( $f_new_status >= $t_resolved
 	&& $f_new_status < $t_closed
 	&& $t_resolution != config_get( 'bug_duplicate_resolution' ) ) { ?>
-<!-- Duplicate ID -->
+<!-- Duplicate ID
 			<tr>
 				<th class="category">
 					<?php echo lang_get( 'duplicate_id' ) ?>
@@ -200,7 +200,7 @@ if( $f_new_status >= $t_resolved
 				<td>
 					<input type="text" class="input-sm" name="duplicate_id" maxlength="10" />
 				</td>
-			</tr>
+			</tr> -->
 <?php } ?>
 
 <?php
