@@ -246,7 +246,7 @@ if( $f_new_status >= $t_resolved
 				class="datetimepicker" size="20" maxlength="16"
 				<?php helper_get_tab_index() ?>
 				value="<?php echo $t_date_to_display ?>" />
-				<script type="text/javascript">$( ".datetimepicker" ).datetimepicker({});</script>
+				<script type="text/javascript">$( ".datetimepicker" ).datetimepicker({hourMin: 10, hourMax: 16});</script>
 		</td>
 	</tr>
 
