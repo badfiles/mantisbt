@@ -65,6 +65,9 @@ function gpc_get( $p_var_name, $p_default = null ) {
 		$t_result = $p_default;
 	} else {
 		error_parameters( $p_var_name );
+		if( 'summary' == $p_var_name ) {
+			error_parameters( lang_get ( $p_var_name ) );
+		}
 		trigger_error( ERROR_GPC_VAR_NOT_FOUND, ERROR );
 		$t_result = null;
 	}
