@@ -210,6 +210,13 @@ foreach( $f_bug_arr as $t_bug_id ) {
 					# @todo we need to issue a helper_call_custom_function( 'issue_update_validate', array( $t_bug_id, $t_bug_data, $f_bugnote_text ) );
 					bug_set_field( $t_bug_id, 'status', $f_status );
 
+					if( config_get( 'auto_set_handler_on_status_change' ) ) {
+						$t_handler_id = (int)MantisEnum::getLabel( config_get( 'soft_handler_on_status' ), $f_status );
+						if( $t_handler_id !== 0 ) {
+							bug_assign( $t_bug_id, $t_handler_id );
+						}
+					}
+
 					# Add bugnote if supplied
 					if( !is_blank( $f_bug_notetext ) ) {
 						$t_bugnote_id = bugnote_add( $t_bug_id, $f_bug_notetext, null, $f_bug_noteprivate );
@@ -218,7 +225,7 @@ foreach( $f_bug_arr as $t_bug_id ) {
 					} else {
 						email_bug_updated( $t_bug_id );
 					}
-
+					
 					helper_call_custom_function( 'issue_update_notify', array( $t_bug_id ) );
 				} else {
 					$t_failed_ids[$t_bug_id] = lang_get( 'bug_actiongroup_status' );
