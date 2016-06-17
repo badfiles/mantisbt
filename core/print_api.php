@@ -1248,6 +1248,16 @@ function print_plugin_priority_list( $p_priority ) {
 	}
 }
 
+ /**
+ * Prints list of available summaries.
+ * @return void
+ */
+function print_summaries_list() {
+	foreach ( config_get( 'summaries' ) as $t_summary ) {
+		echo '<option value="', $t_summary, '">', $t_summary, '</option>';
+	}
+}
+
 /**
  * prints a link to VIEW a bug given an ID
  *  account for the user preference and site override
