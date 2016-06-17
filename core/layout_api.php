@@ -398,14 +398,12 @@ function layout_navbar() {
 
 	# mobile view
 	echo '<div class="hidden-sm hidden-md hidden-lg">';
-	echo '<nav class="navbar-menu pull-left navbar-collapse collapse" style="height: auto;">';
 	echo '<ul class="nav navbar-nav">';
 	if (auth_is_user_authenticated()) {
 		layout_navbar_user_menu(false);
 		layout_navbar_projects_menu();
 	}
 	echo '</ul>';
-	echo '</nav>';
 	echo '</div>';
 
 	echo '</div>';
