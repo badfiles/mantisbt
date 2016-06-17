@@ -725,7 +725,7 @@ function print_account_menu( $p_page = '' ) {
  */
 function print_doc_menu( $p_page = '' ) {
 	# User Documentation
-	$t_doc_url = config_get( 'manual_url' );
+/**	$t_doc_url = config_get( 'manual_url' );
 	if( is_null( parse_url( $t_doc_url, PHP_URL_SCHEME ) ) ) {
 		# URL has no scheme, so it is relative to MantisBT root
 		if( is_blank( $t_doc_url ) ||
@@ -742,7 +742,7 @@ function print_doc_menu( $p_page = '' ) {
 		'url'   => $t_doc_url,
 		'label' => 'user_documentation'
 	);
-
+*/
 	# Project Documentation
 	$t_pages['proj_doc_page.php'] = array(
 		'url'   => helper_mantis_url( 'proj_doc_page.php' ),

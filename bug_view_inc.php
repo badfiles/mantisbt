@@ -663,7 +663,7 @@ if( $t_show_summary ) {
 if( $t_show_description ) {
 	echo '<tr>';
 	echo '<th class="bug-description category">', lang_get( 'description' ), '</th>';
-	echo '<td class="bug-description" colspan="5">', $t_description, '</td>';
+	echo '<td class="bug-description bigger-150" colspan="5">', $t_description, '</td>';
 	echo '</tr>';
 }
 
