@@ -521,13 +521,13 @@ function print_news_entry( $p_headline, $p_body, $p_poster_id, $p_view_state, $p
 				<i class="fa fa-clock-o"></i> <?php echo $t_date_posted; ?>
 			</div>
 			<div class="widget-main">
-				<?php
+				<!-- <?php
 			if( 1 == $p_announcement ) { ?>
 				<span class="news-announcement"><?php echo lang_get( 'announcement' ); ?></span><?php
 			}
 			if( VS_PRIVATE == $p_view_state ) { ?>
 				<span class="news-private"><?php echo lang_get( 'private' ); ?></span><?php
-			} ?>
+			} ?> -->
 				<p class="news-body"><?php echo $t_body; ?></p>
 			</div>
 		</div>
