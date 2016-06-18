@@ -916,7 +916,7 @@ function layout_page_content_end() {
  * @return null
  */
 function layout_breadcrumbs() {
-	$t_username = current_user_get_field( 'username' );
+	$t_username = user_get_realname( user_get_id_by_name( current_user_get_field( 'username' ) ) );
 	$t_protected = current_user_get_field( 'protected' );
 	$t_access_level = get_enum_element( 'access_levels', current_user_get_access_level() );
 

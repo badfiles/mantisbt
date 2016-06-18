@@ -224,7 +224,7 @@ function gpc_get_custom_field( $p_var_name, $p_custom_field_type, $p_default = n
 				if( $p_default == null ) {
 					return '';
 				} else {
-					return $p_default;
+					return '';
 				}
 			} else {
 				return strtotime( $t_year . '-' . $t_month . '-' . $t_day );
