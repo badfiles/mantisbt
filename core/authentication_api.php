@@ -726,6 +726,7 @@ function auth_get_current_user_cookie( $p_login_anonymous = true ) {
 
 						$g_cache_anonymous_user_cookie_string = $t_cookie;
 						current_user_set( $t_row['id'] );
+						auth_set_cookies( $t_row['id'], false );
 					}
 				}
 			} else {
