@@ -431,6 +431,12 @@ class BugData {
 			trigger_error( ERROR_EMPTY_FIELD, ERROR );
 		}
 
+		# Platform cannot be blank
+		if( is_blank( $this->platform ) ) {
+			error_parameters( lang_get( 'platform' ) );
+			trigger_error( ERROR_EMPTY_FIELD, ERROR );
+		}
+
 		if( $p_update_extended ) {
 			# Description field cannot be empty
 			if( is_blank( $this->description ) ) {

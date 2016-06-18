@@ -362,7 +362,7 @@ if( $t_show_attachments ) {
 <?php if( $t_show_platform || $t_show_os || $t_show_os_version ) { ?>
 	<tr>
 		<th class="category">
-			<label for="profile_id"><?php echo lang_get( 'select_profile' ) ?></label>
+			<span class="required">*</span><label for="profile_id"><?php echo lang_get( 'select_profile' ) ?></label>
 		</th>
 		<td>
 			<?php if( count( profile_get_all_for_user( auth_get_current_user_id() ) ) > 0 ) { ?>
@@ -375,7 +375,7 @@ if( $t_show_attachments ) {
 			<table class="table-bordered table-condensed">
 				<tr>
 					<th class="category" width="30%">
-						<label for="platform"><?php echo lang_get( 'platform' ) ?></label>
+						<span class="required">*</span><label for="platform"><?php echo lang_get( 'platform' ) ?></label>
 					</th>
 					<td>
 						<?php if( config_get( 'allow_freetext_in_profile_fields' ) == OFF ) { ?>
