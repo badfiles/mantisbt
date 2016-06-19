@@ -527,7 +527,7 @@ function layout_navbar_projects_menu() {
 }
 
 /**
- * Print navbar bottons
+ * Print navbar buttons
  * @return null
  */
 function layout_navbar_button_bar() {
@@ -536,10 +536,10 @@ function layout_navbar_button_bar() {
 	}
 
 	echo '<li class="hidden-sm hidden-xs">';
-  	echo '<div class="btn-group btn-corner padding-right-8 padding-left-8">';
+	echo '<div class="btn-group btn-corner padding-right-8 padding-left-8">';
 
 	$t_bug_url = string_get_bug_report_url();
-  	echo '<a class="btn btn-primary btn-sm" href="' . $t_bug_url . '">';
+	echo '<a class="btn btn-primary btn-sm" href="' . $t_bug_url . '">';
 	echo '<i class="fa fa-edit"></i> ' . lang_get( 'report_bug_link' );
 	echo '</a>';
 
@@ -548,7 +548,8 @@ function layout_navbar_button_bar() {
 		echo '<i class="fa fa-user-plus"></i> ' . lang_get( 'invite_users' );
 		echo '</a>';
 	}
-  	echo '</li>';
+	echo '</li>';
+	echo '</div>';
 }
 
 /**
