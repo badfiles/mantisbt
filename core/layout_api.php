@@ -236,6 +236,7 @@ function layout_head_css() {
 	}
 
 	# page specific plugin styles
+	html_css_link( 'chosen.min.css' );
 
 	# theme text fonts
 	html_css_link( 'ace-fonts.css' );
