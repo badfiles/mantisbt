@@ -1019,19 +1019,20 @@ function layout_footer() {
 	echo '<strong>Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT ' . $t_version_suffix . '</a></strong> <br>' . "\n";
 	echo "<small>Copyright &copy;$t_copyright_years MantisBT Team</small>" . '<br>';
 */
+	echo '<div class="col-md-6 col-xs-12 no-padding">' . "\n";
 	# Show optional user-specified custom copyright statement
 	$t_copyright_statement = config_get( 'copyright_statement' );
 	if( $t_copyright_statement ) {
-		echo '<small>' . $t_copyright_statement . '</small>' . "\n";
+		echo '<small>' . $t_copyright_statement . '</small>' . '<br />' . "\n";
 	}
 
 	# Show contact information
 	if( !is_page_name( 'login_page' ) ) {
 		$t_webmaster_contact_information = sprintf( lang_get( 'webmaster_contact_information' ), string_html_specialchars( config_get( 'webmaster_email' ) ) );
-		echo '<small>' . $t_webmaster_contact_information . '</small>' . '<br>' . "\n";
+		echo '<small>' . $t_webmaster_contact_information . '</small>' . "\n";
 	}
 
-	echo '</address>' . "\n";
+#	echo '</address>' . "\n";
 	echo '</div>' . "\n";
 
 /**
