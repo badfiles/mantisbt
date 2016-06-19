@@ -548,8 +548,8 @@ function layout_navbar_button_bar() {
 		echo '<i class="fa fa-user-plus"></i> ' . lang_get( 'invite_users' );
 		echo '</a>';
 	}
-	echo '</li>';
 	echo '</div>';
+	echo '</li>';
 }
 
 /**
