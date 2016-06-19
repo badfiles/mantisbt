@@ -568,9 +568,6 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 
 	if( $p_include_all_projects && $p_filter_project_id !== ALL_PROJECTS ) {
 		echo '<li><a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . ALL_PROJECTS . '"';
-		if( $p_project_id !== null ) {
-			check_selected( $p_project_id, ALL_PROJECTS, false );
-		}
 		if( ALL_PROJECTS == $p_project_id ) {
 			echo '><i class="ace-icon fa fa-dot-circle-o"></i> ';
 		} else {
@@ -587,8 +584,6 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 		}
 
 		echo '<li><a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . $t_id . '"';
-		check_selected( $p_project_id, $t_id, false );
-		check_disabled( $t_id == $p_filter_project_id || !$t_can_report );
 		if( $t_id == $p_project_id ) {
 			echo '><i class="ace-icon fa fa-dot-circle-o"></i> ';
 		} else {
@@ -630,8 +625,6 @@ function layout_navbar_subproject_option_list( $p_parent_id, $p_project_id = nul
 
 		echo '<li>';
 		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . $t_full_id . '"';
-		check_selected( $p_project_id, $t_full_id, false );
-		check_disabled( $t_id == $p_filter_project_id || !$t_can_report );
 		echo '>';
 		echo str_repeat( '&#160;', count( $p_parents ) * 4 );
 		if( $t_full_id == $p_project_id ) {
