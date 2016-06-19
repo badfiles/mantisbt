@@ -1010,7 +1010,7 @@ function layout_footer() {
 	}
 
 	layout_footer_begin();
-
+/**
 	# Show MantisBT version and copyright statement
 	$t_version_suffix = '';
 	$t_copyright_years = ' 2000 - ' . date( 'Y' );
@@ -1021,7 +1021,7 @@ function layout_footer() {
 	echo '<address>' . "\n";
 	echo '<strong>Powered by <a href="http://www.mantisbt.org" title="bug tracking software">MantisBT ' . $t_version_suffix . '</a></strong> <br>' . "\n";
 	echo "<small>Copyright &copy;$t_copyright_years MantisBT Team</small>" . '<br>';
-
+*/
 	# Show optional user-specified custom copyright statement
 	$t_copyright_statement = config_get( 'copyright_statement' );
 	if( $t_copyright_statement ) {
@@ -1037,7 +1037,7 @@ function layout_footer() {
 	echo '</address>' . "\n";
 	echo '</div>' . "\n";
 
-
+/**
 	# We don't have a button anymore, so for now we will only show the resized
 	# version of the logo when not on login page.
 	if( !is_page_name( 'login_page' ) ) {
@@ -1052,7 +1052,7 @@ function layout_footer() {
 		echo '</div>' . "\n";
 		echo '</div>' . "\n";
 	}
-
+*/
 	event_signal( 'EVENT_LAYOUT_PAGE_FOOTER' );
 
 	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get( 'show_queries_count' ) ) {
