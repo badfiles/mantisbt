@@ -389,8 +389,6 @@ function html_body_end() {
 	# before the actual body ends (see #20084)
 	event_signal( 'EVENT_LAYOUT_BODY_END' );
 
-	echo '</div>', "\n";
-
 	echo '</body>', "\n";
 }
 
