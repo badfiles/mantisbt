@@ -243,6 +243,7 @@ function layout_head_css() {
 	}
 
 	# page specific plugin styles
+	html_css_link( 'chosen.min.css' );
 
 	# theme styles
 	html_css_link( 'ace.min.css' );

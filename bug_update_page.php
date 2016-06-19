@@ -294,9 +294,9 @@ if( $t_show_reporter ) {
 			echo string_attribute( user_get_name( $t_bug->reporter_id ) );
 		} else {
 			if ( $f_reporter_edit ) {
-				echo '<select ' . helper_get_tab_index() . ' id="reporter_id" name="reporter_id">';
+				echo '<select ' . helper_get_tab_index() . ' id="reporter_id" name="reporter_id" class="chosen-select">';
 				print_reporter_option_list( $t_bug->reporter_id, $t_bug->project_id );
-				echo '</select>';
+				echo '</select><script type="text/javascript">$(".chosen-select").chosen({search_contains: true, width: "95%"});</script>';
 			} else {
 				echo string_attribute( user_get_name( $t_bug->reporter_id ) );
 				echo ' [<a href="#reporter_edit" class="click-url" url="' . string_get_bug_update_url( $f_bug_id ) . '&amp;reporter_edit=true">' . lang_get( 'edit_link' ) . '</a>]';
