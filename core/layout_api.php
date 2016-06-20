@@ -238,7 +238,7 @@ function layout_head_css() {
 		html_css_link( 'font-awesome-' . FONT_AWESOME_VERSION . '.min.css' );
 
 		# theme text fonts
-		html_css_link( 'ace-fonts.css' );
+		html_css_link( 'open-sans.css' );
 	}
 
 	# page specific plugin styles
