@@ -222,10 +222,12 @@ write_bug_rows( $t_rows );
 		}
 		if( $g_checkboxes_exist ) {
 ?>
-			<select name="action" class="input-sm">
+			<select name="action" class="input-sm" onchange="this.form.submit()">
 				<?php print_all_bug_action_option_list($t_unique_project_ids) ?>
 			</select>
+			<noscript>
 			<input type="submit" class="btn btn-primary btn-white btn-sm btn-round" value="<?php echo lang_get('ok'); ?>"/>
+			</noscript>
 <?php
 		} else {
 			echo '&#160;';
