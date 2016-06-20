@@ -341,7 +341,7 @@ class ImportXml_Issue implements ImportXml_Interface {
 		if( $this->new_id_ > 0 && is_array( $t_attachments ) && count( $t_attachments ) > 0 ) {
 			foreach ( $t_attachments as $t_attachment ) {
 #				$t_temp_file_name = "file:///var/ftp/out.jpg";
-				$t_temp_file_name = "file:///var/ftp/out.file";
+				$t_temp_file_name = "file:///srv/ftp/out.file";
 				$t_file_data = array(
 					'name'     => $t_attachment->filename,
 					'type'     => $t_attachment->file_type,
