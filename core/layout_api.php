@@ -917,7 +917,6 @@ function layout_breadcrumbs() {
 	echo '<div id="breadcrumbs" class="breadcrumbs">' , "\n";
 
 	# Login information
-	echo '<ul class="breadcrumb">' , "\n";
 	if( current_user_is_anonymous() ) {
 		$t_return_page = $_SERVER['SCRIPT_NAME'];
 		if( isset( $_SERVER['QUERY_STRING'] ) ) {
@@ -926,26 +925,25 @@ function layout_breadcrumbs() {
 
 		$t_return_page = string_url( $t_return_page );
 
-		echo ' <li><i class="fa fa-user home-icon active"></i> ' . lang_get( 'anonymous' ) . ' </li>' . "\n";
+		echo '<i class="fa fa-user home-icon active"></i> ' . lang_get( 'anonymous' ) . "\n";
 
 		echo '<div class="btn-group btn-corner">' . "\n";
-		echo '	<button href="' . helper_mantis_url( 'login_page.php?return=' . $t_return_page ) .
-			'" class="btn btn-primary btn-xs">' . lang_get( 'login_link' ) . '</button>' . "\n";
+		echo '<a href="' . helper_mantis_url( 'login_page.php?return=' . $t_return_page ) .
+			'" class="btn btn-primary btn-xs">' . lang_get( 'login_link' ) . '</a>' . "\n";
 		if( config_get_global( 'allow_signup' ) == ON ) {
-			echo '	<button href="' . helper_mantis_url( 'signup_page.php' ) . '" class="btn btn-primary btn-xs">' .
-				lang_get( 'signup_link' ) . '</button>' . "\n";
+			echo '<a href="' . helper_mantis_url( 'signup_page.php' ) . '" class="btn btn-primary btn-xs">' .
+				lang_get( 'signup_link' ) . '</a>' . "\n";
 		}
 		echo '</div>' . "\n";
 
 	} else {
-		echo '  <li><i class="fa fa-user home-icon active"></i>';
+		echo '<i class="fa fa-user home-icon active"></i>';
 		$t_page = ( OFF == $t_protected ) ? 'account_page.php' : 'my_view_page.php';
 		echo '  <a href="' . helper_mantis_url( $t_page ) . '">' . string_html_specialchars( $t_username ) . '</a>' . "\n";
 
 		$t_label = layout_is_rtl() ? 'arrowed-right' : 'arrowed';
-		echo '  <span class="label hidden-xs label-default ' . $t_label . '">' . $t_access_level . '</span></li>' . "\n";
+		echo '  <span class="label hidden-xs label-default ' . $t_label . '">' . $t_access_level . '</span>' . "\n";
 	}
-	echo '</ul>' , "\n";
 
 	# Recently visited
 	if( last_visited_enabled() ) {
