@@ -53,7 +53,7 @@ class XmlImportExportPlugin extends MantisPlugin {
 	public function config() {
 		return array(
 			"import_threshold" => ADMINISTRATOR,
-			"export_threshold" => DEVELOPER,
+			"export_threshold" => ADMINISTRATOR,
 		);
 	}
 

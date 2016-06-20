@@ -40,7 +40,7 @@ require_once( $t_plugin_path . 'XmlImportExport/ImportXml.php' );
 
 auth_attempt_script_login( '1c' );
 
-$f_file = 'file:///var/ftp/out.xml';
+$f_file = 'file:///srv/ftp/out.xml';
 $f_strategy = 'renumber';
 $f_fallback = 'disable';
 $f_keepcategory = true;
