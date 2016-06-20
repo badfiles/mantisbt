@@ -232,7 +232,7 @@ function layout_head_css() {
 		html_css_cdn_link( 'https://maxcdn.bootstrapcdn.com/font-awesome/' . FONT_AWESOME_VERSION . '/css/font-awesome.min.css' );
 
 		# theme text fonts
-		html_css_cdn_link( 'https://fonts.googleapis.com/css?family=Open+Sans' );
+		html_css_cdn_link( 'https://fonts.googleapis.com/css?family=Open+Sans:400,300&subset=latin,greek,greek-ext,vietnamese,cyrillic-ext,latin-ext,cyrillic' );
 	} else {
 		html_css_link( 'bootstrap-' . BOOTSTRAP_VERSION . '.min.css' );
 		html_css_link( 'font-awesome-' . FONT_AWESOME_VERSION . '.min.css' );
