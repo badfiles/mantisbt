@@ -47,6 +47,7 @@
  * @uses string_api.php
  * @uses utility_api.php
  * @uses version_api.php
+ * @uses user_api.php
  */
 
 $g_allow_browser_cache = 1;
@@ -76,6 +77,7 @@ require_api( 'relationship_api.php' );
 require_api( 'string_api.php' );
 require_api( 'utility_api.php' );
 require_api( 'version_api.php' );
+require_api( 'user_api.php' );
 
 $f_master_bug_id = gpc_get_int( 'm_id', 0 );
 
@@ -725,6 +727,9 @@ if( $t_show_attachments ) {
 <div class="widget-toolbox padding-8 clearfix">
 	<span class="required pull-right"> * <?php echo lang_get( 'required' ) ?></span>
 	<input <?php echo helper_get_tab_index() ?> type="submit" class="btn btn-primary btn-white btn-round" value="<?php echo lang_get( 'submit_report_button' ) ?>" />
+	<?php if( auth_get_current_user_id() == user_get_id_by_name( config_get( 'anonymous_account' ) ) ) {
+		echo '<div class="alert alert-danger"><i class="fa fa-info-circle"></i>&nbsp'. lang_get( 'anonymous_report_message' ) . '</div>';
+	}?>
 </div>
 </div>
 </div>
