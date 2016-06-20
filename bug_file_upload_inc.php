@@ -92,7 +92,7 @@ $t_max_file_size = (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_nu
 			<div id="auto-dropzone-previews-box" class="dropzone-previews dz-max-files-reached"></div>
 			</div>
 		<div class="fallback">
-		echo '<input id="ufile[]" name="ufile[]" type="file" size="50" />';
+		<input id="ufile[]" name="ufile[]" type="file" size="50" />
 	<br />
 		<input type="submit" class="btn btn-primary btn-sm btn-white btn-round"
 			value="<?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file_button' : 'upload_files_button' ) ?>"
