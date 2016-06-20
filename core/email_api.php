@@ -1620,7 +1620,7 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 
 	$t_message .= $t_email_separator1 . " \n";
 	$t_message .= $p_visible_bug_data['freetext']  . "\n";
-
+/**
 	# format history
 	if( array_key_exists( 'history', $p_visible_bug_data ) ) {
 		$t_message .= lang_get( 'bug_history' ) . " \n";
@@ -1635,7 +1635,7 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 		}
 		$t_message .= $t_email_separator1 . " \n\n";
 	}
-
+*/
 	return $t_message;
 }
 
