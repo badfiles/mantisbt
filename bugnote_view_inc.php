@@ -157,7 +157,7 @@ $t_block_icon = $t_collapse_block ? 'fa-chevron-down' : 'fa-chevron-up';
 		<td class="category">
 		<div class="pull-left padding-2"><?php print_avatar( $t_activity['user_id'] ); ?>
 		</div>
-		<div class="pull-left padding-2">
+		<div class="padding-2">
 		<p class="no-margin">
 			<?php
 			echo '<i class="fa fa-user grey"></i> ';
