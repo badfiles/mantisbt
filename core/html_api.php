@@ -127,7 +127,7 @@ function html_rss_link() {
  * @return void
  */
 function html_javascript_link( $p_filename ) {
-	echo "\t", '<script type="text/javascript" src="', helper_mantis_url( 'js/' . $p_filename ), '"></script>' , "\n";
+	echo "\t", '<script type="text/javascript" src="', helper_mantis_url( 'js/' . $p_filename ), '"></script>', "\n";
 }
 
 /**
@@ -141,7 +141,7 @@ function html_javascript_cdn_link( $p_url, $p_hash = '' ) {
 	if( $p_hash !== '' ) {
 		$t_intergity = 'integrity="' . $p_hash . '" ';
 	}
-	echo "\t", '<script type="text/javascript" src="', $p_url, '" ', $t_integrity, 'crossorigin="anonymous"></script>' , "\n";
+	echo "\t", '<script type="text/javascript" src="', $p_url, '" ', $t_integrity, 'crossorigin="anonymous"></script>', "\n";
 }
 
 /**
@@ -209,7 +209,7 @@ function html_css() {
 	html_css_link( config_get( 'css_include_file' ) );
 
 	if ( config_get_global( 'cdn_enabled' ) == ON ) {
-		html_css_cdn_link( 'https://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERY_UI_VERSION . '/themes/smoothness/jquery-ui.css' );
+		html_css_cdn_link( 'https://ajax.googleapis.com/ajax/libs/jqueryui/' . JQUERY_UI_VERSION . '/themes/smoothness/jquery-ui.min.css' );
 	} else {
 		html_css_link( 'jquery-ui-' . JQUERY_UI_VERSION . '.min.css' );
 	}
