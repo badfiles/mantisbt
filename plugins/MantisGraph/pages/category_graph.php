@@ -15,7 +15,7 @@
 # along with MantisBT.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Summary Graph by Severity
+ * This page displays "improved" charts on categories : categories on bars and 3Dpie
  *
  * @package MantisBT
  * @copyright Copyright 2000 - 2002  Kenzaburo Ito - kenito@300baud.org
@@ -29,14 +29,36 @@ plugin_require_api( 'core/graph_api.php' );
 
 access_ensure_project_level( config_get( 'view_summary_threshold' ) );
 
-$f_width = gpc_get_int( 'width', 300 );
-$t_ar = plugin_config_get( 'bar_aspect' );
+layout_page_header();
 
-$t_token = token_get_value( TOKEN_GRAPH );
-if( $t_token == null ) {
-	$t_metrics = enum_bug_group( lang_get( 'severity_enum_string' ), 'severity' );
-} else {
-	$t_metrics = json_decode( $t_token, true );
-}
+layout_page_begin( 'summary_page.php' );
 
-graph_group( $t_metrics, plugin_lang_get( 'by_severity_mix' ), $f_width, $f_width * $t_ar );
+print_summary_menu( 'summary_page.php' );
+print_summary_submenu();
+
+$t_series_name = lang_get( 'bugs' );
+$t_metrics = create_category_summary();
+?>
+    
+<div class="col-md-12 col-xs-12">
+<div class="space-10"></div>
+
+<div class="widget-box widget-color-blue2">
+<div class="widget-header widget-header-small">
+	<h4 class="widget-title lighter">
+		<i class="ace-icon fa fa-bar-chart-o"></i>
+		<?php echo plugin_lang_get( 'graph_imp_category_title' ) ?>
+	</h4>
+</div>
+
+<?php
+graph_bar( $t_metrics, lang_get( 'by_category' ), $t_series_name );
+# echo '<div class="space-10"></div>';
+# graph_pie( $t_metrics, plugin_lang_get( 'by_category_pct' ) );
+?>
+
+</div>
+</div>
+
+<?php
+layout_page_end();
