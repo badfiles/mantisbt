@@ -85,6 +85,7 @@ layout_login_page_begin();
 				<label for="email-field" class="block clearfix">
 				<span class="block input-icon input-icon-right">
 					<input id="email-field" name="email" type="text"
+						   placeholder="<?php echo lang_get( 'email' ) ?>"
 						   size="32" maxlength="64" class="form-control">
 					<i class="ace-icon fa fa-envelope"></i>
 				</span>
