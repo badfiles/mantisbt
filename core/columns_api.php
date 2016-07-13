@@ -1069,7 +1069,7 @@ function print_column_edit( BugData $p_bug, $p_columns_target = COLUMNS_TARGET_V
 
 	if( !bug_is_readonly( $p_bug->id ) && access_has_bug_level( config_get( 'update_bug_threshold' ), $p_bug->id ) ) {
 		echo '<a href="' . string_get_bug_update_url( $p_bug->id ) . '">';
-		echo '<i class="fa fa-pencil bigger-130 padding-2 blue';
+		echo '<i class="fa fa-pencil bigger-130 padding-2 blue"';
 		echo ' title="' . lang_get( 'update_bug_button' ) . '"></i></a>';
 	} else {
 		echo '&#160;';
