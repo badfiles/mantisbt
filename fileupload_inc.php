@@ -90,7 +90,7 @@ html_javascript_link( 'dropzone.min.js');
 			enableDropzone( "dropzone", false );
 		}
 		if( $( ".auto-dropzone-form" ).length ) {
-			enableDropzone( "auto-dropzone", true );
+			enableDropzone( "auto-dropzone", false );
 		}
 	});
 </script>
