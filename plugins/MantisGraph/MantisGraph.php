@@ -79,12 +79,12 @@ class MantisGraphPlugin extends MantisPlugin  {
 	 * @return array
 	 */
 	function graph_filter_menu() {
-		if( access_has_project_level( config_get( 'view_summary_threshold' ) ) ) {
-			return array( '<a class="btn btn-sm btn-primary btn-white btn-round" href="' .
-				plugin_page( 'issues_trend_page.php' ) . '">' . plugin_lang_get( 'issue_trends_link' ) . '</a>', );
-		} else {
+#		if( access_has_project_level( config_get( 'view_summary_threshold' ) ) ) {
+#			return array( '<a class="btn btn-sm btn-primary btn-white btn-round" href="' .
+#				plugin_page( 'issues_trend_page.php' ) . '">' . plugin_lang_get( 'issue_trends_link' ) . '</a>', );
+#		} else {
 			return '';
-		}
+#		}
 	}
 
 	/**
