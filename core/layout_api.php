@@ -541,21 +541,29 @@ function layout_navbar_button_bar() {
 		return;
 	}
 
+	$t_can_report_bug = access_has_project_level( config_get( 'report_bug_threshold' ) );
+	$t_can_invite_user = current_user_is_administrator();
+
+	if( !$t_can_report_bug && !$t_can_invite_user ) {
+		return;
+	}
+
 	echo '<li class="hidden-sm hidden-xs">';
 	echo '<div class="btn-group btn-corner padding-right-8 padding-left-8">';
 
-	$t_bug_url = string_get_bug_report_url();
-	echo '<a class="btn btn-primary btn-sm" href="' . $t_bug_url . '">';
-	echo '<i class="fa fa-edit"></i> ' . lang_get( 'report_bug_link' );
-	echo '</a>';
+  	if( $t_can_report_bug ) {
+		$t_bug_url = string_get_bug_report_url();
+	  	echo '<a class="btn btn-primary btn-sm" href="' . $t_bug_url . '">';
+		echo '<i class="fa fa-edit"></i> ' . lang_get( 'report_bug_link' );
+		echo '</a>';
+  	}
 
-	if( current_user_is_administrator() ) {
+	if( $t_can_invite_user ) {
 		echo '<a class="btn btn-primary btn-sm" href="manage_user_create_page.php">';
 		echo '<i class="fa fa-user-plus"></i> ' . lang_get( 'invite_users' );
 		echo '</a>';
 	}
-	echo '</div>';
-	echo '</li>';
+  	echo '</li>';
 }
 
 /**
@@ -748,7 +756,7 @@ function layout_print_sidebar( $p_active_sidebar_page = null ) {
 
 		# Project Wiki
 		if( ON == config_get_global( 'wiki_enable' )  ) {
-			layout_sidebar_menu( 'wiki.php?type=project&amp;id=' . $t_current_project, 'wiki', 'fa-graduation-cap', $p_active_sidebar_page );
+			layout_sidebar_menu( 'wiki.php?type=project&amp;id=' . $t_current_project, 'wiki', 'fa-book', $p_active_sidebar_page );
 		}
 
 		# Plugin / Event added options
