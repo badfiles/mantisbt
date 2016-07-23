@@ -11,6 +11,9 @@ td.category .small, th.category .small	{ font-weight: normal;  }
 }
 tr.spacer			{ background-color: #ffffff !important; color: #000000; height: 5px; }
 
+.redlink a:link{
+    color:red;
+}
 
 /**
  * view_all_bug_page.php
