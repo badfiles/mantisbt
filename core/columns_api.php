@@ -1153,7 +1153,7 @@ function print_column_bugnotes_count( BugData $p_bug, $p_columns_target = COLUMN
 	if( $t_bugnote_count > 0 ) {
 		$t_show_in_bold = $v_bugnote_updated > strtotime( '-' . $g_filter[FILTER_PROPERTY_HIGHLIGHT_CHANGED] . ' hours' );
 		if( $t_show_in_bold ) {
-			echo '<span class="bold">';
+			echo '<span class="bold redlink">';
 		}
 		print_link( string_get_bug_view_url( $p_bug->id ) . '&nbn=' . $t_bugnote_count . '#bugnotes', $t_bugnote_count );
 		if( $t_show_in_bold ) {
