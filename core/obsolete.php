@@ -199,6 +199,6 @@ config_obsolete( 'csv_add_bom' );
 config_obsolete( 'hr_size' );
 config_obsolete( 'hr_width' );
 
-# changes in 2.0.0dev
-config_obsolete( 'calendar_js_date_format' );
+# changes in 2.0.0
 config_obsolete( 'db_schema' );
+config_obsolete( 'calendar_js_date_format' );
