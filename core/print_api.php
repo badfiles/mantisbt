@@ -1318,7 +1318,7 @@ function print_view_bug_sort_link( $p_string, $p_sort_field, $p_sort, $p_dir, $p
 			}
 		} else {
 			# Otherwise always start with ascending
-			$p_dir = 'ASC';
+			$p_dir = 'DESC';
 		}
 
 		$t_sort_field = rawurlencode( $p_sort_field );
@@ -1334,7 +1334,7 @@ function print_view_bug_sort_link( $p_string, $p_sort_field, $p_sort, $p_dir, $p
 			}
 		} else {
 			# Otherwise always start with ascending
-			$p_dir = 'ASC';
+			$p_dir = 'DESC';
 		}
 		$t_sort_field = rawurlencode( $p_sort_field );
 		print_link( 'view_all_set.php?sort=' . $t_sort_field . '&dir=' . $p_dir . '&type=2', $p_string );
@@ -1366,7 +1366,7 @@ function print_manage_user_sort_link( $p_page, $p_string, $p_field, $p_dir, $p_s
 		}
 	} else {
 		# Otherwise always start with ASCending
-		$t_dir = 'ASC';
+		$t_dir = 'DESC';
 	}
 
 	$t_field = rawurlencode( $p_field );
@@ -1393,7 +1393,7 @@ function print_manage_project_sort_link( $p_page, $p_string, $p_field, $p_dir, $
 		}
 	} else {
 		# Otherwise always start with ASCending
-		$t_dir = 'ASC';
+		$t_dir = 'DESC';
 	}
 
 	$t_field = rawurlencode( $p_field );
