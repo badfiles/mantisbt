@@ -701,25 +701,13 @@ function layout_print_sidebar( $p_active_sidebar_page = null ) {
 		# Starting sidebar markup
 		layout_sidebar_begin();
 
-		$t_menu_options = array();
+		# Plugin / Event added options
+		$t_event_menu_options = event_signal( 'EVENT_MENU_MAIN_FRONT' );
+		layout_plugin_menu_options_for_sidebar( $t_event_menu_options, $p_active_sidebar_page );
 
 		# Main Page
 		if( config_get( 'news_enabled' ) == ON ) {
 			layout_sidebar_menu( 'main_page.php', 'main_link', 'fa-bullhorn', $p_active_sidebar_page  );
-		}
-
-		# Plugin / Event added options
-		$t_event_menu_options = event_signal( 'EVENT_MENU_MAIN_FRONT' );
-		foreach( $t_event_menu_options as $t_plugin => $t_plugin_menu_options ) {
-			foreach( $t_plugin_menu_options as $t_callback => $t_callback_menu_options ) {
-				if( is_array( $t_callback_menu_options ) ) {
-					$t_menu_options = array_merge( $t_menu_options, $t_callback_menu_options );
-				} else {
-					if( !is_null( $t_callback_menu_options ) ) {
-						$t_menu_options[] = $t_callback_menu_options;
-					}
-				}
-			}
 		}
 
 		# My View
@@ -759,20 +747,6 @@ function layout_print_sidebar( $p_active_sidebar_page = null ) {
 			layout_sidebar_menu( 'wiki.php?type=project&amp;id=' . $t_current_project, 'wiki', 'fa-book', $p_active_sidebar_page );
 		}
 
-		# Plugin / Event added options
-		$t_event_menu_options = event_signal( 'EVENT_MENU_MAIN' );
-		foreach( $t_event_menu_options as $t_plugin => $t_plugin_menu_options ) {
-			foreach( $t_plugin_menu_options as $t_callback => $t_callback_menu_options ) {
-				if( is_array( $t_callback_menu_options ) ) {
-					$t_menu_options = array_merge( $t_menu_options, $t_callback_menu_options );
-				} else {
-					if( !is_null( $t_callback_menu_options ) ) {
-						$t_menu_options[] = $t_callback_menu_options;
-					}
-				}
-			}
-		}
-
 		# Manage Users (admins) or Manage Project (managers) or Manage Custom Fields
 		if( access_has_global_level( config_get( 'manage_site_threshold' ) ) ) {
 			layout_sidebar_menu( 'manage_overview_page.php', 'manage_link', 'fa-gears', $p_active_sidebar_page );
@@ -793,17 +767,93 @@ function layout_print_sidebar( $p_active_sidebar_page = null ) {
 			}
 		}
 
-		# Add custom options
-		$t_custom_options = prepare_custom_menu_options( 'main_menu_custom_options' );
-		$t_menu_options = array_merge( $t_menu_options, $t_custom_options );
-
 		# Time Tracking / Billing
 		if( config_get( 'time_tracking_enabled' ) && access_has_global_level( config_get( 'time_tracking_reporting_threshold' ) ) ) {
 			layout_sidebar_menu( 'billing_page.php', 'time_tracking_billing_link', 'fa-clock-o', $p_active_sidebar_page );
 		}
 
+		# Plugin / Event added options
+		$t_event_menu_options = event_signal( 'EVENT_MENU_MAIN' );
+		layout_plugin_menu_options_for_sidebar( $t_event_menu_options, $p_active_sidebar_page );
+
+		# Config based custom options
+		layout_config_menu_options_for_sidebar( $p_active_sidebar_page );
+
 		# Ending sidebar markup
 		layout_sidebar_end();
+	}
+}
+
+/**
+ * Process plugin menu options for sidebar
+ * @param array $p_plugin_event_response The response from the plugin event signal.
+ * @param string $p_active_sidebar_page The active page on the sidebar.
+ * @return void
+ */
+function layout_plugin_menu_options_for_sidebar( $p_plugin_event_response, $p_active_sidebar_page ) {
+	$t_menu_options = array();
+
+	foreach( $p_plugin_event_response as $t_plugin => $t_plugin_menu_options ) {
+		foreach( $t_plugin_menu_options as $t_callback => $t_callback_menu_options ) {
+			if( is_array( $t_callback_menu_options ) ) {
+				$t_menu_options = array_merge( $t_menu_options, $t_callback_menu_options );
+			} else {
+				if( !is_null( $t_callback_menu_options ) ) {
+					$t_menu_options[] = $t_callback_menu_options;
+				}
+			}
+		}
+	}
+
+	layout_options_for_sidebar( $t_menu_options, $p_active_sidebar_page );
+}
+
+/**
+ * Process main menu options from config.
+ * @param string $p_active_sidebar_page The active page on the sidebar.
+ * @return void
+ */
+function layout_config_menu_options_for_sidebar( $p_active_sidebar_page ) {
+	$t_menu_options = array();
+	$t_custom_options = config_get( 'main_menu_custom_options' );
+
+	foreach( $t_custom_options as $t_custom_option ) {
+		if( isset( $t_custom_option['url'] ) ) {
+			$t_menu_option = $t_custom_option;
+		} else {
+			# Support < 2.0.0 custom menu options config format
+			$t_menu_option = array();
+			$t_menu_option['title'] = $t_custom_option[0];
+			$t_menu_option['access_level'] = $t_custom_option[1];
+			$t_menu_option['url'] = $t_custom_option[2];
+		}
+
+		$t_menu_options[] = $t_menu_option;
+	}
+
+	layout_options_for_sidebar( $t_menu_options, $p_active_sidebar_page );
+}
+
+/**
+ * Process main menu options
+ * @param array $p_menu_options Array of menu options to output.
+ * @param string $p_active_sidebar_page The active page on the sidebar.
+ * @return void
+ */
+function layout_options_for_sidebar( $p_menu_options, $p_active_sidebar_page ) {
+	foreach( $p_menu_options as $t_menu_option ) {
+		$t_icon = isset( $t_menu_option['icon'] ) ? $t_menu_option['icon'] : 'fa-plug';
+		if( !isset( $t_menu_option['url'] ) || !isset( $t_menu_option['title'] ) ) {
+			continue;
+		}
+
+		if( isset( $t_menu_option['access_level'] ) ) {
+			if( !access_has_project_level( $t_menu_option['access_level'] ) ) {
+				continue;
+			}
+		}
+
+		layout_sidebar_menu( $t_menu_option['url'], $t_menu_option['title'], $t_icon, $p_active_sidebar_page );	
 	}
 }
 
@@ -838,7 +888,7 @@ function layout_sidebar_menu( $p_page, $p_title, $p_icon, $p_active_sidebar_page
 	}
 	echo '<a href="' . helper_mantis_url( $p_page ) . '">' . "\n";
 	echo '<i class="menu-icon fa ' . $p_icon . '"></i> ' . "\n";
-	echo '<span class="menu-text"> ' . lang_get( $p_title ) . ' </span>' . "\n";
+	echo '<span class="menu-text"> ' . lang_get_defaulted( $p_title ) . ' </span>' . "\n";
 	echo '</a>' . "\n";
 	echo '<b class="arrow"></b>' . "\n";
 	echo '</li>' . "\n";
