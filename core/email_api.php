@@ -1611,7 +1611,11 @@ function email_format_bug_message( array $p_visible_bug_data ) {
 			$t_access_level_string = '';
 		}
 
-		$t_string = ' (' . $t_formatted_bugnote_id . ') ' . user_get_name( $t_bugnote->reporter_id ) . $t_access_level_string . ' - ' . $t_last_modified . "\n" . $t_time_tracking . ' ' . $t_bugnote_link;
+		$t_private = ( $t_bugnote->view_state == VS_PUBLIC ) ? '' : ' (' . lang_get( 'private' ) . ')';
+
+		$t_string = ' (' . $t_formatted_bugnote_id . ') ' . user_get_name( $t_bugnote->reporter_id ) .
+			$t_access_level_string . ' - ' . $t_last_modified . $t_private . "\n" .
+			$t_time_tracking . ' ' . $t_bugnote_link;
 */
 		$t_string = user_get_name( $t_bugnote->reporter_id ) . ' -- ' . $t_last_modified;
 
