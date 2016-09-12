@@ -1895,14 +1895,8 @@ function get_dropdown( array $p_control_array, $p_control_name, $p_match = '', $
  * @param integer $p_bug_id ID of the bug to print attachments list for.
  * @return void
  */
-<<<<<<< HEAD
 function print_bug_attachments_list( $p_bug_id, $p_direct_access = false  ) {
 	$t_attachments = file_get_visible_attachments( $p_bug_id, $p_direct_access );
-	$t_security_token = form_security_token( 'bug_file_delete' );
-=======
-function print_bug_attachments_list( $p_bug_id ) {
-	$t_attachments = file_get_visible_attachments( $p_bug_id );
->>>>>>> master
 	echo "\n<ul>";
 	foreach ( $t_attachments as $t_attachment ) {
 		echo "\n<li>";
