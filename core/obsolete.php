@@ -202,3 +202,4 @@ config_obsolete( 'hr_width' );
 # changes in 2.0.0
 config_obsolete( 'db_schema' );
 config_obsolete( 'calendar_js_date_format' );
+config_obsolete( 'icon_path' );

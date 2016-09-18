@@ -61,5 +61,4 @@ header( 'X-Content-Type-Options: nosniff' );
 echo "var config = new Array();\n";
 print_config_value( 'calendar_jq_date_format' );
 print_config_value( 'calendar_jq_time_format' );
-print_config_value( 'icon_path' );
 print_config_value( 'short_path' );
