@@ -2301,6 +2301,7 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 		<input type="hidden" name="view_type" value="<?php echo $t_view_type?>" />
 		<?php
 		$t_filter_cols = config_get( 'filter_custom_fields_per_row' );
+		$t_stored_queries_arr = filter_db_get_available_queries();
 	if( $p_expanded ) {
 		?>
 
@@ -2317,31 +2318,76 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 				<?php echo lang_get( 'filters' ) ?>
 			</h4>
 			<div class="widget-toolbar">
-				<a data-action="collapse" href="#">
+				<?php
+					$f_switch_view_link = (config_get('use_dynamic_filters')) ? 'view_all_set.php?type=6&amp;view_type=' : 'view_filters_page.php?view_type=';
+					$t_view_filters = config_get('view_filters');
+
+					if( ( ( SIMPLE_ONLY != $t_view_filters ) && ( ADVANCED_ONLY != $t_view_filters ) ) ||
+						access_has_project_level( config_get( 'create_permalink_threshold' ) ) ||
+						count( $t_stored_queries_arr ) > 0 ) { ?>
+					<div class="widget-menu">
+						<a href="#" data-action="settings" data-toggle="dropdown">
+							<i class="ace-icon fa fa-bars bigger-125"></i>
+						</a>
+						<ul class="dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-closer">
+							<?php
+							if( ( SIMPLE_ONLY != $t_view_filters ) && ( ADVANCED_ONLY != $t_view_filters ) ) {
+								echo '<li>';
+								if( 'advanced' == $t_view_type ) {
+									echo '<a href="' . $f_switch_view_link, 'simple"><i class="ace-icon fa fa-toggle-off"></i>&#160;&#160;' . lang_get('simple_filters') . '</a>';
+								} else {
+									echo '<a href="' . $f_switch_view_link, 'advanced"><i class="ace-icon fa fa-toggle-on"></i>&#160;&#160;' . lang_get('advanced_filters') . '</a>';
+								}
+								echo '</li>';
+							}
+							if( access_has_project_level( config_get( 'create_permalink_threshold' ) ) ) {
+								echo '<li>';
+								echo '<a href="permalink_page.php?url=' . urlencode( filter_get_url( $t_filter ) ) . '">';
+								echo '<i class="ace-icon fa fa-link"></i>&#160;&#160;' . lang_get( 'create_filter_link' );
+								echo '</a>';
+								echo '</li>';
+							}
+							if( count( $t_stored_queries_arr ) > 0 ) {
+								echo '<li>';
+								echo '<a href="query_view_page.php">';
+								echo '<i class="ace-icon fa fa-wrench"></i>&#160;&#160;' . lang_get( 'open_queries' );
+								echo '</a>';
+								echo '</li>';
+							} ?>
+						</ul>
+					</div>
+			 	<?php } ?>
+				<a id="filter-toggle" data-action="collapse" href="#">
 					<i class="1 ace-icon fa bigger-125 <?php echo $t_block_icon ?>"></i>
 				</a>
 			</div>
-			<div class="widget-toolbar no-border">
-				<div class="widget-menu">
-				<?php
-				$f_switch_view_link = ( config_get( 'use_dynamic_filters' ) ) ? 'view_all_set.php?type=6&amp;view_type=' : 'view_filters_page.php?view_type=';
-				$t_view_filters = config_get( 'view_filters' );
-				if(( SIMPLE_ONLY != $t_view_filters ) && ( ADVANCED_ONLY != $t_view_filters ) ) {
-					if( 'advanced' == $t_view_type ) {
-						echo '<a class="btn btn-primary btn-xs btn-white btn-round" href="',
-						$f_switch_view_link, 'simple">', lang_get('simple_filters'), '</a>';
-					} else {
-						echo '<a class="btn btn-primary btn-sm btn-white btn-round" href="',
-						$f_switch_view_link, 'advanced">', lang_get('advanced_filters'), '</a>';
-					}
-				}
-				?>
-				<?php
-				if( access_has_project_level( config_get( 'create_permalink_threshold' ) ) ) {
-					echo '<a class="btn btn-xs btn-white btn-primary btn-round" href="permalink_page.php?url=', urlencode( filter_get_url( $t_filter ) ), '">';
-					echo lang_get( 'create_filter_link' );
-					echo '</a>';
-				} ?>
+			<?php if( count( $t_stored_queries_arr ) > 0 ) { ?>
+				<div id="filter-bar-queries" class="widget-toolbar hidden-xs" style="display: <?php echo $t_collapse_block ? 'block' : 'none' ?>">
+					<div class="widget-menu margin-left-8 margin-right-8">
+						<select id="filter-bar-query-id" class="input-xs">
+							<option value="-1"></option>
+							<option value="-1"><?php echo '[' . lang_get( 'reset_query' ) . ']'?></option>
+							<?php
+							$t_source_query_id = isset( $t_filter['_source_query_id'] ) ? (int)$t_filter['_source_query_id'] : -1;
+							foreach( $t_stored_queries_arr as $t_query_id => $t_query_name ) {
+								echo '<option value="' . $t_query_id . '" ';
+								check_selected( $t_query_id, $t_source_query_id );
+								echo '>' . string_display_line( $t_query_name ) . '</option>';
+							}
+							?>
+						</select>
+					</div>
+				</div>
+			<?php } ?>
+			<div id="filter-bar-search" class="widget-toolbar no-border" style="display: <?php echo $t_collapse_block ? 'block' : 'none' ?>">
+				<div class="widget-menu margin-left-8 margin-right-8">
+					<input id="filter-bar-search-txt" type="text" size="16" class="input-xs"
+						   placeholder="<?php echo lang_get( 'search' ) ?>"
+						   value="<?php echo string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ); ?>" />
+					<button id="filter-bar-search-btn" type="submit" name="filter" class="btn btn-primary btn-white btn-round btn-xs"
+							title="<?php echo lang_get( 'filter_button' ) ?>">
+						<i class="ace-icon fa fa-search"></i>
+					</button>
 				</div>
 			</div>
 		</div>
@@ -3604,8 +3650,8 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 
 	# expanded
 	echo '<div class="form-inline">';
-	echo '<label>', lang_get( 'search' ) . '&#160;', '</label>';
-	echo '<input type="text" class="input-sm" size="16" name="', FILTER_PROPERTY_SEARCH, '" value="', string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ), '" />';
+	echo '<input type="text" id="filter-search-txt" class="input-sm" size="16" name="', FILTER_PROPERTY_SEARCH, '" 
+		placeholder="' . lang_get( 'search' ) . '" value="', string_attribute( $t_filter[FILTER_PROPERTY_SEARCH] ), '" />';
 	?>
 	<input type="submit" class="btn btn-primary btn-sm btn-white btn-round no-float" name="filter" value="<?php echo lang_get( 'filter_button' )?>" />
 	</div>
@@ -3614,8 +3660,6 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 	echo '</form></div>';
 	echo '<div class="btn-toolbar pull-right">';
 	echo '<div class="btn-group">';
-
-	$t_stored_queries_arr = filter_db_get_available_queries();
 
 	if( access_has_project_level( config_get( 'stored_query_create_threshold' ) ) ) { ?>
 		<form class="form-inline pull-left" method="post" name="save_query" action="query_store_page.php">
@@ -3626,18 +3670,12 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 	<?php
 	}
 	if( count( $t_stored_queries_arr ) > 0 ) { ?>
-
-	<form class="form-inline pull-left" method="post" name="open_queries" action="query_view_page.php">
-			<?php # CSRF protection not required here - form does not result in modifications ?>
-			<input type="submit" name="switch_to_query_button" class="btn btn-primary btn-white btn-sm btn-round"
-				value="<?php echo lang_get( 'open_queries' )?>" />
-		</form>
-		<form class="form-inline pull-left padding-left-8"  method="get" name="list_queries<?php echo $t_form_name_suffix;?>" action="view_all_set.php">
+		<form id="filter-queries-form" class="form-inline pull-left padding-left-8"  method="get" name="list_queries<?php echo $t_form_name_suffix;?>" action="view_all_set.php">
 			<?php # CSRF protection not required here - form does not result in modifications ?>
 			<input type="hidden" name="type" value="3" />
 			<select name="source_query_id">
-				<option value="-1"><?php echo '[' . lang_get( 'reset_query' ) . ']'?></option>
 				<option value="-1"></option>
+				<option value="-1"><?php echo '[' . lang_get( 'reset_query' ) . ']'?></option>
 				<?php
 				$t_source_query_id = isset( $t_filter['_source_query_id'] ) ? (int)$t_filter['_source_query_id'] : -1;
 				foreach( $t_stored_queries_arr as $t_query_id => $t_query_name ) {
@@ -3647,8 +3685,6 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 				}
 				?>
 			</select>
-			<input type="submit" name="switch_to_query_button" class="btn btn-primary btn-white btn-sm btn-round no-float"
-				value="<?php echo lang_get( 'use_query' )?>" />
 		</form>
 	<?php
 	} else { ?>
@@ -4069,7 +4105,7 @@ function print_filter_do_filter_by_date( $p_hide_checkbox = false ) {
 			</td>
 		</tr>
 <?php
-		if ('on' !== $g_filter[FILTER_PROPERTY_FILTER_BY_DATE]) {
+		if( 'on' !== $g_filter[FILTER_PROPERTY_FILTER_BY_DATE] ) {
 			$t_menu_disabled = ' disabled="disabled" ';
 		}
 	}

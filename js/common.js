@@ -89,7 +89,6 @@ $(document).ready( function() {
         SetCookie("collapse_settings", t_cookie);
     });
 
-
     $('input[type=text].autocomplete').autocomplete({
 		source: function(request, callback) {
 			var fieldName = $(this).attr('element').attr('id');
