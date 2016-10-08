@@ -49,14 +49,16 @@ require_api( 'utility_api.php' );
  * Print the page header section
  * @param string $p_page_title   Html page title.
  * @param string $p_redirect_url URL to redirect to if necessary.
+ * @param string $p_page_id      The page id.
  * @return void
  */
-function layout_page_header( $p_page_title = null, $p_redirect_url = null ) {
+function layout_page_header( $p_page_title = null, $p_redirect_url = null, $p_page_id = null ) {
 	layout_page_header_begin( $p_page_title );
 	if( $p_redirect_url !== null ) {
 		html_meta_redirect( $p_redirect_url );
 	}
-	layout_page_header_end();
+
+	layout_page_header_end( $p_page_id );
 }
 
 /**
@@ -106,20 +108,30 @@ function layout_page_header_begin( $p_page_title = null ) {
  *  actual page content, but without login info or menus.  This is used
  *  directly during the login process and other times when the user may
  *  not be authenticated
+ *
+ * @param string $p_page_id The id of the page.
+ *
  * @return void
  */
-function layout_page_header_end() {
+function layout_page_header_end( $p_page_id = null) {
 	global $g_error_send_page_header;
 
 	event_signal( 'EVENT_LAYOUT_RESOURCES' );
 	html_head_end();
 
+	if ( $p_page_id === null ) {
+		$t_body_id = '';
+	} else {
+		$t_body_id = 'id="' . $p_page_id . '" ';
+	}
+
 	# Add right-to-left css if needed
 	if( layout_is_rtl() ) {
-		echo '<body class="skin-3 rtl">', "\n";
+		echo '<body ' . $t_body_id . 'class="skin-3 rtl">', "\n";
 	} else {
-		echo '<body class="skin-3">', "\n";
+		echo '<body ' . $t_body_id . 'class="skin-3">', "\n";
 	}
+
 	event_signal( 'EVENT_LAYOUT_BODY_BEGIN' );
 
 	$g_error_send_page_header = false;
@@ -370,7 +382,7 @@ function layout_login_page_end() {
 function layout_navbar() {
 	$t_logo_url = config_get('logo_url');
 
-	echo '<div id="navbar" class="navbar navbar-default navbar-collapse navbar-fixed-top">';
+	echo '<div id="navbar" class="navbar navbar-default navbar-collapse navbar-fixed-top noprint">';
 
 	echo '<div id="navbar-container" class="navbar-container">';
 
@@ -991,7 +1003,7 @@ function layout_breadcrumbs() {
 	$t_protected = current_user_get_field( 'protected' );
 	$t_access_level = get_enum_element( 'access_levels', current_user_get_access_level() );
 
-	echo '<div id="breadcrumbs" class="breadcrumbs">' , "\n";
+	echo '<div id="breadcrumbs" class="breadcrumbs noprint">' , "\n";
 
 	# Login information
 	if( current_user_is_anonymous() ) {
@@ -1014,9 +1026,16 @@ function layout_breadcrumbs() {
 		echo '</div>' . "\n";
 
 	} else {
-		echo '<i class="fa fa-user home-icon active"></i>';
+		$t_protected = current_user_get_field( 'protected' );
+		$t_access_level = get_enum_element( 'access_levels', current_user_get_access_level() );
+		$t_display_username = string_html_specialchars( current_user_get_field( 'username' ) );
+		$t_realname = current_user_get_field( 'realname' );
+		$t_display_realname = is_blank( $t_realname ) ? '' : ' ( ' . string_html_specialchars( $t_realname ) . ' ) ';
+
+		echo '  <li><i class="fa fa-user home-icon active"></i>';
 		$t_page = ( OFF == $t_protected ) ? 'account_page.php' : 'my_view_page.php';
-		echo '  <a href="' . helper_mantis_url( $t_page ) . '">' . string_html_specialchars( $t_username ) . '</a>' . "\n";
+		echo '  <a href="' . helper_mantis_url( $t_page ) . '">' .
+			$t_display_username . $t_display_realname . '</a>' . "\n";
 
 		$t_label = layout_is_rtl() ? 'arrowed-right' : 'arrowed';
 		echo '  <span class="label hidden-xs label-default ' . $t_label . '">' . $t_access_level . '</span>' . "\n";
@@ -1187,7 +1206,7 @@ function layout_footer() {
 function layout_footer_begin() {
 	echo '<div class="clearfix"></div>' . "\n";
 	echo '<div class="space-20"></div>' . "\n";
-	echo '<div class="footer">' . "\n";
+	echo '<div class="footer noprint">' . "\n";
 	echo '<div class="footer-inner">' . "\n";
 	echo '<div class="footer-content">' . "\n";
 }

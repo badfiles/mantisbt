@@ -1893,6 +1893,7 @@ function get_dropdown( array $p_control_array, $p_control_name, $p_match = '', $
 /**
  * Prints the list of visible attachments belonging to a given bug.
  * @param integer $p_bug_id ID of the bug to print attachments list for.
+ * @param string $p_security_token The security token to use for deleting attachments.
  * @return void
  */
 function print_bug_attachments_list( $p_bug_id, $p_direct_access = false  ) {
@@ -1900,7 +1901,7 @@ function print_bug_attachments_list( $p_bug_id, $p_direct_access = false  ) {
 	echo "\n<ul>";
 	foreach ( $t_attachments as $t_attachment ) {
 		echo "\n<li>";
-		print_bug_attachment( $t_attachment );
+		print_bug_attachment( $t_attachment, $p_security_token );
 		echo "\n</li>";
 	}
 	echo "\n</ul>";
@@ -1916,11 +1917,10 @@ function print_bug_attachments_list( $p_bug_id, $p_direct_access = false  ) {
  * Use this to avoid performance issues when loading pages having many calls to
  * this function, such as print_bug_attachments_list().
  * @param array $p_attachment An attachment array from within the array returned by the file_get_visible_attachments() function.
- * @param mixed  $p_security_token Optional; null (default) or security token string.
- * @see form_security_token()
+ * @param string $p_security_token The security token to use for deleting attachments.
  * @return void
  */
-function print_bug_attachment( array $p_attachment, $p_security_token = null ) {
+function print_bug_attachment( array $p_attachment, $p_security_token ) {
 	$t_show_attachment_preview = $p_attachment['preview'] && $p_attachment['exists'] && ( $p_attachment['type'] == 'text' || $p_attachment['type'] == 'image' );
 	if( $t_show_attachment_preview ) {
 		$t_collapse_id = 'attachment_preview_' . $p_attachment['id'];
@@ -1928,11 +1928,9 @@ function print_bug_attachment( array $p_attachment, $p_security_token = null ) {
 		$g_collapse_cache_token[$t_collapse_id] = false;
 		collapse_open( $t_collapse_id );
 	}
-	# The same token is used for both links in the collapse section
-	if( null === $p_security_token ) {
-		$p_security_token = form_security_token( 'bug_file_delete' );
-	}
+
 	print_bug_attachment_header( $p_attachment, $p_security_token );
+
 	if( $t_show_attachment_preview ) {
 		echo lang_get( 'word_separator' );
 		collapse_icon( $t_collapse_id );
@@ -1958,11 +1956,10 @@ function print_bug_attachment( array $p_attachment, $p_security_token = null ) {
  * Use this to avoid performance issues when loading pages having many calls to
  * this function, such as print_bug_attachments_list().
  * @param array $p_attachment An attachment array from within the array returned by the file_get_visible_attachments() function.
- * @param mixed  $p_security_token Optional; null (default) or security token string.
- * @see form_security_token()
+ * @param string $p_security_token The security token to use for deleting attachments.
  * @return void
  */
-function print_bug_attachment_header( array $p_attachment, $p_security_token = null ) {
+function print_bug_attachment_header( array $p_attachment, $p_security_token ) {
 	echo "\n";
 	if( $p_attachment['exists'] ) {
 		if( $p_attachment['can_download'] ) {
@@ -1986,9 +1983,10 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 		if( $p_attachment['can_download'] ) {
 			echo '</a>';
 		}
-		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0 ) . '">';
-		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get( 'file_size_system' ) ) . ')</span>';
-		echo lang_get( 'word_separator' ) . '<span class="italic">' . date( config_get( 'normal_date_format' ), $p_attachment['date_added'] ) . '</span>';
+
+##		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0 ) . '">';
+		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get( 'file_size_system' ) ) . ')';
+##		echo lang_get( 'word_separator' ) . '<span class="italic">' . date( config_get( 'normal_date_format' ), $p_attachment['date_added'] ) . '</span>';
 		event_signal( 'EVENT_VIEW_BUG_ATTACHMENT', array( $p_attachment ) );
 	} else {
 		print_file_icon( $p_attachment['display_name'] );
@@ -1996,9 +1994,9 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token = n
 	}
 
 	if( $p_attachment['can_delete'] ) {
-		echo lang_get( 'word_separator' ) . '&#160;&#160;';
-		print_button( 'bug_file_delete.php?file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_delete', $p_security_token ),
-			lang_get( 'delete_link' ), 'btn-xs' );
+		echo '<a class="noprint" href="bug_file_delete.php?file_id=' . $p_attachment['id'] .
+			form_security_param( 'bug_file_delete', $p_security_token ) . '">
+			<i class="1 ace-icon fa fa-trash-o"></i></a>';
 	}
 
 	if( access_compare_level( current_user_get_access_level( ), config_get( 'send_attachments_threshold' ) ) ) {
