@@ -203,3 +203,4 @@ config_obsolete( 'hr_width' );
 config_obsolete( 'db_schema' );
 config_obsolete( 'calendar_js_date_format' );
 config_obsolete( 'icon_path' );
+config_obsolete( 'bug_print_page_fields' );

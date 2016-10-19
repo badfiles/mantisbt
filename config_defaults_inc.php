@@ -2373,80 +2373,6 @@ $g_bug_view_page_fields = array (
 );
 
 /**
- * An array of optional fields to show on the bug print page.
- *
- * The following optional fields are allowed:
- *   - additional_info
- *   - attachments
- *   - category_id
- *   - date_submitted
- *   - description
- *   - due_date
- *   - eta
- *   - fixed_in_version
- *   - handler
- *   - id
- *   - last_updated
- *   - os
- *   - os_version
- *   - platform
- *   - priority
- *   - product_build
- *   - product_version
- *   - project
- *   - projection
- *   - reporter
- *   - reproducibility
- *   - resolution
- *   - severity
- *   - status
- *   - steps_to_reproduce
- *   - summary
- *   - tags
- *   - target_version
- *   - view_state
- *
- * Fields not listed above cannot be shown on the bug print page. All custom
- * field values are shown on the bug print page.
- *
- * This setting can be set on a per-project basis by using the
- * Manage => Manage Configuration administrator page.
- *
- * @global array $g_bug_print_page_fields
- */
-$g_bug_print_page_fields = array (
-	'additional_info',
-	'attachments',
-	'category_id',
-	'date_submitted',
-	'description',
-	'due_date',
-	'eta',
-	'fixed_in_version',
-	'handler',
-	'id',
-	'last_updated',
-	'os',
-	'os_version',
-	'platform',
-	'priority',
-	'product_build',
-	'product_version',
-	'project',
-	'projection',
-	'reporter',
-	'reproducibility',
-	'resolution',
-	'severity',
-	'status',
-	'steps_to_reproduce',
-	'summary',
-	'tags',
-	'target_version',
-	'view_state',
-);
-
-/**
  * An array of optional fields to show on the bug update page.
  *
  * The following optional fields are allowed:
@@ -3136,7 +3062,7 @@ $g_status_colors = array(
 
 /**
  * The padding level when displaying project ids
- *  The bug id will be padded with 0's up to the size given
+ *  The project id will be padded with 0's up to the size given
  * @global integer $g_display_project_padding
  */
 $g_display_project_padding = 3;
@@ -3560,13 +3486,13 @@ $g_custom_field_edit_after_create = ON;
  * Add custom options to the main menu.  For example:
  *
  * $g_main_menu_custom_options = array(
- *     array( 
+ *     array(
  *         'title'        => 'My Link',
  *         'access_level' => MANAGER,
  *         'url'          => 'my_link.php',
  *         'icon'         => 'fa-plug'
  *     ),
- *     array( 
+ *     array(
  *         'title'        => 'My Link2',
  *         'access_level' => ADMINISTRATOR,
  *         'url'          => 'my_link2.php',
