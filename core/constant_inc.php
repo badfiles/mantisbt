@@ -611,14 +611,14 @@ define( 'ERROR_FTP_CONNECT_ERROR', 16 );            # N/A
 
 # JQuery and JQuery UI
 # hashes acquired with command 'cat file.js | openssl dgst -sha256 -binary | openssl enc -base64 -A'
-define ( 'JQUERY_VERSION', '2.2.4' );
-define ( 'JQUERY_HASH', 'sha256-BbhdlvQf/xTY9gja0Dq3HiwQF8LaCRTXxZKRutelT44=' );
-define ( 'JQUERY_UI_VERSION', '1.11.4' );
-define ( 'JQUERY_UI_HASH', 'sha256-xNjb53/rY+WmG+4L6tTl9m6PpqknWZvRt0rO1SRnJzw=' );
+define ( 'JQUERY_VERSION', '3.1.1' );
+define ( 'JQUERY_HASH', 'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=' );
+define ( 'JQUERY_UI_VERSION', '1.12.1' );
+define ( 'JQUERY_UI_HASH', 'sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=' );
 
 # Bootstrap & FontAwesome
-define ( 'BOOTSTRAP_VERSION', '3.3.6' );
-define ( 'BOOTSTRAP_HASH', 'sha256-KXn5puMvxCw+dAYznun+drMdG1IFl3agK0p/pqT9KAo=' );
+define ( 'BOOTSTRAP_VERSION', '3.3.7' );
+define ( 'BOOTSTRAP_HASH', 'sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=' );
 define ( 'FONT_AWESOME_VERSION', '4.6.3' );
 
 # Chart JS
