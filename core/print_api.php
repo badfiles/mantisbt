@@ -1944,6 +1944,8 @@ function print_bug_attachment( array $p_attachment, $p_security_token ) {
 		echo lang_get( 'word_separator' );
 		collapse_icon( $t_collapse_id );
 		collapse_end( $t_collapse_id );
+	} else {
+		echo '<br />';
 	}
 }
 
