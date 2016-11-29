@@ -1585,7 +1585,7 @@ function email_format_bugnote( $p_bugnote, $p_project_id, $p_show_time_tracking,
 	$t_date_format = ( $p_date_format === null ) ? config_get( 'normal_date_format' ) : $p_date_format;
 
 	$t_last_modified = date( $t_date_format, $p_bugnote->last_modified );
-
+/**
 	$t_formatted_bugnote_id = bugnote_format_id( $p_bugnote->id );
 	$t_bugnote_link = string_process_bugnote_link( config_get( 'bugnote_link_tag' ) . $p_bugnote->id, false, false, true );
 
@@ -1607,7 +1607,9 @@ function email_format_bugnote( $p_bugnote, $p_project_id, $p_show_time_tracking,
 	$t_string = ' (' . $t_formatted_bugnote_id . ') ' . user_get_name( $p_bugnote->reporter_id ) .
 		$t_access_level_string . ' - ' . $t_last_modified . $t_private . "\n" .
 		$t_time_tracking . ' ' . $t_bugnote_link;
-
+*/
+	$t_string = user_get_name( $p_bugnote->reporter_id ) . ' -- ' . $t_last_modified;
+	
 	$t_message  = $p_horizontal_separator . " \n";
 	$t_message .= $t_string . " \n";
 	$t_message .= $p_horizontal_separator . " \n";

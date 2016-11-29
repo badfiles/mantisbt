@@ -737,23 +737,6 @@ if( $t_custom_fields_found ) {
 echo '</tbody></table>';
 echo '</div></div></div></div></div>';
 
-# User list sponsoring the bug
-if( $t_show_sponsorships_box ) {
-	define( 'BUG_SPONSORSHIP_LIST_VIEW_INC_ALLOW', true );
-	include( $t_mantis_dir . 'bug_sponsorship_list_view_inc.php' );
-}
-
-# Bug Relationships
-if( $t_show_relationships_box ) {
-	relationship_view_box( $t_bug->id );
-}
-
-# User list monitoring the bug
-if( $t_show_monitor_box ) {
-	define( 'BUG_MONITOR_LIST_VIEW_INC_ALLOW', true );
-	include( $t_mantis_dir . 'bug_monitor_list_view_inc.php' );
-}
-
 # Bugnotes and "Add Note" box
 if( 'ASC' == current_user_get_pref( 'bugnote_order' ) ) {
 	define( 'BUGNOTE_VIEW_INC_ALLOW', true );
@@ -781,6 +764,23 @@ if( config_get( 'time_tracking_enabled' ) &&
 	access_has_bug_level( config_get( 'time_tracking_view_threshold' ), $f_bug_id ) ) {
 	define( 'BUGNOTE_STATS_INC_ALLOW', true );
 	include( $t_mantis_dir . 'bugnote_stats_inc.php' );
+}
+
+# User list sponsoring the bug
+if( $t_show_sponsorships_box ) {
+	define( 'BUG_SPONSORSHIP_LIST_VIEW_INC_ALLOW', true );
+	include( $t_mantis_dir . 'bug_sponsorship_list_view_inc.php' );
+}
+
+# Bug Relationships
+if( $t_show_relationships_box ) {
+	relationship_view_box( $t_bug->id );
+}
+
+# User list monitoring the bug
+if( $t_show_monitor_box ) {
+	define( 'BUG_MONITOR_LIST_VIEW_INC_ALLOW', true );
+	include( $t_mantis_dir . 'bug_monitor_list_view_inc.php' );
 }
 
 # History

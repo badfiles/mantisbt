@@ -224,7 +224,7 @@ $(document).ready( function() {
 		enableDropzone( "dropzone", false );
 	}
 	if( $( ".auto-dropzone-form" ).length ) {
-		enableDropzone( "auto-dropzone", true );
+		enableDropzone( "auto-dropzone", false );
 	}
 
 	$('.bug-jump').find('[name=bug_id]').focus( function() {

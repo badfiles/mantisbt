@@ -202,7 +202,6 @@ layout_page_begin();
 					<input type="text" class="input-sm" name="duplicate_id" maxlength="10" />
 				</td>
 			</tr> -->
-<?php } ?>
 
 <?php
 		}
