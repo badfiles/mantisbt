@@ -732,18 +732,6 @@ if( $t_custom_fields_found ) {
 	echo '<tr class="hidden"></tr>';
 }
 
-<<<<<<< f9d988222730841044427cc56ae2596174aaa4b1
-=======
-# Attachments
-if( $t_show_attachments ) {
-	echo '<tr id="attachments">';
-	echo '<th class="bug-attachments category">', lang_get( 'attached_files' ), '</th>';
-	echo '<td class="bug-attachments" colspan="5">';
-	print_bug_attachments_list( $t_bug_id, $t_direct_access );
-	echo '</td></tr>';
-}
-
->>>>>>> Implement direct access to private issue with a key
 echo '</tbody></table>';
 echo '</div></div></div></div></div>';
 
