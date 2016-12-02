@@ -43,6 +43,7 @@ require_api( 'bug_api.php' );
 require_api( 'collapse_api.php' );
 require_api( 'config_api.php' );
 require_api( 'constant_inc.php' );
+require_api( 'current_user_api.php' );
 require_api( 'event_api.php' );
 require_api( 'form_api.php' );
 require_api( 'helper_api.php' );
@@ -151,6 +152,14 @@ require_api( 'lang_api.php' );
 					<?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file' : 'upload_files' ) ?>
 					<br />
 					<?php print_max_filesize( $t_max_file_size ); ?>
+					<br />
+					<?php
+					if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) ) ) {
+						echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
+					}
+					if( access_compare_level( current_user_get_access_level(), config_get( 'create_protected_attachments_threshold' ) ) ) {
+						echo '<input type="checkbox" id="protected" name="protected" /><label for="protected">' . lang_get( 'label_protected_attachment' ) . '</label><br /><br />';
+					} ?>
 				</th>
 				<td>
 					<input type="hidden" name="max_file_size" value="<?php echo $t_max_file_size ?>" />
