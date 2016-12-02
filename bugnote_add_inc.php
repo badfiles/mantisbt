@@ -158,7 +158,8 @@ require_api( 'lang_api.php' );
 						echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
 					}
 					if( access_compare_level( current_user_get_access_level(), config_get( 'create_protected_attachments_threshold' ) ) ) {
-						echo '<input type="checkbox" id="protected" name="protected" /><label for="protected">' . lang_get( 'label_protected_attachment' ) . '</label><br /><br />';
+						echo '<input type="checkbox" id="protected" name="protected" /><label for="protected">';
+						echo sprintf( lang_get( 'label_protected_attachment' ), MantisEnum::getLabel( lang_get( 'access_levels_enum_string' ), config_get( 'handle_protected_attachments_threshold' ) ) ) . '</label><br /><br />';
 					} ?>
 				</th>
 				<td>
