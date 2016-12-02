@@ -366,7 +366,6 @@ function file_get_visible_attachments( $p_bug_id, $p_direct_access = false ) {
 		$t_row = $t_attachment_rows[$i];
 		$t_user_id = (int)$t_row['user_id'];
 
-<<<<<<< f9d988222730841044427cc56ae2596174aaa4b1
 		if( !file_can_view_bug_attachments( $p_bug_id, $t_user_id, $p_direct_access ) ) {
 			continue;
 		}
