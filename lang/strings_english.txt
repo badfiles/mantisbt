@@ -647,6 +647,10 @@ $s_edit_bugnote_title = 'Edit Note';
 # bugnote_inc.php
 $s_no_bugnotes_msg = 'There are no notes attached to this issue.';
 $s_delete_link = 'Delete';
+$s_rem_send_link = 'Do not attach to notifications';
+$s_set_send_link = 'Attach to next notification';
+$s_rem_lock_link = 'Unprotect attachment';
+$s_set_lock_link = 'Protect attachment';
 $s_add_bugnote_title = 'Add Note';
 $s_add_bugnote_button = 'Add Note';
 $s_bugnote_edit_link = 'Edit';
