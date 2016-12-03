@@ -526,6 +526,7 @@ $s_upload_files_button = 'Upload Files';
 $s_max_file_size_label = 'Maximum size:';
 $s_file_size_info = '%1$s %2$s'; # $1 = size, $2 = unit (e.g. kb, bytes)
 $s_label_to_send = 'Attach file(s) to the nearest notification e-mail';
+$s_label_protected_attachment = 'Limit attached file(s) access level to %1$s';
 
 # bug_reopen.php
 $s_bug_reopened_msg = 'Issue has been reopened...';
@@ -647,6 +648,10 @@ $s_edit_bugnote_title = 'Edit Note';
 # bugnote_inc.php
 $s_no_bugnotes_msg = 'There are no notes attached to this issue.';
 $s_delete_link = 'Delete';
+$s_rem_send_link = 'Do not attach to notifications';
+$s_set_send_link = 'Attach to next notification';
+$s_rem_lock_link = 'Unprotect attachment';
+$s_set_lock_link = 'Protect attachment';
 $s_add_bugnote_title = 'Add Note';
 $s_add_bugnote_button = 'Add Note';
 $s_bugnote_edit_link = 'Edit';

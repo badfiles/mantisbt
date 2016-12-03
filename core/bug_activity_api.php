@@ -51,14 +51,14 @@ define( 'ENTRY_TYPE_ATTACHMENT', 'attachment' );
  *               attachments (all attachments), and activities
  *               (combined notes and attachments).
  */
-function bug_activity_get_all( $p_bug_id, $p_include_attachments = true ) {
+function bug_activity_get_all( $p_bug_id, $p_include_attachments = true, $p_direct_access = false ) {
 	$t_result = array();
 
 	$t_user_id = auth_get_current_user_id();
 	$t_bug_readonly = bug_is_readonly( $p_bug_id );
 
 	if ( $p_include_attachments ) {
-		$t_attachments = file_get_visible_attachments( $p_bug_id );
+		$t_attachments = file_get_visible_attachments( $p_bug_id, $p_direct_access );
 	} else {
 		$t_attachments = array();
 	}

@@ -69,7 +69,7 @@ function file_process_posted_files_for_bug( $p_bug_id, $p_files, $p_to_send = fa
 	$t_files = helper_array_transpose( $p_files );
 	foreach( $t_files as $t_file ) {
 		if( !empty( $t_file['name'] ) ) {
-			$t_file_infos[] = file_add( $p_bug_id, $t_file, $p_to_send, $p_protected, 'bug' );
+			$t_file_infos[] = file_add( $p_bug_id, $t_file, $p_to_send, $p_protected );
 		}
 	}
 

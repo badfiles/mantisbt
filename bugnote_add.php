@@ -59,6 +59,8 @@ $f_private		= gpc_get_bool( 'private' );
 $f_time_tracking	= gpc_get_string( 'time_tracking', '0:00' );
 $f_bugnote_text	= trim( gpc_get_string( 'bugnote_text', '' ) );
 $f_files		= gpc_get_file( 'ufile', null );
+$f_to_send		= gpc_get_bool( 'to_send', false );
+$f_protected		= gpc_get_bool( 'protected', false );
 
 # The UI hides the attach controls when the note is marked as private to avoid disclosure of
 # attachments.  Attaching files to private notes can be re-enabled as proper support for protecting
@@ -97,7 +99,7 @@ if( $f_files !== null ) {
 		access_denied();
 	}
 
-	$t_file_infos = file_process_posted_files_for_bug( $f_bug_id, $f_files );
+	$t_file_infos = file_process_posted_files_for_bug( $f_bug_id, $f_files, $f_to_send, $f_protected );
 } else {
 	$t_file_infos = array();
 }

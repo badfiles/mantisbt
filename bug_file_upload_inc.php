@@ -85,6 +85,8 @@ $t_max_file_size = (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_nu
 				<table class="table table-bordered table-condensed table-striped">
 <tr>
 	<td class="category" width="15%">
+		<?php echo lang_get( $t_file_upload_max_num == 1 ? 'select_file' : 'select_files' ) ?>
+		<br />
 		<?php print_max_filesize( $t_max_file_size ); ?>
 		<br /><?php
 		if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) ) ) {
@@ -107,7 +109,17 @@ $t_max_file_size = (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_nu
 			<div id="auto-dropzone-previews-box" class="dropzone-previews dz-max-files-reached"></div>
 			</div>
 		<div class="fallback">
+<?php
+	# Display multiple file upload fields
+	for( $i = 0; $i < $t_file_upload_max_num; $i++ ) {
+?>
 		<input id="ufile[]" name="ufile[]" type="file" size="50" />
+<?php
+		if( $t_file_upload_max_num > 1 ) {
+			echo '<br />';
+		}
+	}
+?>
 	</div>
 </td>
 </tr>

@@ -1896,7 +1896,7 @@ function get_dropdown( array $p_control_array, $p_control_name, $p_match = '', $
  * @param string $p_security_token The security token to use for deleting attachments.
  * @return void
  */
-function print_bug_attachments_list( $p_bug_id, $p_direct_access = false  ) {
+function print_bug_attachments_list( $p_bug_id, $p_security_token, $p_direct_access = false ) {
 	$t_attachments = file_get_visible_attachments( $p_bug_id, $p_direct_access );
 	echo "\n<ul>";
 	foreach ( $t_attachments as $t_attachment ) {
@@ -2003,13 +2003,13 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token ) {
 
 	if( access_compare_level( current_user_get_access_level( ), config_get( 'send_attachments_threshold' ) ) ) {
 		echo lang_get( 'word_separator' ) . '&#160;&#160;';
-		print_button( 'bug_file_toggle.php?action=s&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_to_send_toggle' ),
+		print_link_button( 'bug_file_toggle.php?action=s&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_to_send_toggle' ),
 			 lang_get( $p_attachment['to_send'] ? 'rem_send_link' : 'set_send_link' ), 'btn-xs' );
 	}
 
 	if( access_compare_level( current_user_get_access_level( ), config_get( 'handle_protected_attachments_threshold' ) ) ) {
 		echo lang_get( 'word_separator' ) . '&#160;&#160;';
-		print_button( 'bug_file_toggle.php?action=l&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_protected_toggle' ),
+		print_link_button( 'bug_file_toggle.php?action=l&file_id=' . $p_attachment['id'] . form_security_param( 'bug_file_protected_toggle' ),
 			 lang_get( $p_attachment['protected'] ? 'rem_lock_link' : 'set_lock_link' ), 'btn-xs' );
 	}
 }

@@ -351,7 +351,6 @@ class ImportXml_Issue implements ImportXml_Interface {
 				);
 				$t_no_send = (bool)$t_attachment->no_send;
 				file_add( $this->new_id_, $t_file_data, !$t_no_send , false, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, 0, true );
-#				file_add( $this->new_id_, $t_file_data, true, false, 'bug', $t_attachment->title, $p_desc = '', $p_user_id = null, 0, true );
 				unlink( $t_temp_file_name );
 			}
 		}
