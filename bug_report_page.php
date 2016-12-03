@@ -376,8 +376,11 @@ if( $t_show_attachments ) {
 					<?php print_profile_option_list( auth_get_current_user_id(), $f_profile_id ) ?>
 				</select>
 			<?php } ?>
-			<?php collapse_open( 'profile' ); collapse_icon( 'profile' ); ?>
-			<?php echo lang_get( 'or_fill_in' ); ?>
+			<?php
+			if( auth_get_current_user_id() != user_get_id_by_name( config_get( 'anonymous_account' ) ) ) {
+				collapse_open( 'profile' ); collapse_icon( 'profile' );
+				echo lang_get( 'or_fill_in' );
+			} ?>
 			<table class="table-bordered table-condensed">
 				<tr>
 					<th class="category" width="30%">
@@ -433,9 +436,12 @@ if( $t_show_attachments ) {
 					</td>
 				</tr>
 			</table>
-			<?php collapse_closed( 'profile' ); collapse_icon( 'profile' ); ?>
-			<?php echo lang_get( 'or_fill_in' ); ?>
-			<?php collapse_end( 'profile' ); ?>
+			<?php
+			if( auth_get_current_user_id() != user_get_id_by_name( config_get( 'anonymous_account' ) ) ) {
+				collapse_closed( 'profile' ); collapse_icon( 'profile' );
+				echo lang_get( 'or_fill_in' );
+				collapse_end( 'profile' );
+			} ?>
 		</td>
 	</tr>
 <?php } ?>
