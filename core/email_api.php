@@ -1778,6 +1778,10 @@ function email_build_visible_bug_data( $p_user_id, $p_bug_id, $p_message_id ) {
 
 	if( $p_message_id !== 'email_notification_title_for_action_bug_deleted' ) {
 		$t_bug_data['email_bug_view_url'] = string_get_bug_view_url_with_fqdn( $p_bug_id );
+    	$t_bug_dak = bug_get_field( $p_bug_id, 'direct_access_key' );
+    	if( $t_bug_dak !== '') {
+        	$t_bug_data['email_bug_view_url'] .= '&dak=' . $t_bug_dak;
+        }
 	}
 
 	if( access_compare_level( $t_user_access_level, config_get( 'view_handler_threshold' ) ) ) {

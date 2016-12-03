@@ -52,7 +52,7 @@ require_api( 'lang_api.php' );
 
 ?>
 <?php if( ( !bug_is_readonly( $f_bug_id ) ) &&
-		( access_has_bug_level( config_get( 'add_bugnote_threshold' ), $f_bug_id ) ) ) { ?>
+		( ( access_has_bug_level( config_get( 'add_bugnote_threshold' ), $f_bug_id ) ) ) || $t_direct_access ) { ?>
 <?php # Bugnote Add Form BEGIN ?>
 
 <div class="col-md-12 col-xs-12 noprint">
@@ -71,6 +71,7 @@ require_api( 'lang_api.php' );
 	class="dz dropzone-form"
 	<?php print_dropzone_form_data() ?>>
 	<?php echo form_security_field( 'bugnote_add' ) ?>
+	<input type="hidden" name="bug_dak" value="<?php echo $f_bug_dak ?>" />
 	<input type="hidden" name="bug_id" value="<?php echo $f_bug_id ?>" />
 	<div id="bugnote_add" class="widget-box widget-color-blue2 <?php echo $t_block_css ?>">
 		<div class="widget-header widget-header-small">

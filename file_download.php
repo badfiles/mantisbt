@@ -75,6 +75,7 @@ if( $f_show_inline ) {
 }
 
 $f_file_id = gpc_get_int( 'file_id' );
+$f_bug_dak = gpc_get_string ( 'dak', '' );
 $f_type	= gpc_get_string( 'type' );
 
 $c_file_id = (integer)$f_file_id;
@@ -107,10 +108,16 @@ if( $f_type == 'bug' ) {
 	$t_project_id = $v_project_id;
 }
 
+if( ( $f_bug_dak == '' ) || ( $f_bug_dak !== bug_get_field( $v_bug_id, 'direct_access_key' ) ) ) {
+	$t_direct_access = false;
+} else {
+	$t_direct_access = true;
+}
+
 # Check access rights
 switch( $f_type ) {
 	case 'bug':
-		if( !file_can_download_bug_attachments( $v_bug_id, (int)$v_user_id, (bool)$t_row['protected'] ) ) {
+		if( !file_can_download_bug_attachments( $v_bug_id, (int)$v_user_id, (bool)$t_row['protected'], $t_direct_access ) ) {
 			access_denied();
 		}
 		break;

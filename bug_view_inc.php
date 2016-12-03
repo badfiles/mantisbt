@@ -81,6 +81,7 @@ require_api( 'version_api.php' );
 require_css( 'status_config.php' );
 
 $f_bug_id = gpc_get_int( 'id' );
+$f_bug_dak = gpc_get_string( 'dak', '');
 
 bug_ensure_exists( $f_bug_id );
 
@@ -91,7 +92,13 @@ $t_bug = bug_get( $f_bug_id, true );
 # per-project function calls use the project ID of this bug.
 $g_project_override = $t_bug->project_id;
 
-access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
+if( ( $f_bug_dak == '' ) ||
+    ( $f_bug_dak !== $t_bug->direct_access_key ) ) {
+	$t_direct_access = false;
+	access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
+} else {
+	$t_direct_access = true;
+}
 
 $f_history = gpc_get_bool( 'history', config_get( 'history_default_visible' ) );
 
@@ -177,7 +184,7 @@ $t_bug_overdue = bug_is_overdue( $f_bug_id );
 $t_show_view_state = in_array( 'view_state', $t_fields );
 $t_bug_view_state_enum = $t_show_view_state ? string_display_line( get_enum_element( 'view_state', $t_bug->view_state ) ) : '';
 
-$t_show_due_date = in_array( 'due_date', $t_fields ) && access_has_bug_level( config_get( 'due_date_view_threshold' ), $f_bug_id );
+$t_show_due_date = in_array( 'due_date', $t_fields ) && ( access_has_bug_level( config_get( 'due_date_view_threshold' ), $f_bug_id ) || $t_direct_access );
 
 if( $t_show_due_date ) {
 	if( !date_is_null( $t_bug->due_date ) ) {
