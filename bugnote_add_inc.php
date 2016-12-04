@@ -152,15 +152,6 @@ require_api( 'lang_api.php' );
 					<?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file' : 'upload_files' ) ?>
 					<br />
 					<?php print_max_filesize( $t_max_file_size ); ?>
-					<br />
-					<?php
-					if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) ) ) {
-						echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
-					}
-					if( access_compare_level( current_user_get_access_level(), config_get( 'create_protected_attachments_threshold' ) ) ) {
-						$t_protected_label = sprintf( lang_get( 'label_protected_attachment' ), MantisEnum::getLabel( lang_get( 'access_levels_enum_string' ), config_get( 'handle_protected_attachments_threshold' ) ) );
-						echo '<input type="checkbox" id="protected" name="protected" /><label for="protected">' . $t_protected_label . '</label><br /><br />';
-					} ?>
 				</th>
 				<td>
 					<input type="hidden" name="max_file_size" value="<?php echo $t_max_file_size ?>" />
@@ -174,6 +165,38 @@ require_api( 'lang_api.php' );
 					</div>
 				</td>
 			</tr>
+<?php
+		if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) ) ) {
+?>
+			<tr>
+				<th class="category">
+					<?php echo lang_get( 'manage_email_config' ) ?>
+				</th>
+				<td>
+				<label for="to_send">
+					<input type="checkbox" class="ace" id="to_send" name="to_send" />
+					<span class="lbl"> <?php echo lang_get( 'label_to_send' ) ?></span>
+				</label>
+				</td>
+			</tr>
+<?php
+		}
+		if( access_compare_level( current_user_get_access_level(), config_get( 'create_protected_attachments_threshold' ) ) ) {
+			$t_protected_label = sprintf( lang_get( 'label_protected_attachment' ), MantisEnum::getLabel( lang_get( 'access_levels_enum_string' ), config_get( 'handle_protected_attachments_threshold' ) ) );
+?>
+			<tr>
+				<th class="category">
+					<?php echo lang_get( 'view_status' ) ?>
+				</th>
+				<td>
+				<label for="protected">
+					<input type="checkbox" class="ace" id="protected" name="protected" />
+					span class="lbl"> <?php echo $t_protected_label ?></span>
+				</label>
+				</td>
+			</tr>
+<?php
+		}?>
 <?php
 	}
 
