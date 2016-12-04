@@ -69,4 +69,5 @@ print_config_value( 'calendar_jq_time_format' );
 print_config_value( 'short_path' );
 print_config_value( 'allowed_files' );
 print_config_value( 'dropzone_force_fallback', !(bool)config_get( 'dropzone_enabled' ) ? 'true' : 'false' );
-print_config_value( 'max_file_size', ceil( config_get( 'max_file_size' ) / (1000 * 1024) ) );
+print_config_value( 'dropzone_filesizeBase', config_get( 'file_size_system' ) );
+print_config_value( 'dropzone_maxFilesize', ceil( config_get( 'max_file_size' ) / pow( config_get( 'file_size_system' ), 2 ) ) );

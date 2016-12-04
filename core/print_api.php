@@ -1986,9 +1986,7 @@ function print_bug_attachment_header( array $p_attachment, $p_security_token ) {
 			echo '</a>';
 		}
 
-##		echo '<span class="small" title="' . get_filesize_info( $p_attachment['size'], BINARY, 0 ) . '">';
 		echo lang_get( 'word_separator' ) . '(' . get_filesize_info( $p_attachment['size'] , config_get( 'file_size_system' ) ) . ')';
-##		echo lang_get( 'word_separator' ) . '<span class="italic">' . date( config_get( 'normal_date_format' ), $p_attachment['date_added'] ) . '</span>';
 		event_signal( 'EVENT_VIEW_BUG_ATTACHMENT', array( $p_attachment ) );
 	} else {
 		print_file_icon( $p_attachment['display_name'] );
