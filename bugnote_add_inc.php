@@ -192,7 +192,7 @@ require_api( 'lang_api.php' );
 				<td>
 				<label for="protected">
 					<input type="checkbox" class="ace" id="protected" name="protected" />
-					span class="lbl"> <?php echo $t_protected_label ?></span>
+					<span class="lbl"> <?php echo $t_protected_label ?></span>
 				</label>
 				</td>
 			</tr>
