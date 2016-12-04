@@ -479,7 +479,6 @@ function enableDropzone( classPrefix, autoUpload ) {
 			previewsContainer: '#' + classPrefix + '-previews-box',
 			uploadMultiple: true,
 			parallelUploads: 100,
-			maxFilesize: $(this).data('max-filesize'),
 			maxFilesize: config[dropzone_maxFilesize],
 			filesizeBase: config[dropzone_filesizeBase],
 			addRemoveLinks: !autoUpload,
