@@ -62,4 +62,4 @@ echo "var config = new Array();\n";
 print_config_value( 'calendar_js_date_format' );
 print_config_value( 'short_path' );
 print_config_value( 'dropzone_filesizeBase', config_get( 'file_size_system' ) );
-print_config_value( 'dropzone_maxFilesize', ceil( config_get( 'max_file_size' ) / pow( config_get( 'file_size_system' ), 2 ) );
+print_config_value( 'dropzone_maxFilesize', ceil( config_get( 'max_file_size' ) / pow( config_get( 'file_size_system' ), 2 ) ) );
