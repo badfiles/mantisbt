@@ -1274,7 +1274,7 @@ function email_send( EmailData $p_email_data ) {
 	if( isset( $t_email_data->attachments ) && is_array( $t_email_data->attachments ) ) {
 		foreach( $t_email_data->attachments as $t_attachment ) {
 			$t_attachment_id = $t_attachment['id'];
-			if( null != file_get_field ( $t_attachment_id, 'bug_id' ) ) {
+			if( null != file_get_field( $t_attachment_id, 'bug_id' ) ) {
 				$t_blob = file_get_content( $t_attachment_id );
 				$t_mail->AddStringAttachment( $t_blob['content'], $t_attachment['filename'], 'base64', $t_blob['type'] );
 			}
