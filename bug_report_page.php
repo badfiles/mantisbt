@@ -244,7 +244,8 @@ if( $t_show_attachments ) {
 <form id="report_bug_form"
 	method="post" <?php echo $t_form_encoding; ?>
 	action="bug_report.php?posted=1"
-	class="dropzone-form">
+	class="dropzone-form"
+	<?php print_dropzone_form_data() ?>>
 <?php echo form_security_field( 'bug_report' ) ?>
 <input type="hidden" name="m_id" value="<?php echo $f_master_bug_id ?>" />
 <input type="hidden" name="project_id" value="<?php echo $t_project_id ?>" />

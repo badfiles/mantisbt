@@ -2156,6 +2156,29 @@ function print_max_filesize( $p_size ) {
 }
 
 /**
+ * Populate form element with dropzone data attributes
+ * @return void
+ */
+function print_dropzone_form_data() {
+	echo 'data-force-fallback="' . ( config_get( 'dropzone_enabled' ) ? 'false' : 'true' ) . '"' . "\n";
+	echo "\t" . 'data-max-filesize="'. ceil( config_get( 'max_file_size' ) / pow( config_get( 'file_size_system' ), 2 ) ) . '"' . "\n";
+	echo "\t" . 'data-base-filesize="'. config_get( 'file_size_system' ) . '"' . "\n";
+	echo "\t" . 'data-accepted-files="' . config_get( 'allowed_files' ) . '"' . "\n";
+	echo "\t" . 'data-default-message="' . htmlspecialchars( lang_get( 'dropzone_default_message' ) ) . '"' . "\n";
+	echo "\t" . 'data-fallback-message="' . htmlspecialchars( lang_get( 'dropzone_fallback_message' ) ) . '"' . "\n";
+	echo "\t" . 'data-fallback-text="' . htmlspecialchars( lang_get( 'dropzone_fallback_text' ) ) . '"' . "\n";
+	echo "\t" . 'data-file-too-big="' . htmlspecialchars( lang_get( 'dropzone_file_too_big' ) ) . '"' . "\n";
+	echo "\t" . 'data-invalid-file-type="' . htmlspecialchars( lang_get( 'dropzone_invalid_file_type' ) ) . '"' . "\n";
+	echo "\t" . 'data-response-error="' . htmlspecialchars( lang_get( 'dropzone_response_error' ) ) . '"' . "\n";
+	echo "\t" . 'data-cancel-upload="' . htmlspecialchars( lang_get( 'dropzone_cancel_upload' ) ) . '"' . "\n";
+	echo "\t" . 'data-cancel-upload-confirmation="' . htmlspecialchars( lang_get( 'dropzone_cancel_upload_confirmation' ) ) . '"' . "\n";
+	echo "\t" . 'data-remove-file="'. htmlspecialchars( lang_get( 'dropzone_remove_file' ) ) . '"' . "\n";
+	echo "\t" . 'data-remove-file-confirmation="' . htmlspecialchars( lang_get( 'dropzone_remove_file_confirmation' ) ) . '"' . "\n";
+	echo "\t" . 'data-max-files-exceeded="' . htmlspecialchars( lang_get( 'dropzone_max_files_exceeded' ) ) . '"' . "\n";
+	echo "\t" . 'data-dropzone-not-supported="' . htmlspecialchars( lang_get( 'dropzone_not_supported' ) ) . '"';
+}
+
+/**
  * Print a button which presents a standalone form.
  * This function remains for compatibility with v1.3
  * @deprecated use print_form_button() instead
