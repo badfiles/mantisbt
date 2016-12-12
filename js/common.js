@@ -471,30 +471,31 @@ function toggleDisplay(idTag)
 Dropzone.autoDiscover = false;
 function enableDropzone( classPrefix, autoUpload ) {
 	try {
-		var zone = new Dropzone( "." + classPrefix + "-form", {
-			forceFallback: $.parseJSON(config['dropzone_force_fallback']),
+		var formClass = "." + classPrefix + "-form";
+		var form = $( formClass );
+		var zone = new Dropzone( formClass, {
+			forceFallback: form.data('force-fallback'),
 			paramName: "ufile",
 			autoProcessQueue: autoUpload,
 			clickable: '.' + classPrefix,
 			previewsContainer: '#' + classPrefix + '-previews-box',
 			uploadMultiple: true,
 			parallelUploads: 100,
-			maxFilesize: config['dropzone_maxFilesize'],
-			filesizeBase: config['dropzone_filesizeBase'],
+			maxFilesize: form.data('max-filesize'),
 			addRemoveLinks: !autoUpload,
-			acceptedFiles: config['allowed_files'],
-			dictDefaultMessage: translations['dropzone_default_message'],
-			dictFallbackMessage: translations['dropzone_fallback_message'],
-			dictFallbackText: translations['dropzone_fallback_text'],
-			dictFileTooBig: translations['dropzone_file_too_big'],
-			dictInvalidFileType: translations['dropzone_invalid_file_type'],
-			dictResponseError: translations['dropzone_response_error'],
-			dictCancelUpload: translations['dropzone_cancel_upload'],
-			dictCancelUploadConfirmation: translations['dropzone_cancel_upload_confirmation'],
-			dictRemoveFile: translations['dropzone_remove_file'],
-			dictRemoveFileConfirmation: translations['dropzone_remove_file_confirmation'],
-			dictMaxFilesExceeded: translations['dropzone_max_files_exceeded'],
+			acceptedFiles: form.data('accepted-files'),
 			previewTemplate: "<div class=\"dz-preview dz-file-preview\">\n  <div class=\"dz-details\">\n    <div class=\"dz-filename\"><span data-dz-name></span></div>\n    <div class=\"dz-size\" data-dz-size></div>\n    <img data-dz-thumbnail />\n  </div>\n  <div class=\"progress progress-small progress-striped active\"><div class=\"progress-bar progress-bar-success\" data-dz-uploadprogress></div></div>\n  <div class=\"dz-success-mark\"><span></span></div>\n  <div class=\"dz-error-mark\"><span></span></div>\n  <div class=\"dz-error-message\"><span data-dz-errormessage></span></div>\n</div>",
+			dictDefaultMessage: form.data('default-message'),
+			dictFallbackMessage: form.data('fallback-message'),
+			dictFallbackText: form.data('fallback-text'),
+			dictFileTooBig: form.data('file-too-big'),
+			dictInvalidFileType: form.data('invalid-file-type'),
+			dictResponseError: form.data('response-error'),
+			dictCancelUpload: form.data('cancel-upload'),
+			dictCancelUploadConfirmation: form.data('cancel-upload-confirmation'),
+			dictRemoveFile: form.data('remove-file'),
+			dictRemoveFileConfirmation: form.data('remove-file-confirmation'),
+			dictMaxFilesExceeded: form.data('max-files-exceeded'),
 
 			init: function () {
 				var dropzone = this;
@@ -518,6 +519,6 @@ function enableDropzone( classPrefix, autoUpload ) {
 			}
 		});
 	} catch (e) {
-		alert( translations['dropzone_not_supported'] );
+		alert( form.data('dropzone-not-supported') );
 	}
 }
