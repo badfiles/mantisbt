@@ -534,10 +534,10 @@ function file_get_field( $p_file_id, $p_field_name, $p_table = 'bug' ) {
 
 /**
  * Set the specified field value
- * @param int $p_file_id file id
- * @param string $p_field_name field name
- * @param        $p_field_value field value
- * @param string $p_table table name
+ * @param integer $p_file_id file id
+ * @param string  $p_field_name field name
+ * @param         $p_field_value field value
+ * @param string  $p_table table name
  * @return string
  */
 function file_set_field( $p_file_id, $p_field_name, $p_field_value, $p_table = 'bug' ) {

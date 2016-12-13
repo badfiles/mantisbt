@@ -41,8 +41,6 @@ require_api( 'file_api.php' );
 require_api( 'form_api.php' );
 require_api( 'lang_api.php' );
 require_api( 'utility_api.php' );
-require_api( 'access_api.php' );
-require_api( 'current_user_api.php' );
 
 # check if we can allow the upload... bail out if we can't
 if( !file_allow_bug_upload( $f_bug_id ) ) {
@@ -84,41 +82,24 @@ $t_max_file_size = (int)min( ini_get_number( 'upload_max_filesize' ), ini_get_nu
 				<table class="table table-bordered table-condensed table-striped">
 <tr>
 	<td class="category" width="15%">
-		<?php echo lang_get( $t_file_upload_max_num == 1 ? 'select_file' : 'select_files' ) ?>
-		<br />
-		<?php print_max_filesize( $t_max_file_size ); ?>
-		<br /><?php
-		if( access_compare_level( current_user_get_access_level(), config_get( 'send_attachments_threshold' ) ) ) {
-			echo '<input type="checkbox" id="to_send" name="to_send" /><label for="to_send">' . lang_get( 'label_to_send' ) . '</label><br /><br />';
-		}
-		if( access_compare_level( current_user_get_access_level(), config_get( 'create_protected_attachments_threshold' ) ) ) {
-			echo '<input type="checkbox" id="protected" name="protected" /><label for="protected">' . lang_get( 'label_protected_attachment' ) . '</label><br /><br />';
-		} ?>
-		<input type="submit" class="btn btn-primary btn-sm btn-white btn-round" value="<?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file_button' : 'upload_files_button' ) ?>" />
+		<?php print_max_filesize( $t_max_file_size ) ?>
 	</td>
 	<td width="85%">
 		<input type="hidden" name="bug_id" value="<?php echo $f_bug_id ?>" />
 		<input type="hidden" name="max_file_size" value="<?php echo $t_max_file_size ?>" />
 		<div class="auto-dropzone center">
 			<div class="space-10"></div>
-			<i class="upload-icon ace-icon fa fa-cloud-upload blue fa-3x"></i>
-			<div class="space-8"></div>
-			<span class="bigger-110 lighter grey"><?php echo lang_get( 'dropzone_default_message' ) ?></span>
+			<i class="upload-icon ace-icon fa fa-cloud-upload blue fa-2x"></i>&#160;&#160;
+			<span class="bigger-170 lighter grey"><?php echo lang_get( 'dropzone_default_message' ) ?></span>
 			<div class="space-8"></div>
 			<div id="auto-dropzone-previews-box" class="dropzone-previews dz-max-files-reached"></div>
 			</div>
 		<div class="fallback">
-<?php
-	# Display multiple file upload fields
-	for( $i = 0; $i < $t_file_upload_max_num; $i++ ) {
-?>
 		<input id="ufile[]" name="ufile[]" type="file" size="50" />
-<?php
-		if( $t_file_upload_max_num > 1 ) {
-			echo '<br />';
-		}
-	}
-?>
+	<br />
+		<input type="submit" class="btn btn-primary btn-sm btn-white btn-round"
+			value="<?php echo lang_get( $t_file_upload_max_num == 1 ? 'upload_file_button' : 'upload_files_button' ) ?>"
+		/>
 	</div>
 </td>
 </tr>
