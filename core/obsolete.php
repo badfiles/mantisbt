@@ -204,12 +204,7 @@ config_obsolete( 'mail_priority' );
 
 # changes in 2.0.0
 config_obsolete( 'db_schema' );
-config_obsolete( 'calendar_js_date_format' );
 config_obsolete( 'icon_path' );
-<<<<<<< HEAD
-config_obsolete( 'bug_print_page_fields' );
-=======
 config_obsolete( 'bug_print_page_fields' );
 config_obsolete( 'calendar_js_date_format', 'datetime_picker_format' );
 config_obsolete( 'calendar_date_format', 'normal_date_format' );
->>>>>>> master
