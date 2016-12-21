@@ -221,9 +221,6 @@ switch( $f_action ) {
 	default:
 		trigger_error( ERROR_GENERIC, ERROR );
 }
-if( $f_action === 'UP_DUE_DATE' ) {
-    print_datetimepicker_js();
-}
 bug_group_action_print_top();
 ?>
 
@@ -282,12 +279,15 @@ if( $t_multiple_projects ) {
 				$t_bug_id = $f_bug_arr[0];
 				$t_bug = bug_get( $t_bug_id );
 				if( !date_is_null( $t_bug->due_date ) ) {
-					$t_date_to_display = date( config_get( 'calendar_date_format' ), $t_bug->due_date );
+					$t_date_to_display = date( config_get( 'normal_date_format' ), $t_bug->due_date );
 				}
 			}
 
-			echo '<input type="text" id="due_date" name="due_date" class="datetimepicker" autocomplete="off" size="20" maxlength="16" value="' . $t_date_to_display . '" />';
-			echo '<script type="text/javascript">$( ".datetimepicker" ).datetimepicker({hourMin: 10, hourMax: 16});</script>';
+			echo '<input type="text" id="due_date" name="due_date" class="datetimepicker input-sm" size="20" maxlength="16" ' .
+				'data-picker-locale="' . lang_get_current_datetime_locale() .
+				'" data-picker-format="' . config_get( 'datetime_picker_format' ) . '"' .
+				'" value="' . $t_date_to_display . '" />';
+			echo '<i class="fa fa-calendar fa-xlg datetimepicker"></i>';
 		} else {
 			echo '<select name="' . $t_form . '" class="input-sm">';
 

@@ -155,10 +155,6 @@ if( $t_show_product_version ) {
 $t_formatted_bug_id = $t_show_id ? bug_format_id( $f_bug_id ) : '';
 $t_project_name = $t_show_project ? string_display_line( project_get_name( $t_bug->project_id ) ) : '';
 
-if( $t_show_due_date ) {
-	print_datetimepicker_js();
-}
-
 layout_page_header( bug_format_summary( $f_bug_id, SUMMARY_CAPTION ) );
 
 layout_page_begin();
@@ -355,10 +351,12 @@ if( $t_show_handler || $t_show_due_date ) {
 			$t_date_to_display = '';
 
 			if( !date_is_null( $t_bug->due_date ) ) {
-				$t_date_to_display = date( config_get( 'calendar_date_format' ), $t_bug->due_date );
+				$t_date_to_display = date( config_get( 'normal_date_format' ), $t_bug->due_date );
 			}
-			echo '<input ' . helper_get_tab_index() . ' type="text" id="due_date" name="due_date" class="datetimepicker" autocomplete="off" size="20" maxlength="16" value="' . $t_date_to_display . '" />';
-			echo '<script type="text/javascript">$( ".datetimepicker" ).datetimepicker({hourMin: 10, hourMax: 16});</script>';
+			echo '<input ' . helper_get_tab_index() . ' type="text" id="due_date" name="due_date" class="datetimepicker input-sm" size="20" ' .
+				'data-picker-locale="' . lang_get_current_datetime_locale() .  '" data-picker-format="' . config_get( 'datetime_picker_format' ) . '" ' .
+				'" maxlength="16" value="' . $t_date_to_display . '" />';
+			echo '<i class="fa fa-calendar fa-xlg datetimepicker"></i>';
 		} else {
 			if( !date_is_null( $t_bug->due_date ) ) {
 				echo date( config_get( 'short_date_format' ), $t_bug->due_date );

@@ -610,20 +610,24 @@ define( 'ERROR_FTP_CONNECT_ERROR', 16 );            # N/A
 
 # JQuery and JQuery UI
 # hashes acquired with command 'cat file.js | openssl dgst -sha256 -binary | openssl enc -base64 -A'
-define ( 'JQUERY_VERSION', '3.1.1' );
-define ( 'JQUERY_HASH', 'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=' );
-define ( 'JQUERY_UI_VERSION', '1.12.1' );
-define ( 'JQUERY_UI_HASH', 'sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=' );
+define( 'JQUERY_VERSION', '3.1.1' );
+define( 'JQUERY_HASH', 'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=' );
+define( 'JQUERY_UI_VERSION', '1.12.1' );
+define( 'JQUERY_UI_HASH', 'sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=' );
 
 # Bootstrap & FontAwesome
-define ( 'BOOTSTRAP_VERSION', '3.3.7' );
-define ( 'BOOTSTRAP_HASH', 'sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=' );
-define ( 'FONT_AWESOME_VERSION', '4.6.3' );
+define( 'BOOTSTRAP_VERSION', '3.3.7' );
+define( 'BOOTSTRAP_HASH', 'sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=' );
+define( 'FONT_AWESOME_VERSION', '4.6.3' );
+
+# Moment & DateTimePicker
+define( 'MOMENT_VERSION', '2.15.2' );
+define( 'DATETIME_PICKER_VERSION', '4.17.43' );
 
 # Chart JS
-define ( 'CHARTJS_VERSION', '2.1.6' );
-define ( 'CHARTJS_HASH', 'sha256-Emd9qupGNNjtRpaQjhpA4hn+PWAETkO2GB3gzBL3thM=' );
-define ( 'CHARTJSBUNDLE_HASH', 'sha256-OBi9RJU9sFk/2JEV23eSQSqe/eUK4km5NxGgo/XMiqY=' );
+define( 'CHARTJS_VERSION', '2.1.6' );
+define( 'CHARTJS_HASH', 'sha256-Emd9qupGNNjtRpaQjhpA4hn+PWAETkO2GB3gzBL3thM=' );
+define( 'CHARTJSBUNDLE_HASH', 'sha256-OBi9RJU9sFk/2JEV23eSQSqe/eUK4km5NxGgo/XMiqY=' );
 
 # Byte Order Markers
 define( 'UTF8_BOM', "\xEF\xBB\xBF" );

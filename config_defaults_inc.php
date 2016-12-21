@@ -1138,48 +1138,37 @@ $g_long_process_timeout = 0;
 ##########################
 
 /**
- * date format strings defaults to ISO 8601 formatting
- * go to http://www.php.net/manual/en/function.date.php
- * for detailed instructions on date formatting
+ * Date format strings defaults to ISO 8601 formatting.
+ * For detailed instructions on date formatting
+ * @see http://www.php.net/manual/en/function.date.php
  * @global string $g_short_date_format
  */
 $g_short_date_format = 'Y-m-d';
 
 /**
- * date format strings defaults to ISO 8601 formatting
- * go to http://www.php.net/manual/en/function.date.php
- * for detailed instructions on date formatting
+ * Date format strings defaults to ISO 8601 formatting.
+ * For detailed instructions on date formatting
+ * @see http://www.php.net/manual/en/function.date.php
  * @global string $g_normal_date_format
  */
 $g_normal_date_format = 'Y-m-d H:i';
 
 /**
- * date format strings defaults to ISO 8601 formatting
- * go to http://www.php.net/manual/en/function.date.php
- * for detailed instructions on date formatting
+ * Date format strings defaults to ISO 8601 formatting.
+ * For detailed instructions on date formatting
+ * @see http://www.php.net/manual/en/function.date.php
  * @global string $g_complete_date_format
  */
 $g_complete_date_format = 'Y-m-d H:i T';
 
 /**
- * jquery-ui datepicker date format string
- * @global string $g_calendar_js_date_format
+ * Datetime picker widget format string.
+ * For detailed instructions on date formatting
+ * @see http://momentjs.com/docs/#/displaying/format/
+ * @global string $g_datetime_picker_format
  */
-$g_calendar_jq_date_format = 'yy-mm-dd';
+$g_datetime_picker_format = 'Y-MM-DD H:m';
 
-/**
- * jquery-ui datepicker time addon time format string
- * @global string $g_calendar_js_date_format
- */
-$g_calendar_jq_time_format = 'HH:mm';
-
-/**
- * jquery-ui datetimepicker date and time format string
- * go to http://www.php.net/manual/en/function.date.php
- * for detailed instructions on date formatting
- * @global string $g_calendar_date_format
- */
-$g_calendar_date_format = 'Y-m-d H:i';
 
 ##############################
 # MantisBT TimeZone Settings #
@@ -4336,8 +4325,7 @@ $g_public_config_names = array(
 	'bugnote_user_change_view_state_threshold',
 	'bugnote_user_delete_threshold',
 	'bugnote_user_edit_threshold',
-	'calendar_date_format',
-	'calendar_js_date_format',
+	'datetime_picker_format',
 	'cdn_enabled',
 	'change_view_status_threshold',
 	'check_mx_record',
