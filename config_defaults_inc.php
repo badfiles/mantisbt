@@ -2807,6 +2807,12 @@ $g_update_readonly_bug_threshold = MANAGER;
 $g_view_changelog_threshold = VIEWER;
 
 /**
+* threshold for viewing timeline
+* @global integer $g_timeline_view_threshold
+*/
+$g_timeline_view_threshold = VIEWER;
+
+/**
  * threshold for viewing roadmap
  * @global integer $g_roadmap_view_threshold
  */
@@ -4574,6 +4580,7 @@ $g_public_config_names = array(
 	'time_tracking_view_threshold',
 	'time_tracking_with_billing',
 	'time_tracking_without_note',
+	'timeline_view_threshold',
 	'top_include_page',
 	'update_bug_assign_threshold',
 	'update_bug_status_threshold',
