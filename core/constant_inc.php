@@ -608,17 +608,15 @@ define( 'LOG_SOAP', 64 );                           # LOG_WEBSERVICE
 define( 'FTP', 1 );                                 # DISK
 define( 'ERROR_FTP_CONNECT_ERROR', 16 );            # N/A
 
-# JQuery and JQuery UI
+# JQuery
 # hashes acquired with command 'cat file.js | openssl dgst -sha256 -binary | openssl enc -base64 -A'
 define( 'JQUERY_VERSION', '3.1.1' );
 define( 'JQUERY_HASH', 'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=' );
-define( 'JQUERY_UI_VERSION', '1.12.1' );
-define( 'JQUERY_UI_HASH', 'sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=' );
 
 # Bootstrap & FontAwesome
 define( 'BOOTSTRAP_VERSION', '3.3.7' );
 define( 'BOOTSTRAP_HASH', 'sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=' );
-define( 'FONT_AWESOME_VERSION', '4.6.3' );
+define( 'FONT_AWESOME_VERSION', '4.7.0' );
 
 # Moment & DateTimePicker
 define( 'MOMENT_VERSION', '2.15.2' );

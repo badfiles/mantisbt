@@ -89,24 +89,22 @@ $(document).ready( function() {
         SetCookie("collapse_settings", t_cookie);
     });
 
-    $('input[type=text].autocomplete').autocomplete({
-		source: function(request, callback) {
-			var fieldName = $(this).attr('element').attr('id');
+    $('input[type=text].typeahead').bs_typeahead({
+		source: function(query, callback) {
+			var fieldName = this.$element.attr('id');
 			var postData = {};
 			postData['entrypoint']= fieldName + '_get_with_prefix';
-			postData[fieldName] = request.term;
+			postData[fieldName] = query;
 			$.getJSON('xmlhttprequest.php', postData, function(data) {
 				var results = [];
 				$.each(data, function(i, value) {
-					var item = {};
-					item.label = $('<div/>').text(value).html();
-					item.value = value;
-					results.push(item);
+					results.push(value);
 				});
 				callback(results);
 			});
 		}
 	});
+
 
 	$('a.dynamic-filter-expander').click(function(event) {
 		event.preventDefault();

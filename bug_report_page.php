@@ -394,7 +394,7 @@ if( $t_show_attachments ) {
 						</select>
 						<?php
 							} else {
-								echo '<input type="text" id="platform" name="platform" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_platform ) . '" />';
+								echo '<input type="text" id="platform" name="platform" class="typeahead input-sm" autocomplete = "off" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_platform ) . '" />';
 							}
 						?>
 					</td>
@@ -411,7 +411,7 @@ if( $t_show_attachments ) {
 						</select>
 						<?php
 							} else {
-								echo '<input type="text" id="os" name="os" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os ) . '" />';
+								echo '<input type="text" id="os" name="os" class="typeahead input-sm" autocomplete = "off" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os ) . '" />';
 							}
 						?>
 					</td>
@@ -430,7 +430,7 @@ if( $t_show_attachments ) {
 							</select>
 						<?php
 							} else {
-								echo '<input type="text" id="os_build" name="os_build" class="autocomplete input-sm" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os_build ) . '" />';
+								echo '<input type="text" id="os_build" name="os_build" class="typeahead input-sm" autocomplete = "off" size="50" maxlength="50" tabindex="' . helper_get_tab_index_value() . '" value="' . string_attribute( $f_os_build ) . '" />';
 							}
 						?>
 					</td>
