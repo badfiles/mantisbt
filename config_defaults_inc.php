@@ -90,8 +90,8 @@ $g_database_name		= 'bugtracker';
  *
  * RDBMS           db_type       PHP ext   Comments
  * -----           -------       -------   --------
- * MySQL           mysql         mysql
- *                 mysqli        mysqli    default
+ * MySQL           mysqli        mysqli    default
+ *                 mysql         mysql     PHP < 5.5.0 only
  * PostgreSQL      pgsql         pgsql
  * MS SQL Server   mssqlnative   sqlsrv    experimental
  * Oracle          oci8          oci8      experimental
@@ -3173,9 +3173,8 @@ $g_bug_list_cookie = '%cookie_prefix%_BUG_LIST_COOKIE';
 $g_filter_by_custom_fields = ON;
 
 /**
- * The number of custom fields to display per row.
- * The default is 8. The value should be greater than or equal to 8.
- * If lower, whitespace will appear on the right
+ * The number of filter fields to display per row.
+ * The default is 8.
  * @global integer $g_filter_custom_fields_per_row
  */
 $g_filter_custom_fields_per_row = 8;
