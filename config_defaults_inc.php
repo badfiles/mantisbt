@@ -113,6 +113,38 @@ $g_db_type				= 'mysqli';
  */
 $g_dsn = '';
 
+/**
+ * Database Table prefix.
+ * The given string is added with an underscore before the base table name,
+ * e.g. 'bug' => 'mantis_bug'.
+ * To avoid the 30-char limit on identifiers in Oracle (< 12cR2), the prefix
+ * should be set to blank or kept as short as possible (e.g. 'm')
+ * @global string $g_db_table_prefix
+ */
+$g_db_table_prefix = 'mantis';
+
+/**
+ * Database Table suffix.
+ * The given string is added with an underscore after the base table name,
+ * e.g. 'bug' => 'bug_table'.
+ * @see $g_db_table_prefix for size limitation recommendation
+ * @global string $g_db_table_suffix
+ */
+$g_db_table_suffix = '_table';
+
+/**
+ * Plugin Table prefix.
+ * The given string is added with an underscore between the table prefix and
+ * the base table name, and the plugin basename is added after that
+ * e.g. 'Example' plugin's table 'foo' => 'mantis_plugin_Example_foo_table'.
+ * To avoid the 30-char limit on identifiers in Oracle (< 12cR2), the prefix
+ * should be kept as short as possible (e.g. 'plg'); it is however strongly
+ * recomended not to use an empty string here.
+ * @see $g_db_table_prefix
+ * @global string $g_db_table_prefix
+ */
+$g_db_table_plugin_prefix	= 'plugin';
+
 ####################
 # Folder Locations #
 ####################
@@ -3212,34 +3244,6 @@ $g_create_permalink_threshold = DEVELOPER;
  * @global string $g_create_short_url
  */
 $g_create_short_url = 'http://tinyurl.com/create.php?url=%s';
-
-#####################################
-# MantisBT Database Table Variables #
-#####################################
-
-/**
- * table prefix
- * To avoid the 30-char limit on identifiers in Oracle, the prefix
- * should be set to blank or kept as short as possible (e.g. 'm')
- * @global string $g_db_table_prefix
- */
-$g_db_table_prefix = 'mantis';
-
-/**
- * plugin table prefix
- * To avoid the 30-char limit on identifiers in Oracle, the prefix
- * should be kept as short as possible (e.g. 'plg')
- * @global string $g_db_table_prefix
- */
-$g_db_table_plugin_prefix	= 'plugin';
-
-/**
- * table suffix
- * To avoid the 30-char limit on identifiers in Oracle, the suffix
- * should be set to blank or kept as short as possible
- * @global string $g_db_table_suffix
- */
-$g_db_table_suffix = '_table';
 
 #########################
 # MantisBT Enum Strings #
