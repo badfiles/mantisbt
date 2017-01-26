@@ -322,6 +322,9 @@ function layout_body_javascript() {
 		# moment & datetimepicker
 		html_javascript_cdn_link( 'https://cdnjs.cloudflare.com/ajax/libs/moment.js/' . MOMENT_VERSION . '/moment-with-locales.min.js', MOMENT_HASH );
 		html_javascript_cdn_link( 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/' . DATETIME_PICKER_VERSION . '/js/bootstrap-datetimepicker.min.js', DATETIME_PICKER_HASH );
+		
+		# listjs
+		html_javascript_cdn_link( 'https://cdnjs.cloudflare.com/ajax/libs/list.js/' . LISTJS_VERSION . '/list.min.js', LISTJS_HASH );
 	} else {
 		# bootstrap
 		html_javascript_link( 'bootstrap-' . BOOTSTRAP_VERSION . '.min.js' );
@@ -329,6 +332,9 @@ function layout_body_javascript() {
 		# moment & datetimepicker
 		html_javascript_link( 'moment-with-locales-' . MOMENT_VERSION . '.min.js' );
 		html_javascript_link( 'bootstrap-datetimepicker-' . DATETIME_PICKER_VERSION . '.min.js' );
+
+		# listjs
+		html_javascript_link( 'list-' . LISTJS_VERSION . '.min.js' );
 	}
 
 	# theme scripts
@@ -617,9 +623,16 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 		if( $p_project_id !== null ) {
 			check_selected( $p_project_id, ALL_PROJECTS, false );
 		}
-		echo '> ' . lang_get( 'all_projects' ) . ' </a></li>' . "\n";
+		echo '> ' . lang_get( 'all_projects' ) . ' </a></li>' . " \n";
 		echo '<li class="divider"></li>' . "\n";
 	}
+
+	echo '<li>';
+	echo '<div id="projects-list">';
+	echo '<div class="projects-searchbox">';
+	echo '<input class="search form-control input-md" placeholder="' . lang_get( 'search' ) . '" />';
+	echo '</div>';
+	echo '<ul class="list dropdown-yellow no-margin">';
 
 	foreach( $t_project_ids as $t_id ) {
 		if( $p_can_report_only ) {
@@ -631,9 +644,13 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . $t_id . '"';
 		check_selected( $p_project_id, $t_id, false );
 		check_disabled( $t_id == $p_filter_project_id || !$t_can_report );
-		echo '> ' . string_attribute( project_get_field( $t_id, 'name' ) ) . ' </a></li>' . "\n";
+		echo ' class="project-link"> ' . string_attribute( project_get_field( $t_id, 'name' ) ) . ' </a></li>' . "\n";
 		layout_navbar_subproject_option_list( $t_id, $p_project_id, $p_filter_project_id, $p_trace, $p_can_report_only );
 	}
+
+	echo '</ul>';
+	echo '</div>';
+	echo '</li>';
 }
 
 /**
@@ -669,7 +686,7 @@ function layout_navbar_subproject_option_list( $p_parent_id, $p_project_id = nul
 		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . $t_full_id . '"';
 		check_selected( $p_project_id, $t_full_id, false );
 		check_disabled( $t_id == $p_filter_project_id || !$t_can_report );
-		echo '> ' . str_repeat( '&#160;', count( $p_parents ) * 4 );
+		echo ' class="project-link"> ' . str_repeat( '&#160;', count( $p_parents ) * 4 );
 		echo string_attribute( project_get_field( $t_id, 'name' ) ) . '</a></li>' . "\n";
 
 		layout_navbar_subproject_option_list( $t_id, $p_project_id, $p_filter_project_id, $p_trace, $p_can_report_only, $p_parents );

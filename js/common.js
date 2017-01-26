@@ -48,6 +48,14 @@ $(document).ready( function() {
         ToggleDiv( t_div );
     });
 
+    var options = {
+    	valueNames: [ 'project-link' ]
+    };
+    var list = new List('projects-list', options);
+    if(list.items.length <= 10) {
+    	$('#projects-list .searchbox').hide();
+    }
+	
     $('.widget-box').on('shown.ace.widget' , function(event) {
        var t_id = $(this).attr('id');
        var t_cookie = GetCookie( "collapse_settings" );
