@@ -55,7 +55,7 @@ $(document).ready( function() {
     if(list.items.length <= 10) {
     	$('#projects-list .searchbox').hide();
     }
-	
+
     $('.widget-box').on('shown.ace.widget' , function(event) {
        var t_id = $(this).attr('id');
        var t_cookie = GetCookie( "collapse_settings" );
@@ -97,22 +97,27 @@ $(document).ready( function() {
         SetCookie("collapse_settings", t_cookie);
     });
 
-    $('input[type=text].typeahead').bs_typeahead({
-		source: function(query, callback) {
-			var fieldName = this.$element.attr('id');
-			var postData = {};
-			postData['entrypoint']= fieldName + '_get_with_prefix';
-			postData[fieldName] = query;
-			$.getJSON('xmlhttprequest.php', postData, function(data) {
-				var results = [];
-				$.each(data, function(i, value) {
-					results.push(value);
+    $('input[type=text].typeahead').each(function() {
+        var $this = $(this);
+		$(this).typeahead({
+			minLength: 1,
+			highlight: true
+		}, {
+			source: function (query, undefined, callback) {
+				var fieldName = $this[0].id;
+				var postData = {};
+				postData['entrypoint'] = fieldName + '_get_with_prefix';
+				postData[fieldName] = query;
+				$.getJSON('xmlhttprequest.php', postData, function (data) {
+					var results = [];
+					$.each(data, function (i, value) {
+						results.push(value);
+					});
+	 				callback(results);
 				});
-				callback(results);
-			});
-		}
+			}
+		});
 	});
-
 
 	$('a.dynamic-filter-expander').click(function(event) {
 		event.preventDefault();
@@ -273,7 +278,7 @@ $(document).ready( function() {
 	$('#project-selector').children('.button').hide();
 
 	setBugLabel();
-	
+
 	/* Handle standard filter date fields */
 	$(document).on('change', '.js_switch_date_inputs_trigger', function() {
 		$(this).closest('.js_switch_date_inputs_container')
