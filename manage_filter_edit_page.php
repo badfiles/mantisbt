@@ -110,18 +110,10 @@ $t_filter_project_id = filter_get_field( $f_filter_id, 'project_id' );
 						<i class="ace-icon fa fa-bars bigger-125"></i>
 					</a>
 					<ul class="dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-closer">
-						<li>
 						<?php
-							$f_switch_view_link = 'manage_filter_edit_page.php?filter_id=' . $f_filter_id . '&view_type=';
-							if( ( SIMPLE_ONLY != config_get( 'view_filters' ) ) && ( ADVANCED_ONLY != config_get( 'view_filters' ) ) ) {
-								if( 'advanced' == $t_filter['_view_type'] ) {
-									echo '<a href="' . $f_switch_view_link, 'simple"><i class="ace-icon fa fa-toggle-off"></i>&#160;&#160;' . lang_get('simple_filters') . '</a>';
-								} else {
-									echo '<a href="' . $f_switch_view_link, 'advanced"><i class="ace-icon fa fa-toggle-on"></i>&#160;&#160;' . lang_get('advanced_filters') . '</a>';
-								}
-							}
+							$t_url = 'manage_filter_edit_page.php?filter_id=' . $f_filter_id . '&view_type=';
+							filter_print_view_type_toggle( $t_url, $t_filter['_view_type'] );
 						?>
-						</li>
 					</ul>
 				</div>
 			</div>
@@ -169,19 +161,24 @@ $t_filter_project_id = filter_get_field( $f_filter_id, 'project_id' );
 						?>
 						<tr>
 							<td class="category">
-								<?php echo lang_get( 'filter_access' ) ?>:
+								<?php echo lang_get( 'view_status' ) ?>
 							</td>
 							<td>
-								<label class="inline">
-									<input type="checkbox" class="ace input-sm" name="is_public" value="1" <?php check_checked( true == filter_get_field( $f_filter_id, 'is_public' ) ) ?>>
-								<span class="lbl"> <?php echo lang_get( 'public' ) ?></span>
+								<label>
+									<input type="radio" class="ace" name="is_public" value="1" <?php check_checked( (bool)filter_get_field( $f_filter_id, 'is_public' ), true ) ?> />
+									<span class="lbl"> <?php echo lang_get( 'public' ) ?> </span>
+								</label>
+								&#160;&#160;&#160;&#160;
+								<label>
+									<input type="radio" class="ace" name="is_public" value="0" <?php check_checked( (bool)filter_get_field( $f_filter_id, 'is_public' ), false ) ?> />
+									<span class="lbl"> <?php echo lang_get( 'private' ) ?> </span>
 								</label>
 							</td>
 						</tr>
 						<?php } ?>
 						<tr>
 							<td class="category">
-								<?php echo lang_get( 'filter_visibility' ) ?>:
+								<?php echo lang_get( 'email_project' ) ?>
 							</td>
 							<td>
 								<label class="inline">
