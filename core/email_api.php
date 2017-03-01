@@ -74,7 +74,11 @@ require_api( 'user_api.php' );
 require_api( 'user_pref_api.php' );
 require_api( 'utility_api.php' );
 
-require_lib( 'phpmailer/PHPMailerAutoload.php' );
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
+require_lib( 'phpmailer6/src/PHPMailer.php' );
+require_lib( 'phpmailer6/src/Exception.php' );
+require_lib( 'phpmailer6/src/SMTP.php' );
 
 # reusable object of class SMTP
 $g_phpMailer = null;
@@ -1317,7 +1321,6 @@ function email_send( EmailData $p_email_data ) {
 	$t_mail->AddCustomHeader( 'X-Auto-Response-Suppress: All' );
 
 	# Setup new line and encoding to avoid extra new lines with some smtp gateways like sendgrid.net
-	$t_mail->LE         = "\r\n";
 	$t_mail->Encoding   = 'quoted-printable';
 
 	if( isset( $t_email_data->metadata['priority'] ) ) {
