@@ -1064,9 +1064,10 @@ function email_bug_deleted( $p_bug_id ) {
  * @param array   $p_headers   Array of additional headers to send with the email.
  * @param boolean $p_force     True to force sending of emails in shutdown function,
  *                             even when using cronjob
+ * @param integer $p_bug_id    Related bug id.
  * @return integer|null
  */
-function email_store( $p_recipient, $p_subject, $p_message, array $p_headers = null, $p_force = false, $p_attach_files = null ) {
+function email_store( $p_recipient, $p_subject, $p_message, array $p_headers = null, $p_force = false, $p_attach_files = null, $p_bug_id = null ) {
 	global $g_email_shutdown_processing;
 
 	$t_recipient = trim( $p_recipient );
@@ -1089,6 +1090,7 @@ function email_store( $p_recipient, $p_subject, $p_message, array $p_headers = n
 
 	# Urgent = 1, Not Urgent = 5, Disable = 0
 	$t_email_data->metadata['charset'] = 'utf-8';
+	$t_email_data->metadata['bug-id'] = $p_bug_id;
 
 	$t_hostname = '';
 	if( isset( $_SERVER['SERVER_NAME'] ) ) {
@@ -1309,6 +1311,11 @@ function email_send( EmailData $p_email_data ) {
 		$t_success = $t_mail->Send();
 		if( $t_success ) {
 			$t_success = true;
+			if( isset( $t_email_data->metadata['bug-id'] ) ) {
+				$t_last_mid = $t_mail->getLastMessageID();
+				$t_es_call_params = array( (int)$t_email_data->metadata['bug-id'], $t_last_mid );
+				event_signal( 'EVENT_NOTIFY_NEW_MESSAGE', $t_es_call_params );
+			}
 
 			if( $t_email_data->email_id > 0 ) {
 				email_queue_delete( $t_email_data->email_id );
@@ -1571,7 +1578,7 @@ function email_bug_info_to_one_user( array $p_visible_bug_data, $p_message_id, $
 	}
 
 	# send mail
-	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers, false, $p_attach_files );
+	email_store( $t_user_email, $t_subject, $t_message, $t_mail_headers, false, $p_attach_files, $t_bug_id );
 	return;
 }
 
