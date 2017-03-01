@@ -1431,32 +1431,11 @@ function mc_issue_relationship_add( $p_username, $p_password, $p_issue_id, stdCl
 		return mci_soap_fault_access_denied( $t_user_id, 'The issue \'' . $t_dest_issue_id . '\' requires higher access level' );
 	}
 
-	$t_old_id_relationship = relationship_same_type_exists( $p_issue_id, $t_dest_issue_id, $t_rel_type['id'] );
+	log_event( LOG_WEBSERVICE, 'adding relationship type \'' . $t_rel_type['id'] . '\' between \'' . $p_issue_id . '\' and \'' . $t_dest_issue_id . '\'' );
 
-	if( $t_old_id_relationship == 0 ) {
-		log_event( LOG_WEBSERVICE, 'adding relationship type \'' . $t_rel_type['id'] . '\' between \'' . $p_issue_id . '\' and \'' . $t_dest_issue_id . '\'' );
-		relationship_add( $p_issue_id, $t_dest_issue_id, $t_rel_type['id'] );
+	$t_relationship_id = relationship_upsert( $p_issue_id, $t_dest_issue_id, $t_rel_type['id'] );
 
-		# The above function call into MantisBT does not seem to return a valid BugRelationshipData object.
-		# So we call db_insert_id in order to find the id of the created relationship.
-		$t_relationship_id = db_insert_id( db_get_table( 'bug_relationship' ) );
-
-		# Add log line to the history (both bugs)
-		history_log_event_special( $p_issue_id, BUG_ADD_RELATIONSHIP, $t_rel_type['id'], $t_dest_issue_id );
-		history_log_event_special( $t_dest_issue_id, BUG_ADD_RELATIONSHIP, relationship_get_complementary_type( $t_rel_type['id'] ), $p_issue_id );
-
-		# update bug last updated for both bugs
-		bug_update_date( $p_issue_id );
-		bug_update_date( $t_dest_issue_id );
-
-		# send email notification to the users addressed by both the bugs
-		email_relationship_added( $p_issue_id, $t_dest_issue_id, $t_rel_type['id'] );
-		email_relationship_added( $t_dest_issue_id, $p_issue_id, relationship_get_complementary_type( $t_rel_type['id'] ) );
-
-		return $t_relationship_id;
-	} else {
-		return SoapObjectsFactory::newSoapFault( 'Client', 'Relationship already exists.' );
-	}
+	return $t_relationship_id;
 }
 
 /**
@@ -1503,35 +1482,9 @@ function mc_issue_relationship_delete( $p_username, $p_password, $p_issue_id, $p
 		}
 	}
 
-	$t_bug_relationship_data = relationship_get( $p_relationship_id );
-	$t_rel_type = $t_bug_relationship_data->type;
-
 	# delete relationship from the DB
 	log_event( LOG_WEBSERVICE, 'deleting relationship id \'' . $p_relationship_id . '\'' );
 	relationship_delete( $p_relationship_id );
-
-	# update bug last updated
-	bug_update_date( $p_issue_id );
-	bug_update_date( $t_dest_issue_id );
-
-	# set the rel_type for both bug and dest_bug based on $t_rel_type and on who is the dest bug
-	if( $p_issue_id == $t_bug_relationship_data->src_bug_id ) {
-		$t_bug_rel_type = $t_rel_type;
-		$t_dest_bug_rel_type = relationship_get_complementary_type( $t_rel_type );
-	} else {
-		$t_bug_rel_type = relationship_get_complementary_type( $t_rel_type );
-		$t_dest_bug_rel_type = $t_rel_type;
-	}
-
-	# send email and update the history for the src issue
-	history_log_event_special( $p_issue_id, BUG_DEL_RELATIONSHIP, $t_bug_rel_type, $t_dest_issue_id );
-	email_relationship_deleted( $p_issue_id, $t_dest_issue_id, $t_bug_rel_type );
-
-	if( bug_exists( $t_dest_issue_id ) ) {
-		# send email and update the history for the dest issue
-		history_log_event_special( $t_dest_issue_id, BUG_DEL_RELATIONSHIP, $t_dest_bug_rel_type, $p_issue_id );
-		email_relationship_deleted( $t_dest_issue_id, $p_issue_id, $t_dest_bug_rel_type );
-	}
 
 	return true;
 }
