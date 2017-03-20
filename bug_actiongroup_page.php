@@ -283,9 +283,9 @@ if( $t_multiple_projects ) {
 				}
 			}
 
-			echo '<input type="text" id="due_date" name="due_date" class="datetimepicker input-sm" size="20" maxlength="16" ' .
+			echo '<input type="text" id="due_date" name="due_date" class="datetimepicker input-sm" size="16" maxlength="20" ' .
 				'data-picker-locale="' . lang_get_current_datetime_locale() .
-				'" data-picker-format="' . config_get( 'datetime_picker_format' ) . '"' .
+				'" data-picker-format="' . convert_date_format_to_momentjs( config_get( 'normal_date_format' ) ) . '"' .
 				'" value="' . $t_date_to_display . '" />';
 			echo '<i class="fa fa-calendar fa-xlg datetimepicker"></i>';
 		} else {
