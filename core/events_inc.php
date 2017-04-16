@@ -147,4 +147,7 @@ event_declare_many( array(
 
 	# Logging (tracing) events
 	'EVENT_LOG' => EVENT_TYPE_EXECUTE,
+
+	# Authentication Events
+	'EVENT_AUTH_USER_FLAGS' => EVENT_TYPE_FIRST,
 ) );

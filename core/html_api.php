@@ -50,6 +50,7 @@
  * @uses user_api.php
  * @uses utility_api.php
  * @uses layout_api.php
+ * @uses api_token_api.php
  */
 
 require_api( 'access_api.php' );
@@ -76,6 +77,7 @@ require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
 require_api( 'layout_api.php' );
+require_api( 'api_token_api.php' );
 
 $g_rss_feed_url = null;
 
@@ -780,7 +782,9 @@ function print_account_menu( $p_page = '' ) {
 		$t_pages['account_sponsor_page.php'] = array( 'url'=>'account_sponsor_page.php', 'label'=>'my_sponsorship' );
 	}
 
-	$t_pages['api_tokens_page.php'] = array( 'url' => 'api_tokens_page.php', 'label' => 'api_tokens_link' );
+	if( api_token_can_create() ) {
+		$t_pages['api_tokens_page.php'] = array( 'url' => 'api_tokens_page.php', 'label' => 'api_tokens_link' );
+	}
 
 	# Plugin / Event added options
 	$t_event_menu_options = event_signal( 'EVENT_MENU_ACCOUNT' );

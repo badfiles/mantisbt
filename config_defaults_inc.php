@@ -203,11 +203,7 @@ unset( $t_local_config );
 $t_protocol = 'http';
 $t_host = 'localhost';
 if( isset ( $_SERVER['SCRIPT_NAME'] ) ) {
-	if( isset( $_SERVER['HTTP_X_FORWARDED_PROTO'] ) ) {
-		$t_protocol= $_SERVER['HTTP_X_FORWARDED_PROTO'];
-	} else if( !empty( $_SERVER['HTTPS'] ) && ( strtolower( $_SERVER['HTTPS'] ) != 'off' ) ) {
-		$t_protocol = 'https';
-	}
+	$t_protocol = http_is_protocol_https() ? 'https' : 'http';
 
 	# $_SERVER['SERVER_PORT'] is not defined in case of php-cgi.exe
 	if( isset( $_SERVER['SERVER_PORT'] ) ) {
@@ -1131,10 +1127,12 @@ $g_show_roadmap_dates = ON;
 ##########################
 
 /**
- * time for 'permanent' cookie to live in seconds (1 year)
+ * Time for long lived cookie to live in seconds.  It is also used as the default for
+ * permanent logins if $g_allow_permanent_cookie is enabled and selected.
+ * @see $g_allow_permanent_cookie
  * @global integer $g_cookie_time_length
  */
-$g_cookie_time_length = 30000000;
+$g_cookie_time_length = 60 * 60 * 24 * 365;
 
 /**
  * Allow users to opt for a 'permanent' cookie when logging in
@@ -3409,7 +3407,7 @@ $g_default_home_page = 'my_view_page.php';
  * Specify where the user should be sent after logging out.
  * @global string $g_logout_redirect_page
  */
-$g_logout_redirect_page = 'login_page.php';
+$g_logout_redirect_page = AUTH_PAGE_USERNAME;
 
 ###########
 # Headers #
