@@ -83,6 +83,12 @@ $g_cache_current_user_id = null;
  */
 function auth_flags( $p_user_id = null, $p_username = '' ) {
 	if( is_null( $p_user_id ) ) {
+		# If user id is not provided and user is not authenticated return default flags.
+		# Otherwise, we can get into a loop as in #22740
+		if( !auth_is_user_authenticated() ) {
+			return new AuthFlags();
+		}
+
 		$t_user_id = auth_get_current_user_id();
 	} else {
 		$t_user_id = (int)$p_user_id;
@@ -257,14 +263,7 @@ function auth_can_set_password( $p_user_id = null ) {
 		return false;
 	}
 
-	$t_can_change = array(
-		PLAIN,
-		CRYPT,
-		CRYPT_FULL_SALT,
-		MD5,
-	);
-
-	return in_array( config_get( 'login_method' ), $t_can_change );
+	return helper_call_custom_function( 'auth_can_change_password', array() );
 }
 
 /**
