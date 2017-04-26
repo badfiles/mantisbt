@@ -245,20 +245,11 @@ $(document).ready( function() {
 		});
 	});
 
-<<<<<<< HEAD
-	if( $( ".dropzone-form" ).length ) {
-		enableDropzone( "dropzone", false );
-	}
-	if( $( ".auto-dropzone-form" ).length ) {
-		enableDropzone( "auto-dropzone", false );
-	}
-=======
 	$( 'form .dropzone' ).each(function(){
 		var classPrefix = 'dropzone';
 		var autoUpload = $(this).hasClass('auto-dropzone');
 		enableDropzone( classPrefix, autoUpload );
 	});
->>>>>>> master
 
 	$('.bug-jump').find('[name=bug_id]').focus( function() {
 		var bug_label = $('.bug-jump-form').find('[name=bug_label]').val();
