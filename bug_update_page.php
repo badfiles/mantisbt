@@ -693,6 +693,9 @@ foreach ( $t_related_custom_field_ids as $t_id ) {
 		echo '<label', $t_required_class, $t_label_for, '>';
 		echo '<span>', string_display( lang_get_defaulted( $t_def['name'] ) ), '</span>';
 		echo '</label>';
+		if( $t_def['description'] <> '' ) {
+			echo '<br /><span class="small">' . nl2br( $t_def['description'] ) .'</span>';
+		}
 		echo '</td><td colspan="5">';
 		print_custom_field_input( $t_def, $t_bug_id );
 		echo '</td></tr>';

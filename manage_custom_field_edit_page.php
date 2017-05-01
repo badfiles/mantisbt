@@ -100,6 +100,14 @@ $t_definition = custom_field_get_definition( $f_field_id );
 	</tr>
 	<tr>
 		<td class="category">
+			<?php echo lang_get( 'custom_field_desc' ) ?>
+		</td>
+		<td>
+			<input type="text" id="custom-field-desc" name="description" class="input-sm" size="100" maxlength="255" value="<?php echo string_attribute( $t_definition['description'] ) ?>" />
+		</td>
+	</tr>
+	<tr>
+		<td class="category">
 			<?php echo lang_get( 'custom_field_type' ) ?>
 		</td>
 		<td>
