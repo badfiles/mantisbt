@@ -70,6 +70,8 @@ $t_values['require_update']		= gpc_get_bool( 'require_update' );
 $t_values['require_resolved']	= gpc_get_bool( 'require_resolved' );
 $t_values['require_closed']		= gpc_get_bool( 'require_closed' );
 $t_values['filter_by']			= gpc_get_bool( 'filter_by' );
+$t_values['status_vector_req']	= serialize( array_map( 'intval', gpc_get( 'req', array() ) ) );
+$t_values['status_vector_disp']	= serialize( array_map( 'intval', gpc_get( 'disp', array() ) ) );
 
 custom_field_update( $f_field_id, $t_values );
 
