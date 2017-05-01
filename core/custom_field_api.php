@@ -547,6 +547,7 @@ function custom_field_update( $p_field_id, array $p_def_array ) {
 	foreach( $p_def_array as $t_field => $t_value ) {
 		switch( $t_field ) {
 			case 'name':
+			case 'description':
 			case 'possible_values':
 			case 'default_value':
 			case 'valid_regexp':
