@@ -75,13 +75,13 @@ require_api( 'user_api.php' );
 require_api( 'user_pref_api.php' );
 require_api( 'utility_api.php' );
 require_api( 'file_api.php' );
-
+/*
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 require_lib( 'phpmailer6/src/PHPMailer.php' );
 require_lib( 'phpmailer6/src/Exception.php' );
 require_lib( 'phpmailer6/src/SMTP.php' );
-
+*/
 # reusable object of class SMTP
 $g_phpMailer = null;
 
@@ -202,11 +202,7 @@ function email_ensure_valid( $p_email ) {
  * @return boolean
  */
 function email_is_disposable( $p_email ) {
-	if( !class_exists( 'DisposableEmailChecker' ) ) {
-		require_lib( 'disposable/disposable.php' );
-	}
-
-	return DisposableEmailChecker::is_disposable_email( $p_email );
+	return \VBoctor\Email\DisposableEmailChecker::is_disposable_email( $p_email );
 }
 
 /**

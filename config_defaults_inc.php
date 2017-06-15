@@ -175,6 +175,12 @@ $g_class_path = $g_core_path . 'classes' . DIRECTORY_SEPARATOR;
 $g_library_path = $g_absolute_path . 'library' . DIRECTORY_SEPARATOR;
 
 /**
+ * Path to vendor folder for 3rd party libraries. Requires trailing / or \
+ * @global string $g_library_path
+ */
+$g_vendor_path = $g_absolute_path . 'vendor' . DIRECTORY_SEPARATOR;
+
+/**
  * Path to lang folder for language files. Requires trailing / or \
  * @global string $g_language_path
  */
@@ -3634,15 +3640,6 @@ $g_sort_icon_arr = array(
 	DESCENDING => 'fa-caret-down'
 );
 
-/**
- * Read status to icon mapping
- * @global array $g_unread_icon_arr
- */
-$g_unread_icon_arr = array(
-	READ   => '',
-	UNREAD => 'fa-circle'
-);
-
 ####################
 # My View Settings #
 ####################
@@ -4625,7 +4622,6 @@ $g_public_config_names = array(
 	'view_sponsorship_total_threshold',
 	'view_state_enum_string',
 	'view_summary_threshold',
-	'unread_icon_arr',
 	'webmaster_email',
 	'webservice_admin_access_level_threshold',
 	'webservice_error_when_version_not_found',
