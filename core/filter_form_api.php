@@ -84,7 +84,7 @@ require_api( 'user_api.php' );
  * if the option is disabled, returns the current value and a hidden input for that value.
  * @param array $p_filter Filter array
  * @param string $p_filter_target Filter field name
- * @param boolean $p_show_inputs Whether to return a visible form input or a text value.
+ * @param boolean $p_show_inputs True to return a visible form input or false for a text value.
  * @return string The html content for the field requested
  */
 function filter_form_get_input( array $p_filter, $p_filter_target, $p_show_inputs = true ) {
@@ -196,7 +196,7 @@ function print_filter_reporter_id( array $p_filter = null ) {
 	#
 	if( ( ON === config_get( 'limit_reporters' ) ) && ( !access_has_project_level( access_threshold_min_level( config_get( 'report_bug_threshold' ) ) + 1 ) ) ) {
 		$t_id = auth_get_current_user_id();
-		$t_username = user_get_field( $t_id, 'username' );
+		$t_username = user_get_username( $t_id );
 		$t_realname = user_get_field( $t_id, 'realname' );
 		$t_display_name = string_attribute( $t_username );
 		if( ( isset( $t_realname ) ) && ( $t_realname > '' ) && ( ON == config_get( 'show_realname' ) ) ) {
@@ -1584,7 +1584,7 @@ function print_filter_values_tag_string( array $p_filter ) {
  */
 function print_filter_tag_string( array $p_filter = null ) {
 	global $g_filter;
-	if( !access_has_global_level( config_get( 'tag_view_threshold' ) ) ) {
+	if( !access_has_project_level( config_get( 'tag_view_threshold' ) ) ) {
 		return;
 	}
 	if( null === $p_filter ) {
@@ -2595,7 +2595,7 @@ function filter_form_draw_inputs( $p_filter, $p_for_screen = true, $p_static = f
 			null /* class */,
 			'relationship_type_filter_target' /* content id */
 			));
-	if( access_has_global_level( config_get( 'tag_view_threshold' ) ) ) {
+	if( access_has_project_level( config_get( 'tag_view_threshold' ) ) ) {
 		$t_row3->add_item( new TableFieldsItem(
 				$get_field_header( 'tag_string_filter', lang_get( 'tags' ) ),
 				filter_form_get_input( $t_filter, 'tag_string', $t_show_inputs ),

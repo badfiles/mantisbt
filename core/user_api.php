@@ -468,7 +468,7 @@ function user_is_protected( $p_user_id ) {
  * @access public
  */
 function user_is_anonymous( $p_user_id ) {
-	return auth_anonymous_enabled() && strcasecmp( user_get_field( $p_user_id, 'username' ), auth_anonymous_account() ) == 0;
+	return auth_anonymous_enabled() && strcasecmp( user_get_username( $p_user_id ), auth_anonymous_account() ) == 0;
 }
 
 /**
@@ -931,6 +931,16 @@ function user_get_email( $p_user_id ) {
 }
 
 /**
+ * Lookup the user's login name (username)
+ *
+ * @param integer $p_user_id A valid user identifier.
+ * @return string
+ */
+function user_get_username( $p_user_id ) {
+	return user_get_field( $p_user_id, 'username' );
+}
+
+/**
  * lookup the user's realname
  *
  * @param integer $p_user_id A valid user identifier.
@@ -951,10 +961,19 @@ function user_get_realname( $p_user_id ) {
 }
 
 /**
- * return the username or a string "user<id>" if the user does not exist
- * if show_user_realname_threshold is set and real name is not empty, return it instead
+ * Return the user's name for display.
+ *
+ * The name is determined based on the following sequence:
+ * - if the user does not exist, returns the user ID prefixed by a localized
+ *   string (prefix_for_deleted_users, "user" by default);
+ * - if show_realname is ON and it is not empty, return the user's Real Name;
+ * - Otherwise, return the username
+ *
+ * NOTE: do not use this function to retrieve the user's username
+ * @see user_get_username()
  *
  * @param integer $p_user_id A valid user identifier.
+ *
  * @return string
  */
 function user_get_name( $p_user_id ) {
@@ -994,7 +1013,7 @@ function user_get_access_level( $p_user_id, $p_project_id = ALL_PROJECTS ) {
 		return $t_access_level;
 	}
 
-	$t_project_access_level = project_get_local_user_access_level( $p_project_id, $p_user_id );
+	$t_project_access_level = access_get_local_level( $p_user_id, $p_project_id );
 
 	if( false === $t_project_access_level ) {
 		return $t_access_level;

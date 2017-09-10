@@ -1356,6 +1356,7 @@ $s_unit_k_binary = 'KiB';
 $s_unit_m_binary = 'MiB';
 $s_unit_k_decimal = 'KB';
 $s_unit_m_decimal = 'MB';
+$s_warning_update_custom_field_type = '<strong>Warning:</strong> Custom field "%1$s" already has stored values. Changing field type may cause errors and unexpected behaviour if existing values are not consistent with the field\'s new type. To proceed, click the button below';
 
 # PHPMailer
 $s_phpmailer_language = 'en';

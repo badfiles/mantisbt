@@ -74,6 +74,11 @@ $t_values['filter_by']			= gpc_get_bool( 'filter_by' );
 $t_values['status_vector_req']	= serialize( array_map( 'intval', gpc_get( 'req', array() ) ) );
 $t_values['status_vector_disp']	= serialize( array_map( 'intval', gpc_get( 'disp', array() ) ) );
 
+$t_def = custom_field_get_definition( $f_field_id );
+if( $t_def['type'] != $t_values['type'] && custom_field_has_data( $f_field_id ) ) {
+	helper_ensure_confirmed( sprintf( lang_get( 'warning_update_custom_field_type' ), $t_def['name'] ), lang_get( 'update' ) );
+}
+
 custom_field_update( $f_field_id, $t_values );
 
 form_security_purge( 'manage_custom_field_update' );

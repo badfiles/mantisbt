@@ -1375,10 +1375,11 @@ function custom_field_set_sequence( $p_field_id, $p_project_id, $p_sequence ) {
  * NOTE: This probably belongs in the print_api.php
  * @param array   $p_field_def Custom field definition.
  * @param integer $p_bug_id    A bug identifier.
+ * @param boolean $p_required  True if the field is required for form submission
  * @return void
  * @access public
  */
-function print_custom_field_input( array $p_field_def, $p_bug_id = null ) {
+function print_custom_field_input( array $p_field_def, $p_bug_id = null, $p_required = false ) {
 	if( null === $p_bug_id ) {
 		$t_custom_field_value = custom_field_default_to_value( $p_field_def['default_value'], $p_field_def['type'] );
 	} else {
@@ -1395,7 +1396,8 @@ function print_custom_field_input( array $p_field_def, $p_bug_id = null ) {
 
 	global $g_custom_field_type_definition;
 	if( isset( $g_custom_field_type_definition[$p_field_def['type']]['#function_print_input'] ) ) {
-		call_user_func( $g_custom_field_type_definition[$p_field_def['type']]['#function_print_input'], $p_field_def, $t_custom_field_value );
+		call_user_func( $g_custom_field_type_definition[$p_field_def['type']]['#function_print_input'], $p_field_def,
+			$t_custom_field_value, $p_required ? ' required ' : '' );
 		print_hidden_input( custom_field_presence_field_name( $p_field_def['id'] ), '1' );
 	} else {
 		trigger_error( ERROR_CUSTOM_FIELD_INVALID_DEFINITION, ERROR );
@@ -1479,4 +1481,21 @@ function string_custom_field_value_for_email( $p_value, $p_type ) {
 		return call_user_func( $g_custom_field_type_definition[$p_type]['#function_string_value_for_email'], $p_value );
 	}
 	return $p_value;
+}
+
+/**
+ * Returns true if there is data stored for a custom field id.
+ * Empty values are ignored
+ * @param integer $p_field_id	Custom field id
+ * @return boolean		True, if non-empty values exist
+ */
+function custom_field_has_data( $p_field_id ) {
+	db_param_push();
+	$t_query = 'SELECT COUNT(*) FROM {custom_field_string}'
+			. ' WHERE field_id=' . db_param()
+			. ' AND value<>\'\'';
+	$t_result = db_query( $t_query, array( (int)$p_field_id ) );
+	$t_count = db_result( $t_result );
+
+	return $t_count > 0;
 }

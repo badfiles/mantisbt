@@ -114,7 +114,7 @@ if( $g_global_profiles ) {
 					<span class="required">*</span> <?php echo lang_get( 'platform' ) ?>
 				</td>
 				<td>
-					<input id="platform" type="text" name="platform" class="input-sm" size="50" maxlength="50" />
+					<input id="platform" type="text" name="platform" class="input-sm" size="50" maxlength="50" required />
 				</td>
 			</tr>
 			<tr>
