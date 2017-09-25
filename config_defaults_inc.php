@@ -91,7 +91,6 @@ $g_database_name		= 'bugtracker';
  * RDBMS           db_type       PHP ext   Comments
  * -----           -------       -------   --------
  * MySQL           mysqli        mysqli    default
- *                 mysql         mysql     PHP < 5.5.0 only
  * PostgreSQL      pgsql         pgsql
  * MS SQL Server   mssqlnative   sqlsrv    experimental
  * Oracle          oci8          oci8      experimental
@@ -2625,15 +2624,13 @@ $g_update_bug_assign_threshold = '%handle_bug_threshold%';
 $g_private_bugnote_threshold = DEVELOPER;
 
 /**
- * access level needed to view handler in bug reports and notification email
- * @todo yarick123: now it is implemented for notification email only
+ * access level needed to view handler
  * @global integer $g_view_handler_threshold
  */
 $g_view_handler_threshold = VIEWER;
 
 /**
- * access level needed to view history in bug reports and notification email
- * @todo yarick123: now it is implemented for notification email only
+ * access level needed to view history
  * @global integer $g_view_history_threshold
  */
 $g_view_history_threshold = VIEWER;

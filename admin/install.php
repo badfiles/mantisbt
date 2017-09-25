@@ -246,8 +246,14 @@ if( $t_config_exists ) {
 
 		if( $f_db_type == 'mssql' ) {
 			print_test( 'Checking PHP support for Microsoft SQL Server driver',
-				version_compare( phpversion(), '5.3' ) < 0, true,
+				BAD, true,
 				'mssql driver is no longer supported in PHP >= 5.3, please use mssqlnative instead' );
+		}
+
+		if( $f_db_type == 'mysql' ) {
+			print_test( 'Checking PHP support for MySQL driver',
+				BAD, true,
+				'mysql driver is deprecated as of PHP 5.5.0, and has been removed as of PHP 7.0.0. The driver is no longer supported by MantisBT, please use mysqli instead' );
 		}
 	}
 
@@ -473,13 +479,11 @@ if( 2 == $t_install_state ) {
 		$t_warning = '';
 		$t_error = '';
 		switch( $f_db_type ) {
-			case 'mysql':
 			case 'mysqli':
 				if( version_compare( $t_version_info['version'], DB_MIN_VERSION_MYSQL, '<' ) ) {
 					$t_error = 'MySQL ' . DB_MIN_VERSION_MYSQL . ' or later is required for installation';
 				}
 				break;
-			case 'mssql':
 			case 'mssqlnative':
 				if( version_compare( $t_version_info['version'], DB_MIN_VERSION_MSSQL, '<' ) ) {
 					$t_error = 'SQL Server (' . DB_MIN_VERSION_MSSQL . ') or later is required for installation';
@@ -578,15 +582,10 @@ if( !$g_database_upgrade ) {
 			# Build selection list of available DB types
 			$t_db_list = array(
 				'mysqli'      => 'MySQL Improved',
-				'mysql'       => 'MySQL',
 				'mssqlnative' => 'Microsoft SQL Server Native Driver',
 				'pgsql'       => 'PostgreSQL',
 				'oci8'        => 'Oracle',
 			);
-			# mysql is deprecated as of PHP 5.5.0
-			if( version_compare( phpversion(), '5.5.0' ) >= 0 ) {
-				unset( $t_db_list['mysql']);
-			}
 
 			foreach( $t_db_list as $t_db => $t_db_descr ) {
 				echo '<option value="' . $t_db . '"' .
@@ -873,7 +872,7 @@ if( 3 == $t_install_state ) {
 		}
 
 		# Make sure we do the upgrades using UTF-8 if needed
-		if( $f_db_type === 'mysql' || $f_db_type === 'mysqli' ) {
+		if( $f_db_type === 'mysqli' ) {
 			$g_db->execute( 'SET NAMES UTF8' );
 		}
 
