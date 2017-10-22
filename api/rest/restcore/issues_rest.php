@@ -33,6 +33,10 @@ $g_app->group('/issues', function() use ( $g_app ) {
 	$g_app->delete( '/', 'rest_issue_delete' );
 	$g_app->delete( '/{id}', 'rest_issue_delete' );
 	$g_app->delete( '/{id}/', 'rest_issue_delete' );
+	$g_app->patch( '', 'rest_issue_update' );
+	$g_app->patch( '/', 'rest_issue_update' );
+	$g_app->patch( '/{id}', 'rest_issue_update' );
+	$g_app->patch( '/{id}/', 'rest_issue_update' );
 
 	# Notes
 	$g_app->post( '/{id}/notes/', 'rest_issue_note_add' );
@@ -137,6 +141,14 @@ function rest_issue_delete( \Slim\Http\Request $p_request, \Slim\Http\Response $
 	return $p_response->withStatus( HTTP_STATUS_NO_CONTENT );
 }
 
+/**
+ * Add issue note.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
 function rest_issue_note_add( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
 	$t_note_info = $p_request->getParsedBody();
 
@@ -176,6 +188,14 @@ function rest_issue_note_add( \Slim\Http\Request $p_request, \Slim\Http\Response
 		withJson( array( 'note' => $t_note, 'issue' => $t_issue ) );
 }
 
+/**
+ * Delete issue note.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
 function rest_issue_note_delete( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
 	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
 	$t_issue_note_id = isset( $p_args['note_id'] ) ? $p_args['note_id'] : $p_request->getParam( 'note_id' );
@@ -188,4 +208,42 @@ function rest_issue_note_delete( \Slim\Http\Request $p_request, \Slim\Http\Respo
 	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
 	return $p_response->withStatus( HTTP_STATUS_SUCCESS, 'Issue Note Deleted' )->
 		withJson( array( 'issue' => $t_issue ) );
+}
+
+/**
+ * Update an issue from a PATCH to the issues url.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_update( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
+	if( is_blank( $t_issue_id ) ) {
+		$t_message = "Mandatory field 'id' is missing.";
+		return $p_response->withStatus( HTTP_STATUS_BAD_REQUEST, $t_message );
+	}
+
+	# Load the latest issue state from the db to merge with the provided fields to patch
+	$t_original_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+
+	# Construct full issue from issue from db + patched info
+	$t_issue_patch = $p_request->getParsedBody();
+	if( isset( $t_issue_patch['id'] ) && $t_issue_patch['id'] != $t_issue_id ) {
+		return $p_response->withStatus( HTTP_STATUS_BAD_REQUEST, 'Issue id mismatch' );
+	}
+
+	$t_issue = (object)array_merge( $t_original_issue, $t_issue_patch );
+
+	# Trigger the issue update
+	$t_result = mc_issue_update( /* username */ '', /* password */ '', $t_issue_id, $t_issue );
+	if( ApiObjectFactory::isFault( $t_result ) ) {
+		return $p_response->withStatus( $t_result->status_code, $t_result->fault_string );
+	}
+
+	$t_updated_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+
+	return $p_response->withStatus( HTTP_STATUS_SUCCESS, "Issue with id $t_issue_id Updated" )->
+		withJson( array( 'issue' => $t_updated_issue ) );
 }
