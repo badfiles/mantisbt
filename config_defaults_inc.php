@@ -319,6 +319,8 @@ $g_session_validation = ON;
  * not correctly work with this option enabled because they cache pages
  * incorrectly.
  * WARNING: Disabling this is a security risk!!
+ *
+ * @global integer $g_form_security_validation
  */
 $g_form_security_validation = ON;
 
@@ -402,7 +404,7 @@ $g_signup_use_captcha	= ON;
 /**
  * absolute path (with trailing slash!) to folder which contains your
  * TrueType-Font files used for the Relationship Graphs,
- * the Workflow Graphs and the MantisGraph plugin
+ * and the Workflow Graphs
  * @global string $g_system_font_folder
  */
 $g_system_font_folder	= '';
@@ -1300,6 +1302,8 @@ $g_default_timezone = '';
  * Indicates whether the news feature should be enabled or disabled.
  * This feature is deprecated and is expected to be moved to a plugin
  * in the future.
+ *
+ * @global integer $g_news_enabled
  */
 $g_news_enabled = OFF;
 
@@ -1452,7 +1456,7 @@ $g_hide_status_default = CLOSED;
 
 /**
  *
- * @global string $g_show_sticky_issues
+ * @global integer $g_show_sticky_issues
  */
 $g_show_sticky_issues = ON;
 
@@ -4142,6 +4146,8 @@ $g_due_date_default = '';
  * Whether sub-projects feature should be enabled.  Before turning this flag OFF,
  * make sure all sub-projects are moved to top level projects, otherwise
  * they won't be accessible.
+ *
+ * @global integer $g_subprojects_enabled
  */
 $g_subprojects_enabled = ON;
 
@@ -4152,6 +4158,8 @@ $g_subprojects_inherit_categories = ON;
 
 /**
  * Sub-projects should inherit versions from parent projects.
+ *
+ * @global integer $g_subprojects_inherit_versions
  */
 $g_subprojects_inherit_versions = ON;
 
