@@ -385,7 +385,7 @@ function layout_login_page_end() {
  * @return void
  */
 function layout_navbar() {
-	$t_logo_url = config_get('logo_url');
+	$t_logo_url = config_get_global('logo_url');
 
 	echo '<div id="navbar" class="navbar navbar-default navbar-collapse navbar-fixed-top noprint">';
 	echo '<div id="navbar-container" class="navbar-container">';
@@ -540,7 +540,7 @@ function layout_navbar_projects_menu() {
 
 			# Force reload of current page, except if we got here after
 			# creating the first project
-			$t_redirect_url = str_replace( config_get( 'short_path' ), '', $_SERVER['REQUEST_URI'] );
+			$t_redirect_url = str_replace( config_get_global( 'short_path' ), '', $_SERVER['REQUEST_URI'] );
 			if( 'manage_proj_create.php' != $t_redirect_url ) {
 				html_meta_redirect( $t_redirect_url, 0, false );
 			}
@@ -1150,7 +1150,7 @@ function layout_footer() {
 */
 	event_signal( 'EVENT_LAYOUT_PAGE_FOOTER' );
 
-	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get( 'show_queries_count' ) ) {
+	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get_global( 'show_queries_count' ) ) {
 		echo '<div class="col-xs-12 no-padding grey">' . "\n";
 		echo '<address class="no-margin pull-right">' . "\n";
 	}
@@ -1169,7 +1169,7 @@ function layout_footer() {
 	}
 
 	# Determine number of unique queries executed
-	if( config_get( 'show_queries_count' ) ) {
+	if( config_get_global( 'show_queries_count' ) ) {
 		$t_total_queries_count = count( $g_queries_array );
 		$t_unique_queries_count = 0;
 		$t_total_query_execution_time = 0;
@@ -1195,7 +1195,7 @@ function layout_footer() {
 		echo '<small><i class="fa fa-clock-o"></i> ' . $t_total_query_time . '</small>&#160;&#160;&#160;&#160;' . "\n";
 	}
 
-	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get( 'show_queries_count' ) ) {
+	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get_global( 'show_queries_count' ) ) {
 		echo '</address>' . "\n";
 		echo '</div>' . "\n";
 	}

@@ -208,10 +208,10 @@ function require_css( $p_stylesheet_path ) {
  */
 function html_css() {
 	global $g_stylesheets_included;
-	html_css_link( config_get( 'css_include_file' ) );
+	html_css_link( config_get_global( 'css_include_file' ) );
 	# Add right-to-left css if needed
 	if( lang_get( 'directionality' ) == 'rtl' ) {
-		html_css_link( config_get( 'css_rtl_include_file' ) );
+		html_css_link( config_get_global( 'css_rtl_include_file' ) );
 	}
 	foreach( $g_stylesheets_included as $t_stylesheet_path ) {
 		# status_config.php is a special css file, dynamically generated.
@@ -277,7 +277,7 @@ function html_meta_redirect( $p_url, $p_time = null, $p_sanitize = true ) {
 		$p_time = current_user_get_pref( 'redirect_delay' );
 	}
 
-	$t_url = config_get( 'path' );
+	$t_url = config_get_global( 'path' );
 	if( $p_sanitize ) {
 		$t_url .= string_sanitize_url( $p_url );
 	} else {
@@ -362,11 +362,11 @@ function html_print_logo( $p_logo = null ) {
 	}
 
 	if( !is_blank( $p_logo ) ) {
-		$t_logo_url = config_get( 'logo_url' );
+		$t_logo_url = config_get_global( 'logo_url' );
 		$t_show_url = !is_blank( $t_logo_url );
 
 		if( $t_show_url ) {
-			echo '<a id="logo-link" href="', config_get( 'logo_url' ), '">';
+			echo '<a id="logo-link" href="', config_get_global( 'logo_url' ), '">';
 		}
 		$t_alternate_text = string_html_specialchars( config_get( 'window_title' ) );
 		echo '<img id="logo-image" alt="', $t_alternate_text, '" style="max-height: 80px;" src="' . helper_mantis_url( $p_logo ) . '" />';
@@ -383,7 +383,7 @@ function html_print_logo( $p_logo = null ) {
  * @return void
  */
 function html_top_banner() {
-	$t_page = config_get( 'top_include_page' );
+	$t_page = config_get_global( 'top_include_page' );
 	$t_logo_image = config_get( 'logo_image' );
 
 	if( !is_blank( $t_page ) && file_exists( $t_page ) && !is_dir( $t_page ) ) {
@@ -850,7 +850,7 @@ function print_account_menu( $p_page = '' ) {
  */
 function print_doc_menu( $p_page = '' ) {
 	# User Documentation
-/**	$t_doc_url = config_get( 'manual_url' );
+/**	$t_doc_url = config_get_global( 'manual_url' );
 	if( is_null( parse_url( $t_doc_url, PHP_URL_SCHEME ) ) ) {
 		# URL has no scheme, so it is relative to MantisBT root
 		if( is_blank( $t_doc_url ) ||

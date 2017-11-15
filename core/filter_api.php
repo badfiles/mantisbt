@@ -351,7 +351,7 @@ function filter_get_url( array $p_custom_filter ) {
 
 	if( count( $t_query ) > 0 ) {
 		$t_query_str = implode( $t_query, '&' );
-		$t_url = config_get( 'path' ) . 'search.php?' . $t_query_str;
+		$t_url = config_get_global( 'path' ) . 'search.php?' . $t_query_str;
 	} else {
 		$t_url = '';
 	}
@@ -985,7 +985,7 @@ function filter_serialize( $p_filter_array ) {
  * @return boolean
  */
 function filter_is_cookie_valid() {
-	$t_view_all_cookie_id = gpc_get_cookie( config_get( 'view_all_cookie' ), '' );
+	$t_view_all_cookie_id = gpc_get_cookie( config_get_global( 'view_all_cookie' ), '' );
 	$t_view_all_cookie = filter_db_get_filter( $t_view_all_cookie_id );
 
 	# check to see if the cookie does not exist
