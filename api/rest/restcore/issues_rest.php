@@ -63,10 +63,11 @@ function rest_issue_get( \Slim\Http\Request $p_request, \Slim\Http\Response $p_r
 		$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
 
 		if( ApiObjectFactory::isFault( $t_issue ) ) {
-			return $p_response->withStatus( $t_issue->status_code, $t_issue->fault_string );
+			$t_result = null;
+			$p_response = $p_response->withStatus( $t_issue->status_code, $t_issue->fault_string );
+		} else {
+			$t_result = array( 'issues' => array( $t_issue ) );
 		}
-
-		$t_result = array( 'issues' => array( $t_issue ) );
 	} else {
 		$t_page_number = $p_request->getParam( 'page', 1 );
 		$t_page_size = $p_request->getParam( 'page_size', 50 );
@@ -74,26 +75,41 @@ function rest_issue_get( \Slim\Http\Request $p_request, \Slim\Http\Response $p_r
 		# Get a set of issues
 		$t_project_id = (int)$p_request->getParam( 'project_id', ALL_PROJECTS );
 		if( $t_project_id != ALL_PROJECTS && !project_exists( $t_project_id ) ) {
-			# TODO: What's best was to escape $t_project?
+			$t_result = null;
 			$t_message = "Project '$t_project_id' doesn't exist";
-			return $p_response->withStatus( HTTP_STATUS_NOT_FOUND, $t_message );
-		}
-
-		$t_filter_id = (int)$p_request->getParam( 'filter_id', 0 );
-		if( $t_filter_id !== 0 ) {
-			# TODO: we should have a better way to do this.
-			global $g_project_override;
-			$g_project_override = $t_project_id;
-
-			$t_issues = mc_filter_get_issues( '', '', $t_project_id, $t_filter_id, $t_page_number, $t_page_size );
+			$p_response = $p_response->withStatus( HTTP_STATUS_NOT_FOUND, $t_message );
 		} else {
-			$t_issues = mc_project_get_issues( '', '', $t_project_id, $t_page_number, $t_page_size );
-		}
+			$t_filter_id = (int)$p_request->getParam( 'filter_id', 0 );
+			if( $t_filter_id !== 0 ) {
+				# TODO: we should have a better way to do this.
+				global $g_project_override;
+				$g_project_override = $t_project_id;
 
-		$t_result = array( 'issues' => $t_issues );
+				$t_issues = mc_filter_get_issues(
+					'', '', $t_project_id, $t_filter_id, $t_page_number, $t_page_size );
+			} else {
+				$t_issues = mc_project_get_issues(
+					'', '', $t_project_id, $t_page_number, $t_page_size );
+			}
+
+			$t_result = array( 'issues' => $t_issues );
+		}
 	}
 
-	return $p_response->withStatus( HTTP_STATUS_SUCCESS )->withJson( $t_result );
+	$t_etag = mc_issue_hash( $t_issue_id, $t_result );
+	if( $p_request->hasHeader( HEADER_IF_NONE_MATCH ) ) {
+		$t_match_etag = $p_request->getHeaderLine( HEADER_IF_NONE_MATCH );
+		if( $t_etag == $t_match_etag ) {
+			return $p_response->withStatus( HTTP_STATUS_NOT_MODIFIED, 'Not Modified' )
+				->withHeader( HEADER_ETAG, $t_etag );
+		}
+	}
+
+	if( $t_result !== null ) {
+		$p_response = $p_response->withStatus( HTTP_STATUS_SUCCESS )->withJson( $t_result );
+	}
+
+	return $p_response->withHeader( HEADER_ETAG, $t_etag );
 }
 
 /**
@@ -131,14 +147,42 @@ function rest_issue_add( \Slim\Http\Request $p_request, \Slim\Http\Response $p_r
 function rest_issue_delete( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
 	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
 
-	# Username and password below are ignored, since middleware already done the auth.
-	$t_result = mc_issue_delete( /* username */ '', /* password */ '', $t_issue_id );
+	$t_found = bug_exists( $t_issue_id );
+	if( $t_found ) {
+		$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+		if( ApiObjectFactory::isFault( $t_issue ) ) {
+			return $p_response->withStatus( $t_issue->status_code, $t_issue->fault_string );
+		}
 
-	if( ApiObjectFactory::isFault( $t_result ) ) {
-		return $p_response->withStatus( $t_result->status_code, $t_result->fault_string );
+		$t_etag = mc_issue_hash( $t_issue_id, array( 'issues' => array( $t_issue ) ) );
+	} else {
+		$t_etag = mc_issue_hash( $t_issue_id, /* issue */ null );
 	}
 
-	return $p_response->withStatus( HTTP_STATUS_NO_CONTENT );
+	if( $p_request->hasHeader( HEADER_IF_MATCH ) ) {
+		$t_match_etag = $p_request->getHeaderLine( HEADER_IF_MATCH );
+		if( $t_etag != $t_match_etag ) {
+			return $p_response->withStatus( HTTP_STATUS_PRECONDITION_FAILED, 'Precondition Failed' )
+				->withHeader( HEADER_ETAG, $t_etag );
+		}
+	}
+
+	if( $t_found ) {
+		# Username and password below are ignored, since middleware already done the auth.
+		$t_result = mc_issue_delete( /* username */ '', /* password */ '', $t_issue_id );
+
+		if( ApiObjectFactory::isFault( $t_result ) ) {
+			return $p_response->withStatus( $t_result->status_code, $t_result->fault_string )
+				->withHeader( HEADER_ETAG, $t_etag );
+		}
+
+		$p_response = $p_response->withStatus( HTTP_STATUS_NO_CONTENT )
+			->withHeader( HEADER_ETAG, mc_issue_hash( $t_issue_id, null ) );
+	} else {
+		$p_response = $p_response->withStatus( HTTP_STATUS_NOT_FOUND, 'Issue not found' );
+	}
+
+	return $p_response;
 }
 
 /**
@@ -225,25 +269,51 @@ function rest_issue_update( \Slim\Http\Request $p_request, \Slim\Http\Response $
 		return $p_response->withStatus( HTTP_STATUS_BAD_REQUEST, $t_message );
 	}
 
-	# Load the latest issue state from the db to merge with the provided fields to patch
-	$t_original_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+	$t_found = bug_exists( $t_issue_id );
+	if( $t_found ) {
+		$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+		if( ApiObjectFactory::isFault( $t_issue ) ) {
+			return $p_response->withStatus( $t_issue->status_code, $t_issue->fault_string );
+		}
 
-	# Construct full issue from issue from db + patched info
-	$t_issue_patch = $p_request->getParsedBody();
-	if( isset( $t_issue_patch['id'] ) && $t_issue_patch['id'] != $t_issue_id ) {
-		return $p_response->withStatus( HTTP_STATUS_BAD_REQUEST, 'Issue id mismatch' );
+		$t_etag = mc_issue_hash( $t_issue_id, array( 'issues' => array( $t_issue ) ) );
+	} else {
+		$t_etag = mc_issue_hash( $t_issue_id, /* issue */ null );
+		$t_issue = null;
 	}
 
-	$t_issue = (object)array_merge( $t_original_issue, $t_issue_patch );
-
-	# Trigger the issue update
-	$t_result = mc_issue_update( /* username */ '', /* password */ '', $t_issue_id, $t_issue );
-	if( ApiObjectFactory::isFault( $t_result ) ) {
-		return $p_response->withStatus( $t_result->status_code, $t_result->fault_string );
+	if( $p_request->hasHeader( HEADER_IF_MATCH ) ) {
+		$t_match_etag = $p_request->getHeaderLine( HEADER_IF_MATCH );
+		if( $t_etag != $t_match_etag ) {
+			return $p_response->withStatus( HTTP_STATUS_PRECONDITION_FAILED, 'Precondition Failed' )
+				->withHeader( HEADER_ETAG, $t_etag );
+		}
 	}
 
-	$t_updated_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+	if( $t_found ) {
+		# Construct full issue from issue from db + patched info
+		$t_issue_patch = $p_request->getParsedBody();
+		if( isset( $t_issue_patch['id'] ) && $t_issue_patch['id'] != $t_issue_id ) {
+			return $p_response->withStatus( HTTP_STATUS_BAD_REQUEST, 'Issue id mismatch' );
+		}
 
-	return $p_response->withStatus( HTTP_STATUS_SUCCESS, "Issue with id $t_issue_id Updated" )->
-		withJson( array( 'issue' => $t_updated_issue ) );
+		$t_issue = (object)array_merge( $t_issue, $t_issue_patch );
+
+		# Trigger the issue update
+		$t_result = mc_issue_update( /* username */ '', /* password */ '', $t_issue_id, $t_issue );
+		if( ApiObjectFactory::isFault( $t_result ) ) {
+			return $p_response->withStatus( $t_result->status_code, $t_result->fault_string );
+		}
+
+		$t_updated_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+		$t_result = array( 'issues' => array( $t_updated_issue ) );
+
+		$p_response = $p_response->withStatus( HTTP_STATUS_SUCCESS, "Issue with id $t_issue_id Updated" )
+			->withHeader( HEADER_ETAG, mc_issue_hash( $t_issue_id, $t_result ) )
+			->withJson( $t_result );
+	} else {
+		$p_response = $p_response->withStatus( HTTP_STATUS_NOT_FOUND, 'Issue not found' );
+	}
+
+	return $p_response;
 }

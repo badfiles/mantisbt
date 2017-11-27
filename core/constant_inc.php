@@ -668,11 +668,13 @@ define( 'DB_MAX_INT', 2147483647 );
 define( 'HTTP_STATUS_SUCCESS', 200 );
 define( 'HTTP_STATUS_CREATED', 201 );
 define( 'HTTP_STATUS_NO_CONTENT', 204 );
+define( 'HTTP_STATUS_NOT_MODIFIED', 304 );
 define( 'HTTP_STATUS_BAD_REQUEST', 400 );
 define( 'HTTP_STATUS_UNAUTHORIZED', 401 );
 define( 'HTTP_STATUS_FORBIDDEN', 403 );
 define( 'HTTP_STATUS_NOT_FOUND', 404 );
 define( 'HTTP_STATUS_CONFLICT', 409 );
+define( 'HTTP_STATUS_PRECONDITION_FAILED', 412 );
 define( 'HTTP_STATUS_INTERNAL_SERVER_ERROR', 500 );
 define( 'HTTP_STATUS_UNAVAILABLE', 503 );
 
@@ -681,6 +683,9 @@ define( 'HEADER_AUTHORIZATION', 'Authorization' );
 define( 'HEADER_LOGIN_METHOD', 'X-Mantis-LoginMethod' );
 define( 'HEADER_USERNAME', 'X-Mantis-Username' );
 define( 'HEADER_VERSION', 'X-Mantis-Version' );
+define( 'HEADER_IF_MATCH', 'If-Match' );
+define( 'HEADER_IF_NONE_MATCH', 'If-None-Match' );
+define( 'HEADER_ETAG', 'ETag' );
 
 # LOGIN METHODS
 define( 'LOGIN_METHOD_COOKIE', 'cookie' );
