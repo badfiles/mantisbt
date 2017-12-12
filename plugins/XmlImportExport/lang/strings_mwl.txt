@@ -30,7 +30,7 @@
  * ** http://www.mantisbt.org/wiki/doku.php/mantisbt:translationshowto **
  * **********************************************************************
  */
-/** French (français)
+/** Mirandese (Mirandés)
  * 
  * See the qqq 'language' for message documentation incl. usage of parameters
  * To improve a translation please visit http://translatewiki.net
@@ -38,22 +38,28 @@
  * @ingroup Language
  * @file
  *
- * @author Dolmen
- * @author Gomoko
- * @author IAlex
- * @author Urhixidur
- * @author Wladek92
+ * @author MokaAkashiyaPT
  */
 
-$s_plugin_format_title = 'Formatage de MantisBT';
-$s_plugin_format_description = 'Greffon officiel de traitement et de formatage de texte.';
-$s_plugin_format_config = 'Configuration';
-$s_plugin_format_process_text = 'Traitement du texte';
-$s_plugin_format_process_text_warning_notice = 'Ne désactivez pas sans savoir ce que vous faites. Dans l\'état désactivé, des attaques de type « cross-site scripting » (XSS) sont possibles.';
-$s_plugin_format_process_urls = 'Traitement des URL';
-$s_plugin_format_process_buglinks = 'Liens internes de MantisBT (bogues et notes sur un bogue)';
-$s_plugin_format_process_buglinks_info = 'Votre configuration définit la balise <em>Issue</em> comme « <literal>%s</literal> » et <em>Issue Note</em> comme « <literal>%s</literal> »';
-$s_plugin_format_process_markdown = 'Traitement Markdown';
-$s_plugin_format_process_markdown_info = 'Mise en forme prenant en charge Markdown, la syntaxe de formatage du texte qui permet que celui-ci puisse être converti en HTML.';
-$s_plugin_format_enabled = 'Activé';
-$s_plugin_format_disabled = 'Désactivé';
+$s_plugin_XmlImportExport_title = 'Amportar/sportar ancargos';
+$s_plugin_XmlImportExport_description = 'Acrecenta al MantisBT funcionalidades de amportaçon i sportaçon baseadas an XML.';
+$s_plugin_XmlImportExport_import = 'Amportar ancargos';
+$s_plugin_XmlImportExport_export = 'Sportar an XML';
+$s_plugin_XmlImportExport_config_title = 'Cunfiguraçon de nibles de cunsulta de amportaçon/sportaçon an XML';
+$s_plugin_XmlImportExport_import_threshold = 'Amportar ancargos';
+$s_plugin_XmlImportExport_export_threshold = 'Sportar ancargos';
+$s_plugin_XmlImportExport_action_update = 'Atualizar';
+$s_plugin_XmlImportExport_importing_in_project = 'A amportar ancargos pa l porjeto: \'%s\'';
+$s_plugin_XmlImportExport_import_options = 'Oupçones de amportaçon';
+$s_plugin_XmlImportExport_cross_references = 'Refréncias cruzadas';
+$s_plugin_XmlImportExport_default_strategy = 'Stratégia de cumberson por oumisson:';
+$s_plugin_XmlImportExport_renumber = 'Renumarar';
+$s_plugin_XmlImportExport_renumber_desc = 'Tentar cumberter refréncias pa la nuoba numaraçon';
+$s_plugin_XmlImportExport_link = 'Lhigaçon';
+$s_plugin_XmlImportExport_link_desc = 'Cumberter nua lhigaçon al eilemiento oureginal';
+$s_plugin_XmlImportExport_disable = 'Zatibar';
+$s_plugin_XmlImportExport_disable_desc = 'Zatibar la lhigaçon';
+$s_plugin_XmlImportExport_fallback = 'Stratégia de recurso (quando "Renumarar" nó ye aplicable):';
+$s_plugin_XmlImportExport_fallback_category = 'Catadorie de recurso:';
+$s_plugin_XmlImportExport_keep_same_category = 'Tentar mantener la catadorie';
+$s_plugin_XmlImportExport_error_no_xml = 'nó fui possible ancuontrar las stensones xmlreader i xmlwriter';

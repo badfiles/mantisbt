@@ -21,7 +21,7 @@
 /**
  * Mantis Version
  */
-define( 'MANTIS_VERSION', '2.9.0-dev' );
+define( 'MANTIS_VERSION', '2.10.0-dev' );
 define( 'FILTER_VERSION', 'v9' );
 
 # --- constants -------------------
@@ -480,6 +480,12 @@ define( 'FILTER_TYPE_MULTI_INT', 4 );
 # Filter match types
 define( 'FILTER_MATCH_ALL', 0 );
 define( 'FILTER_MATCH_ANY', 1 );
+
+# Standard Filters
+define( 'FILTER_STANDARD_ASSIGNED', 'assigned' );
+define( 'FILTER_STANDARD_UNASSIGNED', 'unassigned' );
+define( 'FILTER_STANDARD_REPORTED', 'reported' );
+define( 'FILTER_STANDARD_MONITORED', 'monitored' );
 
 # Versions
 define( 'VERSION_ALL', null );
