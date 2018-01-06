@@ -48,7 +48,67 @@ $g_error_send_page_header = true;
 # These can be disabled in config_inc.php, see $g_display_errors
 error_reporting( error_reporting() | E_USER_ERROR | E_USER_WARNING | E_USER_NOTICE | E_USER_DEPRECATED );
 
-set_error_handler( 'error_handler' );
+global $g_bypass_error_handler;
+if( !$g_bypass_error_handler ) {
+	set_error_handler( 'error_handler' );
+	set_exception_handler( 'error_exception_handler' );
+}
+
+$g_exception = null;
+
+/**
+ * Unhandled exception handler
+ *
+ * @param Exception|Error $p_exception The exception to handle
+ * @return void
+ */
+function error_exception_handler( $p_exception ) {
+	global $g_exception;
+
+	# As per PHP documentation, null may be received to reset handler to default state.
+	if( $p_exception === null ) {
+		$g_exception = null;
+		return;
+	}
+
+	$g_exception = $p_exception;
+
+	if( is_a( $p_exception, 'Mantis\Exceptions\MantisException' ) ) {
+		$t_params = $p_exception->getParams();
+		if( !empty( $t_params ) ) {
+			call_user_func_array( 'error_parameters', $t_params );
+		}
+
+		trigger_error( $p_exception->getCode(), ERROR );
+
+		# It is not expected to get here, but just in case!
+		return;
+	}
+
+	# trigger a generic error
+	# TODO: we may want to log such errors
+	trigger_error( ERROR_PHP, ERROR );
+}
+
+/**
+ * Get error stack based on last exception
+ * @return array The stack trace as an array
+ */
+function error_stack_trace() {
+	global $g_exception;
+
+	if ( $g_exception === null ) {
+		$t_stack = debug_backtrace();
+
+		# remove this function and its caller from the stack trace.
+		array_shift( $t_stack );
+		array_shift( $t_stack );
+	} else {
+		$t_stack = $g_exception->getTrace();
+	}
+
+	return $t_stack;
+}
 
 /**
  * Default error handler
@@ -111,6 +171,11 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 		}
 	}
 
+	# Force errors to use HALT method.
+	if( $p_type == E_USER_ERROR || $p_type == E_ERROR || $p_type == E_RECOVERABLE_ERROR ) {
+		$t_method = DISPLAY_ERROR_HALT;
+	}
+
 	# build an appropriate error string
 	$t_error_location = 'in \'' . $p_file .'\' line ' . $p_line;
 	$t_error_description = '\'' . $p_error . '\' ' . $t_error_location;
@@ -132,11 +197,13 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 			$t_error_type = 'DEPRECATED';
 			break;
 		case E_USER_ERROR:
-			$t_error_type = 'APPLICATION ERROR #' . $p_error;
-			$t_error_description = error_string( $p_error );
-			if( $t_method == DISPLAY_ERROR_INLINE ) {
-				$t_error_description .= ' (' . $t_error_location . ")\n"
-					. error_string( ERROR_DISPLAY_USER_ERROR_INLINE );
+			if( $p_error == ERROR_PHP ) {
+				global $g_exception;
+				$t_error_type = 'APPLICATION ERROR';
+				$t_error_description = $g_exception->getMessage();
+			} else {
+				$t_error_type = 'APPLICATION ERROR #' . $p_error;
+				$t_error_description = error_string( $p_error );
 			}
 			break;
 		case E_USER_WARNING:
@@ -150,7 +217,7 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 		case E_USER_DEPRECATED:
 			# Get the parent of the call that triggered the error to facilitate
 			# debugging with a more useful filename and line number
-			$t_stack = debug_backtrace();
+			$t_stack = error_stack_trace();
 			if( isset( $t_stack[2] ) ) {
 				$t_caller = $t_stack[2];
 			} else {
@@ -186,7 +253,7 @@ function error_handler( $p_type, $p_error, $p_file, $p_line, array $p_context ) 
 
 			if( ON == config_get_global( 'show_detailed_errors' ) ) {
 				echo "\n";
-				debug_print_backtrace();
+				error_print_stack_trace();
 			}
 		}
 		if( DISPLAY_ERROR_HALT == $t_method ) {
@@ -416,16 +483,33 @@ function error_print_context( array $p_context ) {
  * Print out a stack trace
  */
 function error_print_stack_trace() {
+	$t_stack = error_stack_trace();
+
+	if( php_sapi_name() == 'cli' ) {
+		foreach( $t_stack as $t_frame ) {
+			echo ( isset( $t_frame['file'] ) ? $t_frame['file'] : '-' ), ': ' ,
+				( isset( $t_frame['line'] ) ? $t_frame['line'] : '-' ), ': ',
+				( isset( $t_frame['class'] ) ? $t_frame['class'] : '-' ), ' - ',
+				( isset( $t_frame['type'] ) ? $t_frame['type'] : '-' ), ' - ',
+				( isset( $t_frame['function'] ) ? $t_frame['function'] : '-' );
+	
+			$t_args = array();
+			if( isset( $t_frame['args'] ) && !empty( $t_frame['args'] ) ) {
+				foreach( $t_frame['args'] as $t_value ) {
+					$t_args[] = error_build_parameter_string( $t_value );
+				}
+				echo '(', implode( $t_args, ', ' ), ' )', "\n";
+			} else {
+				echo "()\n";
+			}
+		}
+	
+		return;
+	}
+
 	echo '<div class="table-responsive">';
 	echo '<table class="table table-bordered table-striped table-condensed">';
 	echo '<tr><th>Filename</th><th>Line</th><th></th><th></th><th>Function</th><th>Args</th></tr>';
-
-	$t_stack = debug_backtrace();
-
-	array_shift( $t_stack );
-
-	# remove the call to this function from the stack trace
-	array_shift( $t_stack );
 
 	# remove the call to the error handler from the stack trace
 

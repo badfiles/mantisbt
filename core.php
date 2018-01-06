@@ -145,7 +145,33 @@ function http_is_protocol_https() {
  * @param string $p_class Class name being autoloaded.
  * @return void
  */
-function __autoload( $p_class ) {
+function autoload_mantis( $p_class ) {
+	global $g_core_path;
+
+	# Remove namespace from class name
+	$t_end_of_namespace = strrpos( $p_class, '\\' );
+	if( $t_end_of_namespace !== false ) {
+		$p_class = substr( $p_class, $t_end_of_namespace + 1 );
+	}
+
+	# Commands
+	if( substr( $p_class, -7 ) === 'Command' ) {
+		$t_require_path = $g_core_path . 'commands/' . $p_class . '.php';
+		if( file_exists( $t_require_path ) ) {
+			require_once( $t_require_path );
+			return;
+		}	
+	}
+
+	# Exceptions
+	if( substr( $p_class, -9 ) === 'Exception' ) {
+		$t_require_path = $g_core_path . 'exceptions/' . $p_class . '.php';
+		if( file_exists( $t_require_path ) ) {
+			require_once( $t_require_path );
+			return;
+		}	
+	}
+
 	global $g_class_path;
 	global $g_library_path;
 
@@ -165,7 +191,7 @@ function __autoload( $p_class ) {
 }
 
 # Register the autoload function to make it effective immediately
-spl_autoload_register( '__autoload' );
+spl_autoload_register( 'autoload_mantis' );
 
 # Load UTF8-capable string functions
 define( 'UTF8', $g_library_path . 'utf8' );

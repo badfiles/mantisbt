@@ -71,30 +71,81 @@ $g_soap_api_to_filter_names = array(
  *
  * @param string  $p_username   The name of the user trying to access the filters.
  * @param string  $p_password   The password of the user.
- * @param integer $p_project_id The id of the project to retrieve filters for.
+ * @param integer $p_project_id The id of the project to retrieve filters for or null to get all filters.
+ * @param integer|null $p_filter_id null to get all, or integer to get specified filter id.
  * @return array that represents a FilterDataArray structure
  */
-function mc_filter_get( $p_username, $p_password, $p_project_id ) {
+function mc_filter_get( $p_username, $p_password, $p_project_id, $p_filter_id = null ) {
 	$t_user_id = mci_check_login( $p_username, $p_password );
 	if( $t_user_id === false ) {
 		return mci_fault_login_failed();
 	}
+
 	if( !mci_has_readonly_access( $t_user_id, $p_project_id ) ) {
 		return mci_fault_access_denied( $t_user_id );
 	}
+
 	$t_result = array();
-	foreach( mci_filter_db_get_available_queries( $p_project_id, $t_user_id ) as $t_filter_row ) {
-		$t_filter = array();
-		$t_filter['id'] = $t_filter_row['id'];
-		$t_filter['owner'] = mci_account_get_array_by_id( $t_filter_row['user_id'] );
-		$t_filter['project_id'] = $t_filter_row['project_id'];
-		$t_filter['is_public'] = $t_filter_row['is_public'];
-		$t_filter['name'] = $t_filter_row['name'];
-		$t_filter['filter_string'] = $t_filter_row['filter_string'];
-		$t_filter['url'] = $t_filter_row['url'];
+	$t_filter_rows = filter_db_get_available_queries(
+		$p_project_id,
+		$t_user_id,
+		$p_project_id !== null,   # Filter by Project?
+		false );                  # Return names only?
+
+	foreach( $t_filter_rows as $t_filter_row ) {
+		if( $p_filter_id !== null && (int)$p_filter_id != (int)$t_filter_row['id'] ) {
+			continue;
+		}
+
+		if( ApiObjectFactory::$soap ) {	
+			$t_filter = array();
+			$t_filter['id'] = (int)$t_filter_row['id'];
+			$t_filter['name'] = $t_filter_row['name'];
+			$t_filter['owner'] = mci_account_get_array_by_id( $t_filter_row['user_id'] );
+			$t_filter['is_public'] = $t_filter_row['is_public'];
+			$t_filter['project_id'] = $t_filter_row['project_id'];
+			$t_filter['filter_string'] = $t_filter_row['filter_string'];
+			$t_filter['url'] = $t_filter_row['url'];
+		} else {
+			$t_lang = mci_get_user_lang( $t_user_id );
+			$converter = new FilterConverter( $t_user_id, $t_lang );
+			$t_filter = $converter->filterToJson( $t_filter_row );
+		}
+
 		$t_result[] = $t_filter;
 	}
+
 	return $t_result;
+}
+
+/**
+ * Delete the specified filter.
+ *
+ * @param integer $p_filter_id The filter id to delete.
+ * @return boolean|RestFault|SoapFault true or fault.
+ */
+function mci_filter_delete( $p_filter_id ) {
+	$t_user_id = auth_get_current_user_id();
+
+	$t_filter = filter_cache_row( $p_filter_id, /* trigger_errors */ false );
+	if( !$t_filter ) {
+		return ApiObjectFactory::faultNotFound( 'Filter not found' );
+	}
+
+	# Treat unnamed filters as not found.  They are not exposed via the REST API
+	if( !filter_is_named_filter( $p_filter_id ) ) {
+		return ApiObjectFactory::faultNotFound( 'Filter not found' );
+	}
+
+	if( !mci_has_readwrite_access( $t_user_id, $t_filter['project_id'] ) ) {
+		return mci_fault_access_denied();
+	}
+
+	if( !filter_db_delete_filter( $p_filter_id ) ) {
+		return mci_fault_access_denied();
+	}
+
+	return true;
 }
 
 /**

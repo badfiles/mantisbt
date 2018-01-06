@@ -75,6 +75,8 @@ require_api( 'tag_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
 
+use Mantis\Exceptions\ClientException;
+
 /**
  * Bug Data Structure Definition
  */
@@ -512,7 +514,6 @@ class BugData {
 		$t_text_id = db_insert_id( db_get_table( 'bug_text' ) );
 
 		# check to see if we want to assign this right off
-		$t_starting_status  = config_get( 'bug_submit_status' );
 		$t_original_status = $this->status;
 
 		# if not assigned, check if it should auto-assigned.
@@ -865,11 +866,10 @@ function bug_cache_row( $p_bug_id, $p_trigger_errors = true ) {
 		$g_cache_bug[$c_bug_id] = false;
 
 		if( $p_trigger_errors ) {
-			error_parameters( $p_bug_id );
-			trigger_error( ERROR_BUG_NOT_FOUND, ERROR );
-		} else {
-			return false;
+			throw new ClientException( "Issue #$c_bug_id not found", ERROR_BUG_NOT_FOUND, array( $p_bug_id ) );
 		}
+
+		return false;
 	}
 
 	return bug_add_to_cache( $t_row );
@@ -973,11 +973,13 @@ function bug_text_cache_row( $p_bug_id, $p_trigger_errors = true ) {
 		$g_cache_bug_text[$c_bug_id] = false;
 
 		if( $p_trigger_errors ) {
-			error_parameters( $p_bug_id );
-			trigger_error( ERROR_BUG_NOT_FOUND, ERROR );
-		} else {
-			return false;
+			throw new ClientException(
+				"Issue '$p_bug_id' not found",
+				ERROR_BUG_NOT_FOUND,
+				array( $p_bug_id ) );
 		}
+
+		return false;
 	}
 
 	$g_cache_bug_text[$c_bug_id] = $t_row;
@@ -1033,8 +1035,10 @@ function bug_exists( $p_bug_id ) {
  */
 function bug_ensure_exists( $p_bug_id ) {
 	if( !bug_exists( $p_bug_id ) ) {
-		error_parameters( $p_bug_id );
-		trigger_error( ERROR_BUG_NOT_FOUND, ERROR );
+		throw new ClientException(
+			"Issue #$p_bug_id not found",
+			ERROR_BUG_NOT_FOUND,
+			array( $p_bug_id ) );
 	}
 }
 

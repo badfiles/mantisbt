@@ -2653,6 +2653,12 @@ function filter_draw_selection_area2( $p_page_number, $p_for_screen = true, $p_e
 $g_cache_filter = array();
 $g_cache_filter_db_filters = array();
 
+/**
+ * Cache the specified filters.
+ *
+ * @param array Filter ids.
+ * @return array Array of filter information arrays, filters that don't exist will be set to false.
+ */
 function filter_cache_rows( array $p_filter_ids ) {
 	global $g_cache_filter;
 
@@ -2687,7 +2693,7 @@ function filter_cache_rows( array $p_filter_ids ) {
  *  false, return false if the filter can't be found.
  * @param integer $p_filter_id      A filter identifier to retrieve.
  * @param boolean $p_trigger_errors Whether to trigger an error if the filter is not found.
- * @return array|boolean
+ * @return array|boolean Array if filter exists, false if it doesn't exist and trigger errors is not set.
  */
 function filter_cache_row( $p_filter_id, $p_trigger_errors = true ) {
 	global $g_cache_filter;
@@ -2953,13 +2959,24 @@ function filter_db_get_name( $p_filter_id ) {
 }
 
 /**
+ * Check if the specified filter id exists.
+ *
+ * @return true: exists, false: otherwise.
+ */
+function filter_exists( $p_filter_id ) {
+	$t_filter = filter_cache_row( $p_filter_id, /* trigger_errors */ false );
+	return is_array( $t_filter );
+}
+
+/**
  * Check if the current user has permissions to delete the stored query
  * @param integer $p_filter_id Filter id.
+ * @param integer|null User id or null for logged in user.
  * @return boolean
  */
-function filter_db_can_delete_filter( $p_filter_id ) {
+function filter_db_can_delete_filter( $p_filter_id, $p_user_id = null ) {
 	$c_filter_id = (int)$p_filter_id;
-	$t_user_id = auth_get_current_user_id();
+	$t_user_id = $p_user_id != null ? $p_user_id : auth_get_current_user_id();
 
 	# Administrators can delete any filter
 	if( user_is_administrator( $t_user_id ) ) {
@@ -3046,15 +3063,15 @@ function filter_db_get_queries( $p_project_id = null, $p_user_id = null, $p_publ
 }
 
 /**
- * Note: any changes made in this function should be reflected in
- * mci_filter_db_get_available_queries())
- * @param integer $p_project_id A valid project identifier.
- * @param integer $p_user_id    A valid user identifier.
- * @return mixed
+ * Get the list of available filters.
+ *
+ * @param integer|null $p_project_id A valid project identifier or null for current project.
+ * @param integer|null $p_user_id    A valid user identifier or null for logged in user.
+ * @param boolean $p_filter_by_project Only return filters associated with specified project id or All Projects, otherwise return all filters for user.
+ * @param boolean $p_return_names_only true: return names of filters, false: return structures with filter header information.
+ * @return array Array of filters.
  */
-function filter_db_get_available_queries( $p_project_id = null, $p_user_id = null ) {
-	$t_overall_query_arr = array();
-
+function filter_db_get_available_queries( $p_project_id = null, $p_user_id = null, $p_filter_by_project = true, $p_return_names_only = true ) {
 	if( null === $p_project_id ) {
 		$t_project_id = helper_get_current_project();
 	} else {
@@ -3069,30 +3086,65 @@ function filter_db_get_available_queries( $p_project_id = null, $p_user_id = nul
 
 	# If the user doesn't have access rights to stored queries, just return
 	if( !access_has_project_level( config_get( 'stored_query_use_threshold' ) ) ) {
-		return $t_overall_query_arr;
+		return array();
 	}
 
 	# Get the list of available queries. By sorting such that public queries are
 	# first, we can override any query that has the same name as a private query
 	# with that private one
 	db_param_push();
-	$t_query = 'SELECT * FROM {filters}
-					WHERE (project_id=' . db_param() . '
-						OR project_id=0)
-					AND name!=\'\'
-					AND (is_public = ' . db_param() . '
-						OR user_id = ' . db_param() . ')
-					ORDER BY is_public DESC, name ASC';
-	$t_result = db_query( $t_query, array( $t_project_id, true, $t_user_id ) );
 
-	while( $t_row = db_fetch_array( $t_result ) ) {
-		$t_overall_query_arr[$t_row['id']] = $t_row['name'];
+	if( $p_filter_by_project ) {
+		$t_query = 'SELECT * FROM {filters}
+			WHERE (project_id = ' . db_param() . '
+				OR project_id = 0)
+			AND name != \'\'
+			AND (is_public = ' . db_param() . '
+				OR user_id = ' . db_param() . ')
+			ORDER BY is_public DESC, name ASC';
+
+		$t_result = db_query( $t_query, array( $t_project_id, true, $t_user_id ) );
+	} else {
+		$t_project_ids = user_get_all_accessible_projects( $t_user_id );
+		$t_project_ids[] = ALL_PROJECTS;
+
+		$t_query = 'SELECT * FROM {filters}
+			WHERE project_id in (' . implode( ',', $t_project_ids ) . ')
+			AND name != \'\'
+			AND (is_public = ' . db_param() . '
+				OR user_id = ' . db_param() . ')
+			ORDER BY is_public DESC, name ASC';
+
+		$t_result = db_query( $t_query, array( true, $t_user_id ) );
 	}
 
-	$t_overall_query_arr = array_unique( $t_overall_query_arr );
-	asort( $t_overall_query_arr );
+	$t_filters = array();
 
-	return $t_overall_query_arr;
+	while( $t_row = db_fetch_array( $t_result ) ) {
+		if( $p_return_names_only ) {
+			$t_filters[$t_row['id']] = $t_row['name'];
+		} else {
+			$t_filter_detail = explode( '#', $t_row['filter_string'], 2 );
+			if( !isset( $t_filter_detail[1] ) ) {
+				continue;
+			}
+
+			$t_filter = json_decode( $t_filter_detail[1], true );
+			$t_filter = filter_ensure_valid_filter( $t_filter );
+			$t_row['criteria'] = $t_filter;
+			$t_row['url'] = filter_get_url( $t_filter );
+			$t_filters[$t_row['name']] = $t_row;
+		}
+	}
+
+	if( $p_return_names_only ) {
+		$t_filters = array_unique( $t_filters );
+		asort( $t_filters );
+	} else {
+		$t_filters = array_values( $t_filters );
+	}
+
+	return $t_filters;
 }
 
 /**
