@@ -60,6 +60,8 @@ require_api( 'mention_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
 
+use Mantis\Exceptions\ClientException;
+
 # Cache of bugnotes arrays related to a bug, indexed by bug_id.
 # Each item is an array of BugnoteData objects
 $g_cache_bugnotes_by_bug_id = array();
@@ -112,7 +114,8 @@ class BugnoteData {
 	public $note_type;
 
 	/**
-	 * ???
+	 * Used for storing list of recipients for a reminder truncated to
+	 * field length.
 	 */
 	public $note_attr;
 
@@ -185,7 +188,10 @@ function bugnote_cache( BugnoteData $p_bugnote ) {
  */
 function bugnote_ensure_exists( $p_bugnote_id ) {
 	if( !bugnote_exists( $p_bugnote_id ) ) {
-		trigger_error( ERROR_BUGNOTE_NOT_FOUND, ERROR );
+		throw new ClientException(
+			"Issue note #$p_bugnote_id not found",
+			ERROR_BUGNOTE_NOT_FOUND,
+			array( $p_bugnote_id ) );
 	}
 }
 
@@ -238,9 +244,12 @@ function bugnote_add( $p_bug_id, $p_bugnote_text, $p_time_tracking = '0:00', $p_
 		if( ON == $t_time_tracking_enabled && $c_time_tracking > 0 ) {
 			$t_time_tracking_without_note = config_get( 'time_tracking_without_note' );
 			if( is_blank( $p_bugnote_text ) && OFF == $t_time_tracking_without_note ) {
-				error_parameters( lang_get( 'bugnote' ) );
-				trigger_error( ERROR_EMPTY_FIELD, ERROR );
+				throw new ClientException(
+					'Time tracking not allowed with empty note',
+					ERROR_EMPTY_FIELD,
+					array( lang_get( 'bugnote' ) ) );
 			}
+
 			$c_type = TIME_TRACKING;
 		} else if( is_blank( $p_bugnote_text ) ) {
 			# This is not time tracking (i.e. it's a normal bugnote)

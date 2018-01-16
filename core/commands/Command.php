@@ -26,6 +26,13 @@
 abstract class Command
 {
 	/**
+	 * This is the data for the command.  Modelled after the REST
+	 * it has the following sub-arrays:
+	 * 'query' - an array of url and query string parameters.
+	 * 'payload' - the payload
+	 * 'options' - options specified by the internal codebase and not
+	 *             as part of the request.
+	 *
 	 * @var array The input data for the command.
 	 */
 	protected $data;
@@ -56,6 +63,54 @@ abstract class Command
 	abstract protected function process();
 
 	/**
+	 * Gets the value of the option or default.
+	 *
+	 * @param string $p_name The option name.
+	 * @param mixed  $p_default The default value.
+	 *
+	 * @return mixed The option value or its default.
+	 */
+	public function option( $p_name, $p_default = null ) {
+		if( isset( $this->data['options'][$p_name] ) ) {
+			return $this->data['options'][$p_name];
+		}
+
+		return $p_default;
+	}
+
+	/**
+	 * Gets the value of a payload field or its default.
+	 *
+	 * @param string $p_name The field name.
+	 * @param mixed  $p_default The default value.
+	 *
+	 * @return mixed The payload field value or its default.
+	 */
+	public function payload( $p_name, $p_default = null ) {
+		if( isset( $this->data['payload'][$p_name] ) ) {
+			return $this->data['payload'][$p_name];
+		}
+
+		return $p_default;
+	}
+
+	/**
+	 * Gets the value of a query field or its default.
+	 *
+	 * @param string $p_name The field name.
+	 * @param mixed $p_default The default value.
+	 *
+	 * @return mixed The field value or its default.
+	 */
+	public function query( $p_name, $p_default = null ) {
+		if( isset( $this->data['query'][$p_name] ) ) {
+			return $this->data['query'][$p_name];
+		}
+
+		return $p_default;
+	}
+
+	/**
 	 * Execute the command.  This may throw a CommandException is execution is interrupted.
 	 * The command is expected to trigger events that are handled by plugins as part of
 	 * exection.
@@ -65,6 +120,18 @@ abstract class Command
 	public function execute() {
 		# For now, all commands require user to be authenticated
 		auth_ensure_user_authenticated();		
+
+		if( !isset( $this->data['payload'] ) ) {
+			$this->data['payload'] = array();
+		}
+
+		if( !isset( $this->data['query'] ) ) {
+			$this->data['query'] = array();
+		}
+
+		if( !isset( $this->data['options'] ) ) {
+			$this->data['options'] = array();
+		}
 
 		$this->validate();
 		return $this->process();

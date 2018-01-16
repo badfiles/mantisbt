@@ -22,6 +22,8 @@
  * @link http://www.mantisbt.org
  */
 
+use Mantis\Exceptions\ClientException;
+
 $g_app->group('/issues', function() use ( $g_app ) {
 	$g_app->get( '', 'rest_issue_get' );
 	$g_app->get( '/', 'rest_issue_get' );
@@ -172,29 +174,43 @@ function rest_issue_delete( \Slim\Http\Request $p_request, \Slim\Http\Response $
  * @return \Slim\Http\Response The augmented response.
  */
 function rest_issue_note_add( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
-	$t_note_info = $p_request->getParsedBody();
-
 	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
 
-	$t_note = new stdClass();
-	$t_note->text = isset( $t_note_info['text'] ) ? $t_note_info['text'] : '';
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id ),
+		'payload' => $p_request->getParsedBody(),
+	);
 
-	if( isset( $t_note_info['view_state'] ) ) {
-		$t_note->view_state = $t_note_info['view_state'];
+	if( isset( $t_data['payload']['files'] ) && is_array( $t_data['payload']['files'] ) ) {
+		foreach( $t_data['payload']['files'] as &$t_file ) {
+			if( !isset( $t_file['content'] ) ) {
+				throw new ClientException(
+					'File content not set',
+					ERROR_INVALID_FIELD_VALUE,
+					array( 'files' ) );
+			}
+
+			$t_raw_content = base64_decode( $t_file['content'] );
+
+			do {
+				$t_tmp_file = realpath( sys_get_temp_dir() ) . '/' . uniqid( 'mantisbt-file' );
+			} while( file_exists( $t_tmp_file ) );
+	
+			file_put_contents( $t_tmp_file, $t_raw_content );
+			$t_file['tmp_name'] = $t_tmp_file;
+			$t_file['size'] = filesize( $t_tmp_file );
+			$t_file['browser_upload'] = false;
+			unset( $t_file['content'] );
+		}
 	}
 
-	if( isset( $t_note_info['reporter'] ) ) {
-		$t_note->reporter = $t_note_info['reporter'];
-	}
+	$t_command = new IssueNoteAddCommand( $t_data );
+	$t_command_response = $t_command->execute();
 
-	# TODO: support time tracking notes
-	# TODO: support reminder notes
-	# TODO: support note attachments
-
-	$t_result = mc_issue_note_add( /* username */ '', /* password */ '', $t_issue_id, $t_note );
-	ApiObjectFactory::throwIfFault( $t_result );
-
-	$t_note_id = $t_result;
+	# TODO: Move construction of response to the command and add options to allow callers to
+	# determine whether the response is needed.  This will need refactoring of APIs that construct
+	# notes and issues in responses.
+	$t_note_id = $t_command_response['id'];
 
 	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
 	foreach( $t_issue['notes'] as $t_current_note ) {
@@ -220,8 +236,14 @@ function rest_issue_note_delete( \Slim\Http\Request $p_request, \Slim\Http\Respo
 	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
 	$t_issue_note_id = isset( $p_args['note_id'] ) ? $p_args['note_id'] : $p_request->getParam( 'note_id' );
 
-	$t_result = mc_issue_note_delete( '', '', $t_issue_note_id );
-	ApiObjectFactory::throwIfFault( $t_result );
+	$t_data = array(
+		'query' => array(
+			'id' => $t_issue_note_id,
+			'issue_id' => $t_issue_id )
+	);
+
+	$t_command = new IssueNoteDeleteCommand( $t_data );
+	$t_command->execute();
 
 	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
 	return $p_response->withStatus( HTTP_STATUS_SUCCESS, 'Issue Note Deleted' )->
@@ -286,11 +308,13 @@ function rest_issue_update( \Slim\Http\Request $p_request, \Slim\Http\Response $
  */
 function rest_issue_monitor_add( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
 	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
-	$t_data = $p_request->getParsedBody();
-	$t_data['issue_id'] = $t_issue_id;
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id ),
+		'payload' => $p_request->getParsedBody(),
+	);
 
-	$command = new MonitorAddCommand( $t_data );
-	$command->execute();
+	$t_command = new MonitorAddCommand( $t_data );
+	$t_command->execute();
 
 	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );			
 

@@ -620,8 +620,12 @@ function mci_issue_note_data_as_array( $p_bugnote_row ) {
 			$t_bugnote['attr'] = $p_bugnote_row->note_attr;
 		}
 
-		if( isset( $t_bugnote['time_tracking'] ) && ( $t_bugnote['time_tracking'] == 0 || $t_type != 'timelog' ) ) {
-			unset( $t_bugnote['time_tracking'] );
+		if( isset( $t_bugnote['time_tracking'] ) ) {
+			if ( $t_bugnote['time_tracking'] == 0 || $t_type != 'timelog' ) {
+				unset( $t_bugnote['time_tracking'] );
+			} else {
+				$t_bugnote['time_tracking'] = array( 'duration' => db_minutes_to_hhmm( $t_bugnote['time_tracking'] ) );
+			}	
 		}
 
 		$t_bugnote['created_at'] = $t_created_at;
@@ -1448,13 +1452,58 @@ function mc_issue_delete( $p_username, $p_password, $p_issue_id ) {
  * @return integer The id of the added note.
  */
 function mc_issue_note_add( $p_username, $p_password, $p_issue_id, stdClass $p_note ) {
-	global $g_project_override;
-
 	$t_user_id = mci_check_login( $p_username, $p_password );
 	if( $t_user_id === false ) {
 		return mci_fault_login_failed();
 	}
 
+	$t_project_id = bug_get_field( $p_issue_id, 'project_id' );
+	if( !mci_has_readwrite_access( $t_user_id, $t_project_id ) ) {
+		return mci_fault_access_denied( $t_user_id );
+	}
+
+	$p_note = ApiObjectFactory::objectToArray( $p_note );
+
+	$t_note_type = isset( $p_note['note_type'] ) ? (int)$p_note['note_type'] : BUGNOTE;
+	if( $t_note_type != REMINDER ) {
+		$t_payload = array();
+
+		if( $t_note_type == TIME_TRACKING ) {
+			$t_payload['type'] = 'timelog';
+		} else {
+			$t_payload['type'] = 'note';
+		}
+
+		if( isset( $p_note['text'] ) ) {
+			$t_payload['text'] = $p_note['text'];
+		}
+
+		if( isset( $p_note['view_state'] ) ) {
+			$t_payload['view_state'] = ApiObjectFactory::objectToArray( $p_note['view_state'] );
+		}
+
+		if( isset( $p_note['reporter'] ) ) {
+			$t_reporter_id = mci_get_user_id( $p_note['reporter'] );
+			$t_payload['reporter'] = array( 'id' => mci_get_user_id( $p_note['reporter'] ) );
+		}
+
+		if( isset( $p_note['time_tracking'] ) && is_numeric( $p_note['time_tracking'] ) ) {
+			$t_payload['time_tracking'] = array(
+				'duration' => db_minutes_to_hhmm( $p_note['time_tracking'] )
+			);
+		}
+
+		$t_data = array(
+			'query' => array( 'issue_id' => $p_issue_id ),
+			'payload' => $t_payload
+		);
+
+		$t_command = new IssueNoteAddCommand( $t_data );
+		$t_result = $t_command->execute();
+		return $t_result['id'];
+	}
+
+	# TODO: Keep the code path below for adding REMINDERs.
 	if( (integer)$p_issue_id < 1 ) {
 		return ApiObjectFactory::faultBadRequest( 'Invalid issue id \'' . $p_issue_id . '\'' );
 	}
@@ -1463,18 +1512,12 @@ function mc_issue_note_add( $p_username, $p_password, $p_issue_id, stdClass $p_n
 		return ApiObjectFactory::faultNotFound( 'Issue \'' . $p_issue_id . '\' does not exist.' );
 	}
 
-	$p_note = ApiObjectFactory::objectToArray( $p_note );
-
 	if( !isset( $p_note['text'] ) || is_blank( $p_note['text'] ) ) {
 		return ApiObjectFactory::faultBadRequest( 'Issue note text must not be blank.' );
 	}
 
-	$t_project_id = bug_get_field( $p_issue_id, 'project_id' );
+	global $g_project_override;
 	$g_project_override = $t_project_id;
-
-	if( !mci_has_readwrite_access( $t_user_id, $t_project_id ) ) {
-		return mci_fault_access_denied( $t_user_id );
-	}
 
 	if( !access_has_bug_level( config_get( 'add_bugnote_threshold' ), $p_issue_id, $t_user_id ) ) {
 		return mci_fault_access_denied( $t_user_id, 'You do not have access rights to add notes to this issue' );
@@ -1513,7 +1556,6 @@ function mc_issue_note_add( $p_username, $p_password, $p_issue_id, stdClass $p_n
 
 	$t_view_state_id = mci_get_enum_id_from_objectref( 'view_state', $t_view_state );
 
-	$t_note_type = isset( $p_note['note_type'] ) ? (int)$p_note['note_type'] : BUGNOTE;
 	$t_note_attr = isset( $p_note['note_type'] ) ? $p_note['note_attr'] : '';
 
 	log_event( LOG_WEBSERVICE, 'adding bugnote to issue \'' . $p_issue_id . '\'' );
@@ -1533,8 +1575,6 @@ function mc_issue_note_add( $p_username, $p_password, $p_issue_id, stdClass $p_n
  * @return boolean true: success, false: failure
  */
 function mc_issue_note_delete( $p_username, $p_password, $p_issue_note_id ) {
-	global $g_project_override;
-
 	$t_user_id = mci_check_login( $p_username, $p_password );
 	if( $t_user_id === false ) {
 		return mci_fault_login_failed();
@@ -1544,36 +1584,19 @@ function mc_issue_note_delete( $p_username, $p_password, $p_issue_note_id ) {
 		return ApiObjectFactory::faultBadRequest( 'Invalid issue note id \'' . $p_issue_note_id . '\'.' );
 	}
 
-	if( !bugnote_exists( $p_issue_note_id ) ) {
-		return ApiObjectFactory::faultNotFound( 'Issue note \'' . $p_issue_note_id . '\' does not exist.' );
-	}
-
 	$t_issue_id = bugnote_get_field( $p_issue_note_id, 'bug_id' );
 	$t_project_id = bug_get_field( $t_issue_id, 'project_id' );
-	$g_project_override = $t_project_id;
 	if( !mci_has_readwrite_access( $t_user_id, $t_project_id ) ) {
 		return mci_fault_access_denied( $t_user_id );
 	}
 
-	$t_reporter_id = bugnote_get_field( $p_issue_note_id, 'reporter_id' );
+	$t_data = array(
+		'query' => array( 'id' => $p_issue_note_id )
+	);
 
-	# mirrors check from bugnote_delete.php
-	if( $t_user_id == $t_reporter_id ) {
-		$t_threshold_config_name =  'bugnote_user_delete_threshold';
-	} else {
-		$t_threshold_config_name =  'delete_bugnote_threshold';
-	}
-
-	if( !access_has_bugnote_level( config_get( $t_threshold_config_name ), $p_issue_note_id ) ) {
-		return mci_fault_access_denied( $t_user_id );
-	}
-
-	if( bug_is_readonly( $t_issue_id ) ) {
-		return mci_fault_access_denied( $t_user_id, 'Issue \'' . $t_issue_id . '\' is readonly' );
-	}
-
-	log_event( LOG_WEBSERVICE, 'deleting bugnote id \'' . $p_issue_note_id . '\'' );
-	return bugnote_delete( $p_issue_note_id );
+	$t_command = new IssueNoteDeleteCommand( $t_data );
+	$t_command->execute();
+	return true;
 }
 
 /**

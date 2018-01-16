@@ -18,6 +18,7 @@ require_api( 'authentication_api.php' );
 require_api( 'bug_api.php' );
 require_api( 'constant_inc.php' );
 require_api( 'config_api.php' );
+require_api( 'helper_api.php' );
 require_api( 'user_api.php' );
 
 use Mantis\Exceptions\ClientException;
@@ -37,11 +38,13 @@ class MonitorAddCommand extends Command {
 	private $userIdsToAdd;
 
 	/**
-	 * Data is expected to contain:
+	 * $p_data['payload'] is expected to contain:
 	 * - issue_id
 	 * - users (array of users) each user as
 	 *   - an array having a key value for id or name or real_name or name_or_realname.
 	 *     id takes first priority, name second, real_name third, name_or_realname fourth.
+	 *
+	 * @param array $p_data The command data.
 	 */
 	function __construct( array $p_data ) {
 		parent::__construct( $p_data );
@@ -51,28 +54,19 @@ class MonitorAddCommand extends Command {
 	 * Validate the data.
 	 */
 	function validate() {		
-		# Validate issue id
-		if( !isset( $this->data['issue_id'] ) ) {
-			throw new ClientException( 'issue_id missing', ERROR_GPC_VAR_NOT_FOUND );
-		}
-
-		if( !is_numeric( $this->data['issue_id'] ) ) {
-			throw new ClientException( 'issue_id must be numeric', ERROR_GPC_VAR_NOT_FOUND );
-		}
-
-		$t_issue_id = (int)$this->data['issue_id'];
+		$t_issue_id = helper_parse_issue_id( $this->query( 'issue_id' ) );
 
 		$this->projectId = bug_get_field( $t_issue_id, 'project_id' );
 		$t_logged_in_user = auth_get_current_user_id();
 
-		# Validate user id (if specified), otherwise set from context
-		if( !isset( $this->data['users'] ) ) {
-			$this->data['users'] = array( 'id' => $t_logged_in_user );
+		$t_users = $this->payload( 'users', array( array( 'id' => $t_logged_in_user ) ) );
+		if( !is_array( $t_users ) ) {
+			throw new ClientException( 'Invalid users array', ERROR_INVALID_FIELD_VALUE, array( 'users' ) );
 		}
 
 		# Normalize user objects
 		$t_user_ids = array();
-		foreach( $this->data['users'] as $t_user ) {
+		foreach( $t_users as $t_user ) {
 			$t_user_ids[] = user_get_id_by_user_info( $t_user );
 		}
 
@@ -107,21 +101,22 @@ class MonitorAddCommand extends Command {
 	/**
 	 * Process the command.
 	 *
-	 * @returns null No output from this command.
+	 * @returns array Command response
 	 */
 	protected function process() {
 		if( $this->projectId != helper_get_current_project() ) {
 			# in case the current project is not the same project of the bug we are
 			# viewing, override the current project. This to avoid problems with
 			# categories and handlers lists etc.
+			global $g_project_override;
 			$g_project_override = $this->projectId;
 		}
 
 		foreach( $this->userIdsToAdd as $t_user_id ) {
-			bug_monitor( $this->data['issue_id'], $t_user_id );
+			bug_monitor( $this->query( 'issue_id' ), $t_user_id );
 		}
 
-		return null;
+		return array();
 	}
 }
 

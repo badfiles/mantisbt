@@ -964,6 +964,69 @@ $g_language_auto_map = array(
  */
 $g_fallback_language = 'english';
 
+##########################
+# MantisBT Font Settings #
+##########################
+
+/**
+ * Name of one of google fonts available at https://fonts.google.com/
+ * Chosen family must be part of in $g_font_family_choices_local such that it works
+ * even if CDN option is disabled
+ * @see $g_font_family_choices_local
+ * @see $g_cdn_enabled
+ * @global string $g_font_family
+ */
+$g_font_family = 'Open Sans';
+
+/**
+ * List the google fonts that the users are allowed to choose from.
+ * Google offers over 800 fonts. The list below is limited to the ones tested on MantisBT UI
+ * @global array $g_font_family_choices
+ */
+$g_font_family_choices = array(
+	'Amiko',
+	'Architects Daughter',
+	'Archivo Narrow',
+	'Arvo',
+	'Bitter',
+	'Cabin',
+	'Cinzel',
+	'Comfortaa',
+	'Courgette',
+	'Droid Sans',
+	'Gloria Hallelujah',
+	'Inconsolata',
+	'Josefin Sans',
+	'Kadwa',
+	'Karla',
+	'Kaushan Script',
+	'Lato',
+	'Montserrat',
+	'Open Sans',
+	'Orbitron',
+	'Oregano',
+	'Palanquin',
+	'Poppins',
+	'Raleway',
+	'Rhodium Libre',
+	'Sarala',
+	'Scope One',
+	'Secular One',
+	'Ubuntu',
+	'Vollkorn'
+);
+
+/**
+ * List of fonts that are installed as part of MantisBT
+ * This list is used when using CDN option is disabled
+ * @global array $g_font_family_choices_local
+ */
+$g_font_family_choices_local = array(
+	'Montserrat',
+	'Open Sans',
+	'Poppins'
+);
+
 #############################
 # MantisBT Display Settings #
 #############################
@@ -4510,6 +4573,9 @@ $g_public_config_names = array(
 	'filter_by_custom_fields',
 	'filter_custom_fields_per_row',
 	'filter_position',
+	'font_family',
+	'font_family_choices',
+	'font_family_choices_local',
 	'forward_year_count',
 	'from_email',
 	'from_name',
