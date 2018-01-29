@@ -392,6 +392,7 @@ function file_get_visible_attachments( $p_bug_id, $p_direct_access = false ) {
 		$t_attachment['size'] = $t_filesize;
 		$t_attachment['date_added'] = $t_date_added;
 		$t_attachment['diskfile'] = $t_diskfile;
+		$t_attachment['file_type'] = $t_row['file_type'];
 
 		$t_attachment['can_download'] = file_can_download_bug_attachments( $p_bug_id, (int)$t_row['user_id'], (bool)$t_row['protected'], $p_direct_access );
 		$t_attachment['can_delete'] = file_can_delete_bug_attachments( $p_bug_id, (int)$t_row['user_id'] );
@@ -989,7 +990,9 @@ function file_allow_bug_upload( $p_bug_id = null, $p_user_id = null ) {
  */
 function file_ensure_valid_upload_path( $p_upload_path ) {
 	if( !file_exists( $p_upload_path ) || !is_dir( $p_upload_path ) || !is_writable( $p_upload_path ) || !is_readable( $p_upload_path ) ) {
-		trigger_error( ERROR_FILE_INVALID_UPLOAD_PATH, ERROR );
+		throw new ServiceException(
+			'Upload folder not valid',
+			ERROR_FILE_INVALID_UPLOAD_PATH );
 	}
 }
 

@@ -55,6 +55,8 @@ require_api( 'string_api.php' );
 require_api( 'user_api.php' );
 require_api( 'utility_api.php' );
 
+use Mantis\Exceptions\ClientException;
+
 # cache the tag definitions, indexed by tag id
 # tag ids that don't exist are stored as 'false', to avoid repeated searches
 $g_cache_tags = array();
@@ -189,8 +191,10 @@ function tag_exists( $p_tag_id ) {
  */
 function tag_ensure_exists( $p_tag_id ) {
 	if( !tag_exists( $p_tag_id ) ) {
-		error_parameters( $p_tag_id );
-		trigger_error( ERROR_TAG_NOT_FOUND, ERROR );
+		throw new ClientException(
+			sprintf( "Tag '%d' does not exist", $p_tag_id ),
+			ERROR_TAG_NOT_FOUND,
+			array( $p_tag_id ) );
 	}
 }
 
@@ -831,7 +835,12 @@ function tag_bug_detach( $p_tag_id, $p_bug_id, $p_add_history = true, $p_user_id
 		$t_detach_level = config_get( 'tag_detach_threshold' );
 	}
 
-	access_ensure_bug_level( $t_detach_level, $p_bug_id, $t_user_id );
+	if( !access_has_bug_level( $t_detach_level, $p_bug_id, $t_user_id ) ) {
+		throw new ClientException(
+			sprintf( "Access denied to detach '%s'", $t_tag_row['name'] ),
+			ERROR_ACCESS_DENIED
+		);
+	}
 
 	db_param_push();
 	$t_query = 'DELETE FROM {bug_tag} WHERE tag_id=' . db_param() . ' AND bug_id=' . db_param();

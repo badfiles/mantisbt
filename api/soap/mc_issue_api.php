@@ -486,37 +486,32 @@ function mci_issue_get_custom_fields( $p_issue_id ) {
  * @return array that represents an AttachmentData structure
  */
 function mci_issue_get_attachments( $p_issue_id ) {
-	$t_attachment_rows = bug_get_attachments( $p_issue_id );
-
+	$t_attachment_rows = file_get_visible_attachments( $p_issue_id );
 	if( $t_attachment_rows == null ) {
 		return array();
 	}
 
 	$t_result = array();
 	foreach( $t_attachment_rows as $t_attachment_row ) {
-		if( !file_can_view_bug_attachments( $p_issue_id, (int)$t_attachment_row['user_id'] ) ) {
-			continue;
-		}
 		$t_attachment = array();
 		$t_attachment['id'] = (int)$t_attachment_row['id'];
-		$t_attachment['filename'] = $t_attachment_row['filename'];
-		$t_attachment['size'] = (int)$t_attachment_row['filesize'];
-		$t_attachment['content_type'] = $t_attachment_row['file_type'];
 
 		$t_created_at = ApiObjectFactory::datetime( $t_attachment_row['date_added'] );
 
 		if( ApiObjectFactory::$soap ) {
-			$t_attachment['download_url'] = mci_get_mantis_path() . 'file_download.php?file_id=' . $t_attachment_row['id'] . '&amp;type=bug';
+			$t_attachment['user_id'] = (int)$t_attachment_row['user_id'];
 			$t_attachment['date_submitted'] = $t_created_at;
 		} else {
-			$t_attachment['download_url'] = mci_get_mantis_path() . 'file_download.php?file_id=' . $t_attachment_row['id'] . '&type=bug';
+			$t_attachment['reporter'] = mci_account_get_array_by_id( $t_attachment_row['user_id'] );
 			$t_attachment['created_at'] = $t_created_at;
 		}
 
+		$t_attachment['filename'] = $t_attachment_row['display_name'];
+		$t_attachment['size'] = (int)$t_attachment_row['size'];
+		$t_attachment['content_type'] = $t_attachment_row['file_type'];
+
 		if( ApiObjectFactory::$soap ) {
-			$t_attachment['user_id'] = (int)$t_attachment_row['user_id'];
-		} else {
-			$t_attachment['reporter'] = mci_account_get_array_by_id( $t_attachment_row['user_id'] );
+			$t_attachment['download_url'] = mci_get_mantis_path() . 'file_download.php?file_id=' . $t_attachment_row['id'] . '&amp;type=bug';
 		}
 
 		$t_result[] = $t_attachment;
@@ -544,7 +539,14 @@ function mci_issue_get_relationships( $p_issue_id, $p_user_id ) {
 			$t_reltype = array();
 			$t_relationship['id'] = (int)$t_relship_row->id;
 			$t_reltype['id'] = (int)$t_relship_row->type;
-			$t_reltype['name'] = relationship_get_description_src_side( $t_relship_row->type );
+
+			if( ApiObjectFactory::$soap ) {
+				$t_reltype['name'] = relationship_get_description_src_side( $t_relship_row->type );
+			} else {
+				$t_reltype['name'] = relationship_get_name_for_api( $t_relship_row->type );
+				$t_reltype['label'] = relationship_get_description_src_side( $t_relship_row->type );
+			}
+
 			$t_relationship['type'] = $t_reltype;
 
 			if( ApiObjectFactory::$soap ) {
@@ -563,10 +565,25 @@ function mci_issue_get_relationships( $p_issue_id, $p_user_id ) {
 			$t_relationship = array();
 			$t_relationship['id'] = (int)$t_relship_row->id;
 			$t_reltype = array();
-			$t_reltype['id'] = (int)relationship_get_complementary_type( $t_relship_row->type );
-			$t_reltype['name'] = relationship_get_description_dest_side( $t_relship_row->type );
+			$t_complementary_type_id = (int)relationship_get_complementary_type( $t_relship_row->type );
+			$t_reltype['id'] = $t_complementary_type_id;
+
+			if( ApiObjectFactory::$soap ) {
+				$t_reltype['name'] = relationship_get_description_dest_side( $t_relship_row->type );
+			} else {
+				$t_reltype['name'] = relationship_get_name_for_api( $t_complementary_type_id );
+				$t_reltype['label'] = relationship_get_description_dest_side( $t_relship_row->type );
+			}
+
 			$t_relationship['type'] = $t_reltype;
-			$t_relationship['target_id'] = (int)$t_relship_row->src_bug_id;
+			$t_related_issue_id = (int)$t_relship_row->src_bug_id;
+
+			if( ApiObjectFactory::$soap ) {
+				$t_relationship['target_id'] = $t_related_issue_id;
+			} else {
+				$t_relationship['issue'] = mci_related_issue_as_array_by_id( $t_related_issue_id );
+			}
+
 			$t_relationships[] = $t_relationship;
 		}
 	}

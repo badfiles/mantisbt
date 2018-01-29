@@ -40,6 +40,12 @@ $g_app->group('/issues', function() use ( $g_app ) {
 	$g_app->patch( '/{id}', 'rest_issue_update' );
 	$g_app->patch( '/{id}/', 'rest_issue_update' );
 
+	# Tags
+	$g_app->post( '/{id}/tags', 'rest_issue_tag_attach' );
+	$g_app->post( '/{id}/tags/', 'rest_issue_tag_attach' );
+	$g_app->delete( '/{id}/tags/{tag_id}', 'rest_issue_tag_detach' );
+	$g_app->delete( '/{id}/tags/{tag_id}/', 'rest_issue_tag_detach' );
+
 	# Monitor
 	$g_app->post( '/{id}/monitors/', 'rest_issue_monitor_add' );
 	$g_app->post( '/{id}/monitors', 'rest_issue_monitor_add' );
@@ -49,6 +55,20 @@ $g_app->group('/issues', function() use ( $g_app ) {
 	$g_app->post( '/{id}/notes', 'rest_issue_note_add' );
 	$g_app->delete( '/{id}/notes/{note_id}/', 'rest_issue_note_delete' );
 	$g_app->delete( '/{id}/notes/{note_id}', 'rest_issue_note_delete' );
+
+	# Relationships
+	$g_app->post( '/{id}/relationships/', 'rest_issue_relationship_add' );
+	$g_app->post( '/{id}/relationships', 'rest_issue_relationship_add' );
+	$g_app->delete( '/{id}/relationships/{relationship_id}/', 'rest_issue_relationship_delete' );
+	$g_app->delete( '/{id}/relationships/{relationship_id}', 'rest_issue_relationship_delete' );
+
+	# Files
+	$g_app->post( '/{id}/files/', 'rest_issue_file_add' );
+	$g_app->post( '/{id}/files', 'rest_issue_file_add' );
+	$g_app->get( '/{id}/files/', 'rest_issue_files_get' );
+	$g_app->get( '/{id}/files', 'rest_issue_files_get' );
+	$g_app->get( '/{id}/files/{file_id}/', 'rest_issue_files_get' );
+	$g_app->get( '/{id}/files/{file_id}', 'rest_issue_files_get' );
 });
 
 /**
@@ -166,6 +186,51 @@ function rest_issue_delete( \Slim\Http\Request $p_request, \Slim\Http\Response $
 }
 
 /**
+ * Add issue file.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_file_add( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = isset( $p_args['id'] ) ? $p_args['id'] : $p_request->getParam( 'id' );
+
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id ),
+		'payload' => $p_request->getParsedBody(),
+	);
+
+	if( isset( $t_data['payload']['files'] ) && is_array( $t_data['payload']['files'] ) ) {
+		foreach( $t_data['payload']['files'] as &$t_file ) {
+			if( !isset( $t_file['content'] ) ) {
+				throw new ClientException(
+					'File content not set',
+					ERROR_INVALID_FIELD_VALUE,
+					array( 'files' ) );
+			}
+
+			$t_raw_content = base64_decode( $t_file['content'] );
+
+			do {
+				$t_tmp_file = realpath( sys_get_temp_dir() ) . '/' . uniqid( 'mantisbt-file' );
+			} while( file_exists( $t_tmp_file ) );
+	
+			file_put_contents( $t_tmp_file, $t_raw_content );
+			$t_file['tmp_name'] = $t_tmp_file;
+			$t_file['size'] = filesize( $t_tmp_file );
+			$t_file['browser_upload'] = false;
+			unset( $t_file['content'] );
+		}
+	}
+
+	$t_command = new IssueFileAddCommand( $t_data );
+	$t_command_response = $t_command->execute();
+
+	return $p_response->withStatus( HTTP_STATUS_CREATED, "Issue File(s) Attached" );
+}
+
+/**
  * Add issue note.
  *
  * @param \Slim\Http\Request $p_request   The request.
@@ -251,6 +316,61 @@ function rest_issue_note_delete( \Slim\Http\Request $p_request, \Slim\Http\Respo
 }
 
 /**
+ * Add relationship to issue.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_relationship_add( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = $p_args['id'];
+
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id ),
+		'payload' => $p_request->getParsedBody(),
+	);
+
+	$t_command = new IssueRelationshipAddCommand( $t_data );
+	$t_command_response = $t_command->execute();
+
+	$t_relationship_id = $t_command_response['id'];
+
+	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+
+	return $p_response->withStatus(
+		HTTP_STATUS_CREATED,
+		"Issue relationship created with id $t_relationship_id" )->
+			withJson( array( 'issue' => $t_issue ) );
+}
+
+/**
+ * Delete issue relationship.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_relationship_delete( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = $p_args['id'];
+	$t_relationship_id = $p_args['relationship_id'];
+
+	$t_data = array(
+		'query' => array(
+			'relationship_id' => $t_relationship_id,
+			'issue_id' => $t_issue_id )
+	);
+
+	$t_command = new IssueRelationshipDeleteCommand( $t_data );
+	$t_command->execute();
+
+	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );
+	return $p_response->withStatus( HTTP_STATUS_SUCCESS, 'Issue relationship deleted' )->
+		withJson( array( 'issue' => $t_issue ) );
+}
+
+/**
  * Update an issue from a PATCH to the issues url.
  *
  * @param \Slim\Http\Request $p_request   The request.
@@ -320,4 +440,94 @@ function rest_issue_monitor_add( \Slim\Http\Request $p_request, \Slim\Http\Respo
 
 	return $p_response->withStatus( HTTP_STATUS_CREATED, "Users are now monitoring issue $t_issue_id" )->
 		withJson( array( 'issues' => array( $t_issue ) ) );
+}
+
+/**
+ * Attach a tag to an issue.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_tag_attach( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = $p_args['id'];
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id ),
+		'payload' => $p_request->getParsedBody(),
+	);
+
+	$t_command = new TagAttachCommand( $t_data );
+	$t_command->execute();
+
+	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );			
+
+	return $p_response->withStatus( HTTP_STATUS_CREATED, "Tag attached to issue $t_issue_id" )->
+		withJson( array( 'issues' => array( $t_issue ) ) );
+}
+
+/**
+ * Detach a tag from the issue
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_tag_detach( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = $p_args['id'];
+	$t_tag_id = $p_args['tag_id'];
+
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id, 'tag_id' => $t_tag_id )
+	);
+
+	$t_command = new TagDetachCommand( $t_data );
+	$t_command->execute();
+
+	$t_issue = mc_issue_get( /* username */ '', /* password */ '', $t_issue_id );			
+
+	return $p_response->withStatus( HTTP_STATUS_SUCCESS, "Tag detached from issue $t_issue_id" )->
+		withJson( array( 'issues' => array( $t_issue ) ) );
+}
+
+/**
+ * Get files associated with an issue.
+ *
+ * @param \Slim\Http\Request $p_request   The request.
+ * @param \Slim\Http\Response $p_response The response.
+ * @param array $p_args Arguments
+ * @return \Slim\Http\Response The augmented response.
+ */
+function rest_issue_files_get( \Slim\Http\Request $p_request, \Slim\Http\Response $p_response, array $p_args ) {
+	$t_issue_id = $p_args['id'];
+	$t_file_id = isset( $p_args['file_id'] ) ? $p_args['file_id'] : null;
+
+	$t_data = array(
+		'query' => array( 'issue_id' => $t_issue_id, 'file_id' => $t_file_id )
+	);
+
+	$t_command = new IssueFileGetCommand( $t_data );
+	$t_internal_files = $t_command->execute();
+
+	$t_files = array();
+	foreach( $t_internal_files as $t_internal_file ) {
+		$t_file = array(
+			'id' => (int)$t_internal_file['id'],
+			'reporter' => mci_account_get_array_by_id( $t_internal_file['user_id'] ),
+			'created_at' => ApiObjectFactory::datetimeString( $t_internal_file['date_added'] ),
+			'filename' => $t_internal_file['display_name'],
+			'size' => (int)$t_internal_file['size'],
+		);
+
+		if( $t_internal_file['exists'] ) {
+			$t_file['content_type'] = $t_internal_file['content_type'];
+			$t_file['content'] = base64_encode( $t_internal_file['content'] );
+		}
+
+		$t_files[] = $t_file;
+	}
+
+	return $p_response->withStatus( HTTP_STATUS_SUCCESS )->
+		withJson( array( 'files' => $t_files ) );
 }

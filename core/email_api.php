@@ -82,6 +82,9 @@ require_lib( 'phpmailer6/src/PHPMailer.php' );
 require_lib( 'phpmailer6/src/Exception.php' );
 require_lib( 'phpmailer6/src/SMTP.php' );
 */
+
+use Mantis\Exceptions\ClientException;
+
 # reusable object of class SMTP
 $g_phpMailer = null;
 
@@ -192,7 +195,9 @@ function email_is_valid( $p_email ) {
  */
 function email_ensure_valid( $p_email ) {
 	if( !email_is_valid( $p_email ) ) {
-		trigger_error( ERROR_EMAIL_INVALID, ERROR );
+		throw new ClientException(
+			sprintf( "Email '%s' is invalid.", $p_email ),
+			ERROR_EMAIL_INVALID );
 	}
 }
 
@@ -213,7 +218,10 @@ function email_is_disposable( $p_email ) {
  */
 function email_ensure_not_disposable( $p_email ) {
 	if( email_is_disposable( $p_email ) ) {
-		trigger_error( ERROR_EMAIL_DISPOSABLE, ERROR );
+		throw new ClientException(
+			sprintf( "Email '%s' is disposable.", $p_email ),
+			ERROR_EMAIL_DISPOSABLE
+		);
 	}
 }
 
