@@ -66,7 +66,7 @@ function string_preserve_spaces_at_bol( $p_string ) {
 		$t_count = 0;
 		$t_prefix = '';
 
-		$t_char = utf8_substr( $t_lines[$i], $t_count, 1 );
+		$t_char = mb_substr( $t_lines[$i], $t_count, 1 );
 		$t_spaces = 0;
 		while( ( $t_char == ' ' ) || ( $t_char == "\t" ) ) {
 			if( $t_char == ' ' ) {
@@ -78,14 +78,14 @@ function string_preserve_spaces_at_bol( $p_string ) {
 			# 1 tab = 4 spaces, can be configurable.
 
 			$t_count++;
-			$t_char = utf8_substr( $t_lines[$i], $t_count, 1 );
+			$t_char = mb_substr( $t_lines[$i], $t_count, 1 );
 		}
 
 		for( $j = 0;$j < $t_spaces;$j++ ) {
 			$t_prefix .= '&#160;';
 		}
 
-		$t_lines[$i] = $t_prefix . utf8_substr( $t_lines[$i], $t_count );
+		$t_lines[$i] = $t_prefix . mb_substr( $t_lines[$i], $t_count );
 	}
 	return implode( "\n", $t_lines );
 }
@@ -829,7 +829,7 @@ function string_shorten( $p_string, $p_max = null ) {
 		$t_max = (int)$p_max;
 	}
 
-	if( ( $t_max > 0 ) && ( utf8_strlen( $p_string ) > $t_max ) ) {
+	if( ( $t_max > 0 ) && ( mb_strlen( $p_string ) > $t_max ) ) {
 		$t_pattern = '/([\s|.|,|\-|_|\/|\?]+)/';
 		$t_bits = preg_split( $t_pattern, $p_string, -1, PREG_SPLIT_DELIM_CAPTURE );
 
@@ -838,11 +838,11 @@ function string_shorten( $p_string, $p_max = null ) {
 		$t_last_len = strlen( $t_last );
 
 		if( count( $t_bits ) == 1 ) {
-			$t_string .= utf8_substr( $t_last, 0, $t_max - 3 );
+			$t_string .= mb_substr( $t_last, 0, $t_max - 3 );
 			$t_string .= '...';
 		} else {
 			foreach( $t_bits as $t_bit ) {
-				if( ( utf8_strlen( $t_string ) + utf8_strlen( $t_bit ) + $t_last_len + 3 <= $t_max ) || ( strpos( $t_bit, '.,-/?' ) > 0 ) ) {
+				if( ( mb_strlen( $t_string ) + mb_strlen( $t_bit ) + $t_last_len + 3 <= $t_max ) || ( strpos( $t_bit, '.,-/?' ) > 0 ) ) {
 					$t_string .= $t_bit;
 				} else {
 					break;
@@ -925,4 +925,90 @@ function string_prepare_header( $p_string ) {
 	$t_string= explode( "\n", $p_string, 2 );
 	$t_string= explode( "\r", $t_string[0], 2 );
 	return $t_string[0];
+}
+
+/**
+ * Replacement for str_pad. $padStr may contain multi-byte characters.
+ *
+ * @author Oliver Saunders <oliver (a) osinternetservices.com>
+ * @param string $input
+ * @param int $length
+ * @param string $padStr
+ * @param int $type ( same constants as str_pad )
+ * @return string
+ * @see http://www.php.net/str_pad
+ * @see utf8_substr
+ */
+function utf8_str_pad( $input, $length, $padStr = ' ', $type = STR_PAD_RIGHT ) {
+
+    $inputLen = mb_strlen($input);
+    if ($length <= $inputLen) {
+        return $input;
+    }
+
+    $padStrLen = mb_strlen($padStr);
+    $padLen = $length - $inputLen;
+
+    if ($type == STR_PAD_RIGHT) {
+        $repeatTimes = ceil($padLen / $padStrLen);
+        return mb_substr($input . str_repeat($padStr, $repeatTimes), 0, $length);
+    }
+
+    if ($type == STR_PAD_LEFT) {
+        $repeatTimes = ceil($padLen / $padStrLen);
+        return mb_substr(str_repeat($padStr, $repeatTimes), 0, floor($padLen)) . $input;
+    }
+
+    if ($type == STR_PAD_BOTH) {
+
+        $padLen/= 2;
+        $padAmountLeft = floor($padLen);
+        $padAmountRight = ceil($padLen);
+        $repeatTimesLeft = ceil($padAmountLeft / $padStrLen);
+        $repeatTimesRight = ceil($padAmountRight / $padStrLen);
+
+        $paddingLeft = mb_substr(str_repeat($padStr, $repeatTimesLeft), 0, $padAmountLeft);
+        $paddingRight = mb_substr(str_repeat($padStr, $repeatTimesRight), 0, $padAmountLeft);
+        return $paddingLeft . $input . $paddingRight;
+    }
+
+    trigger_error('utf8_str_pad: Unknown padding type (' . $type . ')',E_USER_ERROR);
+}
+
+/**
+ * Return the number of UTF-8 characters in a string
+ * @param string $p_string
+ * @return integer number of UTF-8 characters in string
+ * @deprecated mb_strlen() should be used in preference to this function
+ */
+function utf8_strlen( $p_string ) {
+    error_parameters( __FUNCTION__ . '()', 'mb_strlen()' );
+    trigger_error( ERROR_DEPRECATED_SUPERSEDED, DEPRECATED );
+    return mb_strlen( $p_string );
+}
+
+/**
+ * Get part of string
+ * @param string $p_string
+ * @param integer $p_offset
+ * @param integer $p_length
+ * @return mixed string or FALSE if failure
+ * @deprecated mb_substr() should be used in preference to this function
+ */
+function utf8_substr( $p_string, $p_offset, $p_length = NULL ) {
+    error_parameters( __FUNCTION__ . '()', 'mb_substr()' );
+    trigger_error( ERROR_DEPRECATED_SUPERSEDED, DEPRECATED );
+    return mb_substr( $p_string, $p_offset, $p_length );
+}
+
+/**
+ * Make a string lowercase
+ * @param string $p_string
+ * @return string with all alphabetic characters converted to lowercase
+ * @deprecated mb_strtolower() should be used in preference to this function
+ */
+function utf8_strtolower( $p_string ) {
+    error_parameters( __FUNCTION__ . '()', 'mb_strtolower()' );
+    trigger_error( ERROR_DEPRECATED_SUPERSEDED, DEPRECATED );
+    return mb_strtolower( $p_string );
 }

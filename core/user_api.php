@@ -330,7 +330,7 @@ function user_ensure_email_unique( $p_email, $p_user_id = null ) {
  */
 function user_is_name_valid( $p_username ) {
 	# The DB field is hard-coded. DB_FIELD_SIZE_USERNAME should not be modified.
-	if( utf8_strlen( $p_username ) > DB_FIELD_SIZE_USERNAME ) {
+	if( mb_strlen( $p_username ) > DB_FIELD_SIZE_USERNAME ) {
 		return false;
 	}
 
@@ -971,7 +971,7 @@ function user_get_realname( $p_user_id ) {
  * The name is determined based on the following sequence:
  * - if the user does not exist, returns the user ID prefixed by a localized
  *   string (prefix_for_deleted_users, "user" by default);
- * - if show_realname is ON and it is not empty, return the user's Real Name;
+ * - if user_show_realname() is true and realname is not empty, return the user's Real Name;
  * - Otherwise, return the username
  *
  * NOTE: do not use this function to retrieve the user's username
@@ -997,11 +997,13 @@ function user_get_name( $p_user_id ) {
  * @return bool true to show, false otherwise.
  */
 function user_show_realname() {
-	return access_has_project_level( config_get( 'show_user_realname_threshold', null, null, ALL_PROJECTS ) );
+	return config_get( 'show_realname' ) == ON &&
+		access_has_project_level( config_get( 'show_user_realname_threshold' ) );
 }
 
 /**
- * Return the user's name for display.
+ * Return the user's name for display.  If user_show_realname() is true and realname is not empty
+ * return realname otherwise return username.
  *
  * @param array $p_user_row The user row with 'realname' and 'username' fields
  * @return string display name
@@ -1041,15 +1043,15 @@ function user_get_name_for_sorting_from_row( array $p_user_row ) {
 	if( !is_blank( $p_user_row['realname'] ) ) {
 		if( user_show_realname() ) {
 			if( config_get( 'sort_by_last_name' ) == ON ) {
-				$t_sort_name_bits = explode( ' ', utf8_strtolower( trim( $p_user_row['realname'] ) ), 2 );
+				$t_sort_name_bits = explode( ' ', mb_strtolower( trim( $p_user_row['realname'] ) ), 2 );
 				return ( isset( $t_sort_name_bits[1] ) ? $t_sort_name_bits[1] . ', ' : '' ) . $t_sort_name_bits[0];
 			}
 
-			return utf8_strtolower( trim( $p_user_row['realname'] ) );
+			return mb_strtolower( trim( $p_user_row['realname'] ) );
 		}
 	}
 
-	return utf8_strtolower( $p_user_row['username'] );
+	return mb_strtolower( $p_user_row['username'] );
 }
 
 /**
@@ -1455,32 +1457,21 @@ function user_get_bug_filter( $p_user_id, $p_project_id = null ) {
 		$t_project_id = $p_project_id;
 	}
 
-	$t_view_all_cookie_id = filter_db_get_project_current( $t_project_id, $p_user_id );
-	$t_view_all_cookie = filter_db_get_filter( $t_view_all_cookie_id, $p_user_id );
+	# Currently we use the filters saved in db as "current" special filters,
+	# to track the active settings for filters in use.
 
-	$t_filter = filter_deserialize( $t_view_all_cookie );
-	if( !$t_filter ) {
+	# for anonymous user, we don't allow using persistent filter
+	# if this function is reached, we return a default filter for it.
+	if( user_is_anonymous( $p_user_id ) ) {
 		return filter_get_default();
 	}
 
-	# when the user specific filter references a stored filter id, get that filter instead
-	if( isset( $t_filter['_source_query_id'] ) && $t_view_all_cookie_id != $t_filter['_source_query_id'] ) {
-		$t_source_query_id = $t_filter['_source_query_id'];
-		# check if filter id is a proper stored filter, and is accesible
-		if( filter_is_named_filter( $t_source_query_id ) && filter_is_accessible( $t_source_query_id ) ){
-			# the actual stored filter can be retrieved
-			$t_filter_row = filter_cache_row( $t_source_query_id, /* trigger_errors */ false );
-			$t_filter = filter_deserialize( filter_db_get_filter( $t_source_query_id ) );
-			# update the referenced stored filter id
-			$t_filter['_source_query_id'] = $t_source_query_id;
-		} else {
-			# If the filter id is not valid, clean the referenced filter id
-			unset( $t_filter['_source_query_id'] );
-		}
+	$t_filter_id = filter_db_get_project_current( $t_project_id, $p_user_id );
+	if( $t_filter_id ) {
+		return filter_get( $t_filter_id );
+	} else {
+		return filter_get_default();
 	}
-	$t_filter = filter_ensure_valid_filter( $t_filter );
-
-	return $t_filter;
 }
 
 /**

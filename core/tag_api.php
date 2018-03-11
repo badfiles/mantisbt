@@ -393,7 +393,7 @@ function tag_parse_filters( $p_string ) {
 		if( !is_blank( $t_name ) && tag_name_is_valid( $t_name, $t_matches, $t_prefix ) ) {
 			$t_tag_row = tag_get_by_name( $t_matches[1] );
 			if( $t_tag_row !== false ) {
-				$t_filter = utf8_substr( $t_name, 0, 1 );
+				$t_filter = mb_substr( $t_name, 0, 1 );
 
 				if( '+' == $t_filter ) {
 					$t_tag_row['filter'] = 1;
@@ -477,6 +477,19 @@ function tag_get( $p_tag_id ) {
 	} else {
 		return $t_tag;
 	}
+}
+
+/**
+ * Get tag name by id.
+ * @return string tag name or empty string if not found.
+ */
+function tag_get_name( $p_tag_id ) {
+	$t_tag_row = tag_get( $p_tag_id );
+	if( $t_tag_row === false ) {
+		return '';
+	}
+
+	return $t_tag_row['name'];
 }
 
 /**
@@ -580,7 +593,7 @@ function tag_update( $p_tag_id, $p_name, $p_user_id, $p_description ) {
 	tag_ensure_name_is_valid( $p_name );
 
 	$t_rename = false;
-	if( utf8_strtolower( $p_name ) != utf8_strtolower( $t_tag_name ) ) {
+	if( mb_strtolower( $p_name ) != mb_strtolower( $t_tag_name ) ) {
 		tag_ensure_unique( $p_name );
 		$t_rename = true;
 	}
@@ -997,34 +1010,18 @@ function tag_stats_related( $p_tag_id, $p_limit = 5 ) {
 	);
 	$t_filter = filter_ensure_valid_filter( $t_filter );
 
-	# Note: filter_get_bug_rows_query_clauses() calls db_param_push();
-	$t_query_clauses = filter_get_bug_rows_query_clauses( $t_filter, null, null, null );
-	# if the query can't be formed, there are no results
-	if( empty( $t_query_clauses ) ) {
-		# reset the db_param stack that was initialized by "filter_get_bug_rows_query_clauses()"
-		db_param_pop();
-		return array();
-	}
-	$t_select_string = 'SELECT {bug}.id ';
-	$t_from_string = ' FROM ' . implode( ', ', $t_query_clauses['from'] );
-	$t_join_string = count( $t_query_clauses['join'] ) > 0 ? implode( ' ', $t_query_clauses['join'] ) : ' ';
-	$t_where_string = ' WHERE '. implode( ' AND ', $t_query_clauses['project_where'] );
-	if( count( $t_query_clauses['where'] ) > 0 ) {
-		$t_where_string .= ' AND ( ' . implode( $t_query_clauses['operator'], $t_query_clauses['where'] ) . ' ) ';
-	}
-	$t_filter_in = ' ( ' . $t_select_string . $t_from_string . $t_join_string . $t_where_string . ' )';
-	$t_params = $t_query_clauses['where_values'];
+	$t_filter_subquery = new BugFilterQuery( $t_filter, BugFilterQuery::QUERY_TYPE_IDS );
 
-	$t_query = 'SELECT tag_id, COUNT(1) AS tag_count FROM {bug_tag}'
-			. ' WHERE bug_id IN ' . $t_filter_in
-			. ' AND tag_id <> ' . db_param()
-			. ' GROUP BY tag_id ORDER BY COUNT(1) DESC';
-
-	$t_params[] = (int)$p_tag_id;
-	$t_result = db_query( $t_query, $t_params, $p_limit );
+	$t_sql = 'SELECT tag_id, COUNT(1) AS tag_count FROM {bug_tag}'
+			. ' WHERE bug_id IN :filter AND tag_id <> :tagid'
+			. ' GROUP BY tag_id ORDER BY tag_count DESC';
+	$t_query = new DbQuery( $t_sql );
+	$t_query->bind( 'filter', $t_filter_subquery );
+	$t_query->bind( 'tagid', (int)$p_tag_id );
+	$t_query->execute();
 
 	$t_tags = array();
-	while( $t_row = db_fetch_array( $t_result ) ) {
+	while( $t_row = $t_query->fetch() ) {
 		$t_tag_row = tag_get( $t_row['tag_id'] );
 		$t_tag_row['count'] = (int)$t_row['tag_count'];
 		$t_tags[] = $t_tag_row;

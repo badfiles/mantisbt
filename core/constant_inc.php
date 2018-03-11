@@ -21,7 +21,7 @@
 /**
  * Mantis Version
  */
-define( 'MANTIS_VERSION', '2.12.0-dev' );
+define( 'MANTIS_VERSION', '2.13.0-dev' );
 define( 'FILTER_VERSION', 'v9' );
 
 # --- constants -------------------
@@ -425,6 +425,9 @@ define( 'ERROR_COLUMNS_INVALID', 2601 );
 
 # ERROR_SESSION_*
 define( 'ERROR_SESSION_HANDLER_INVALID', 2700 );
+# ERROR_SESSION_HANDLER_INVALID is no longer used in code
+# but can't be removed as long as it's used in one of the language files
+# for $MANTIS_ERROR[ERROR_SESSION_HANDLER_INVALID]
 define( 'ERROR_SESSION_VAR_NOT_FOUND', 2701 );
 define( 'ERROR_SESSION_NOT_VALID', 2702 );
 
@@ -604,6 +607,7 @@ define( 'DB_FIELD_SIZE_USERNAME', 191 );
 define( 'DB_FIELD_SIZE_REALNAME', 255 );
 define( 'DB_FIELD_SIZE_PASSWORD', 64 );
 define( 'DB_FIELD_SIZE_API_TOKEN_NAME', 128 );
+define( 'DB_FIELD_SIZE_HISTORY_VALUE', 255 );
 
 # Maximum size for the user's password when storing it as a hash
 define( 'PASSWORD_MAX_SIZE_BEFORE_HASH', 1024 );

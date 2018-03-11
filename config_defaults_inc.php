@@ -292,15 +292,6 @@ $g_manual_url = 'doc/en-US/Admin_Guide/html-desktop/';
 ##############
 
 /**
- * Session handler.  Possible values:
- *  'php' -> Default PHP filesystem sessions
- *  'adodb' -> Database storage sessions
- *  'memcached' -> Memcached storage sessions
- * @global string $g_session_handler
- */
-$g_session_handler = 'php';
-
-/**
  * Session save path.  If false, uses default value as set by session handler.
  * @global bool $g_session_save_path
  */
@@ -851,6 +842,7 @@ $g_language_choices_arr = array(
 	'arabic',
 	'arabicegyptianspoken',
 	'asturian',
+	'basque',
 	'belarusian_tarask',
 	'breton',
 	'bulgarian',
@@ -866,6 +858,7 @@ $g_language_choices_arr = array(
 	'finnish',
 	'french',
 	'galician',
+	'georgian',
 	'german',
 	'greek',
 	'hebrew',
@@ -877,10 +870,12 @@ $g_language_choices_arr = array(
 	'korean',
 	'latvian',
 	'lithuanian',
+	'luxembourgish',
 	'macedonian',
 	'norwegian_bokmal',
 	'norwegian_nynorsk',
 	'occitan',
+	'persian',
 	'polish',
 	'portuguese_brazil',
 	'portuguese_standard',
@@ -888,17 +883,19 @@ $g_language_choices_arr = array(
 	'romanian',
 	'russian',
 	'serbian',
+	'serbian_latin',
 	'slovak',
 	'slovene',
 	'spanish',
-	'swissgerman',
 	'swedish',
+	'swissgerman',
 	'tagalog',
 	'turkish',
 	'ukrainian',
 	'urdu',
 	'vietnamese',
 	'volapuk',
+	'zazaki',
 );
 
 /**
@@ -911,12 +908,14 @@ $g_language_auto_map = array(
 	'ar' => 'arabic',
 	'arz' => 'arabicegyptianspoken',
 	'ast' => 'asturian',
+	'eu' => 'basque',
 	'be-tarask' => 'belarusian_tarask',
 	'bg' => 'bulgarian',
 	'br' => 'breton',
 	'ca' => 'catalan',
 	'zh-cn, zh-sg, zh' => 'chinese_simplified',
 	'zh-hk, zh-tw' => 'chinese_traditional',
+	'hr' => 'croatian',
 	'cs' => 'czech',
 	'da' => 'danish',
 	'nl-be, nl' => 'dutch',
@@ -925,38 +924,42 @@ $g_language_auto_map = array(
 	'fi' => 'finnish',
 	'fr-ca, fr-be, fr-ch, fr' => 'french',
 	'gl' => 'galician',
-	'gsw' => 'swissgerman',
 	'de-de, de-at, de-ch, de' => 'german',
 	'he' => 'hebrew',
 	'hu' => 'hungarian',
-	'hr' => 'croatian',
 	'is' => 'icelandic',
 	'ia' => 'interlingua',
 	'it-ch, it' => 'italian',
 	'ja' => 'japanese',
+	'ka' => 'georgian',
 	'ko' => 'korean',
-	'ksh' => 'ripoarisch',
-	'lt' => 'lithuanian',
 	'lv' => 'latvian',
+	'lt' => 'lithuanian',
+	'lb' => 'luxembourgish',
 	'mk' => 'macedonian',
 	'no' => 'norwegian_bokmal',
 	'nn' => 'norwegian_nynorsk',
 	'oc' => 'occitan',
+	'fa' => 'persian',
 	'pl' => 'polish',
 	'pt-br' => 'portuguese_brazil',
 	'pt' => 'portuguese_standard',
+	'ksh' => 'ripoarisch',
 	'ro-mo, ro' => 'romanian',
 	'ru-mo, ru-ru, ru-ua, ru' => 'russian',
 	'sr' => 'serbian',
+	'sr-latn' => 'serbian_latin',
 	'sk' => 'slovak',
 	'sl' => 'slovene',
 	'es-mx, es-co, es-ar, es-cl, es-pr, es' => 'spanish',
 	'sv-fi, sv' => 'swedish',
+	'gsw' => 'swissgerman',
 	'tl' => 'tagalog',
 	'tr' => 'turkish',
 	'uk' => 'ukrainian',
 	'vi' => 'vietnamese',
 	'vo' => 'volapuk',
+	'diq' => 'zazaki',
 );
 
 /**
@@ -4390,7 +4393,7 @@ $g_global_settings = array(
 	'database_name', 'db_username', 'db_password', 'db_type',
 	'db_table_prefix','db_table_suffix', 'display_errors', 'form_security_validation',
 	'hostname','html_valid_tags', 'html_valid_tags_single_line', 'default_language',
-	'language_auto_map', 'fallback_language', 'login_method', 'plugins_enabled', 'session_handler',
+	'language_auto_map', 'fallback_language', 'login_method', 'plugins_enabled',
 	'session_save_path', 'session_validation', 'show_detailed_errors', 'show_queries_count',
 	'stop_on_errors', 'version_suffix', 'debug_email',
 	'fileinfo_magic_db_file', 'css_include_file', 'css_rtl_include_file',

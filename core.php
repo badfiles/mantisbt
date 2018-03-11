@@ -45,8 +45,6 @@
  * @uses php_api.php
  * @uses user_pref_api.php
  * @uses wiki_api.php
- * @uses utf8/utf8.php
- * @uses utf8/str_pad.php
  */
 
 $g_request_time = microtime( true );
@@ -193,11 +191,6 @@ function autoload_mantis( $p_class ) {
 # Register the autoload function to make it effective immediately
 spl_autoload_register( 'autoload_mantis' );
 
-# Load UTF8-capable string functions
-define( 'UTF8', $g_library_path . 'utf8' );
-require_lib( 'utf8/utf8.php' );
-require_lib( 'utf8/str_pad.php' );
-
 # Include PHP compatibility file
 require_api( 'php_api.php' );
 
@@ -207,6 +200,15 @@ if( version_compare( PHP_VERSION, PHP_MIN_VERSION, '<' ) ) {
 	echo '<strong>FATAL ERROR: Your version of PHP is too old. '
 		. 'MantisBT requires ' . PHP_MIN_VERSION . ' or newer</strong><br />'
 		. 'Your are running PHP version <em>' . PHP_VERSION . '</em>';
+	die();
+}
+
+# Enforce PHP mbstring extension
+if( !extension_loaded( 'mbstring' ) ) {
+	@ob_end_clean();
+	echo '<strong>FATAL ERROR: PHP mbstring extension is not enabled.</strong><br />'
+		. 'MantisBT requires this extension for Unicode (UTF-8) support<br />'
+		. 'http://www.php.net/manual/en/mbstring.installation.php';
 	die();
 }
 

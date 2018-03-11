@@ -1412,6 +1412,7 @@ $s_bug_created_from = 'Issue generated from';
 $s_copy_from_parent = 'Copy extended data from parent issue';
 $s_copy_notes_from_parent = 'Copy issue notes';
 $s_copy_attachments_from_parent = 'Copy attachments';
+$s_with = 'with';
 
 # Relationship Graphs
 $s_viewing_bug_relationship_graph_title = 'Relationship Graph';
@@ -1674,7 +1675,6 @@ $MANTIS_ERROR[ERROR_GPC_ARRAY_UNEXPECTED] = 'A string was expected but an array 
 $MANTIS_ERROR[ERROR_GPC_NOT_NUMBER] = 'A number was expected for %1$s.';
 $MANTIS_ERROR[ERROR_BUG_NOT_FOUND] = 'Issue %1$d not found.';
 $MANTIS_ERROR[ERROR_FILTER_NOT_FOUND] = 'Filter %1$s not found.';
-$MANTIS_ERROR[ERROR_FILTER_TOO_OLD] = 'The filter you are trying to use is too old to be upgraded. Please re-create it.';
 $MANTIS_ERROR[ERROR_EMAIL_INVALID] = 'Invalid e-mail address.';
 $MANTIS_ERROR[ERROR_EMAIL_DISPOSABLE] = 'It is not allowed to use disposable e-mail addresses.';
 $MANTIS_ERROR[ERROR_USER_PROFILE_NOT_FOUND] = 'Profile not found.';
@@ -1756,7 +1756,6 @@ $MANTIS_ERROR[ERROR_PLUGIN_INVALID_FILE] = 'The format of the specified plugin f
 $MANTIS_ERROR[ERROR_PLUGIN_GENERIC] = 'There was an unknown error "%1$s" during execution of the "%2$s" plugin.';
 $MANTIS_ERROR[ERROR_COLUMNS_DUPLICATE] = 'Field "%1$s" contains duplicate column "%2$s".';
 $MANTIS_ERROR[ERROR_COLUMNS_INVALID] = 'Field "%1$s" contains invalid field "%2$s".';
-$MANTIS_ERROR[ERROR_SESSION_HANDLER_INVALID] = 'Invalid session handler.';
 $MANTIS_ERROR[ERROR_SESSION_VAR_NOT_FOUND] = 'Session variable "%1$s" not found.';
 $MANTIS_ERROR[ERROR_SESSION_NOT_VALID] = 'Your session has become invalidated.';
 $MANTIS_ERROR[ERROR_FORM_TOKEN_INVALID] = 'Invalid form security token. This could be caused by a session timeout, or accidentally submitting the form twice.';
