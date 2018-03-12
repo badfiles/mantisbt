@@ -72,7 +72,6 @@ if( count( $f_files ) > 0 && is_blank( $f_text ) && helper_duration_to_minutes( 
 		'files' => helper_array_transpose( $f_files ),
 		'to_send' => $f_to_send,
 		'protected' => $f_protected
-
 	);
 
 	$t_data = array(
