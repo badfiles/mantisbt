@@ -81,7 +81,7 @@ require_api( 'version_api.php' );
 require_css( 'status_config.php' );
 
 $f_bug_id = gpc_get_int( 'id' );
-$f_bug_dak = gpc_get_string( 'dak', '');
+$f_bug_dak = gpc_get_string( 'dak', '' );
 
 bug_ensure_exists( $f_bug_id );
 
