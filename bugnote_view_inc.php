@@ -78,6 +78,7 @@ if( !isset( $t_fields ) ) {
 
 $t_show_attachments = in_array( 'attachments', $t_fields );
 
+if( !isset( $t_direct_access ) ) $t_direct_access = false;
 $t_result = bug_activity_get_all( $f_bug_id, /* include_attachments */ $t_show_attachments, $t_direct_access );
 $t_activities = $t_result['activities'];
 $t_bugnotes = $t_result['bugnotes'];
