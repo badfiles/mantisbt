@@ -1004,10 +1004,11 @@ function bug_exists( $p_bug_id ) {
 	}
 }
 
- * Validate if presented string exists as direct_access_key field of a bug and not empty.
- * @param integer $p_bug_id A bug identifier, if null checks against $p_bug_ref, otherwise check in the database.
- * @param integer $p_bug_dak A key to validate.
- * @param integer $p_bug_ref A known key if bug has been already requested (optional, needed only if $p_bug_id === null)
+/**
+ * Validate if the presented string equals direct_access_key field of the bug and is not empty.
+ * @param integer $p_bug_id A bug identifier, if 'null' the function checks against the known $p_bug_ref, otherwise checks the database.
+ * @param string $p_bug_dak A key to validate.
+ * @param string $p_bug_ref A known key if the bug has been already preloaded (needed only if $p_bug_id === null)
  * @return boolean
  * @access public
  */
