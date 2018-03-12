@@ -132,7 +132,7 @@ class IssueFileAddCommand extends Command {
 
 		# Can reporter attach files
 		if( !file_allow_bug_upload( $this->issue->id, $this->reporterId ) ) {
-			throw new ClientException( 'access denied for uploading files', ERROR_ACCESS_DENIED );
+			throw new ClientException( 'Access denied for uploading files', ERROR_ACCESS_DENIED );
 		}
 	}
 
@@ -151,7 +151,7 @@ class IssueFileAddCommand extends Command {
 		}
 
 		# Handle the file upload
-		file_attach_files( $this->issue->id, $this->files );
+		file_attach_files( $this->issue->id, $this->files, $this->payload( 'to_send', false ), $this->payload( 'protected', false ) );
 
 		return array();
 	}

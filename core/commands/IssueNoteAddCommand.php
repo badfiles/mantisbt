@@ -244,7 +244,7 @@ class IssueNoteAddCommand extends Command {
 
 		# Handle the file upload
 		if( count( $this->files > 0 ) ) {
-			$t_file_infos = file_attach_files( $this->issue->id, $this->files );
+			$t_file_infos = file_attach_files( $this->issue->id, $this->files, $this->payload( 'to_send', false ), $this->payload( 'protected', false ) );
 		} else {
 			$t_file_infos = array();
 		}
