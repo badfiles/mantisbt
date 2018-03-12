@@ -150,12 +150,17 @@ function print_header_redirect_view( $p_bug_id ) {
  * call print_successful_redirect() with that URL
  *
  * @param integer $p_bug_id A bug identifier.
+ * @param string $p_bug_dak A bug direct access key.
  * @return void
  */
-function print_successful_redirect_to_bug( $p_bug_id ) {
+function print_successful_redirect_to_bug( $p_bug_id, $p_bug_dak = '' ) {
 	$t_url = string_get_bug_view_url( $p_bug_id );
 
-	print_successful_redirect( $t_url );
+	if( bug_validate_dak( $p_bug_id, $p_bug_dak ) ) {
+		print_successful_redirect( $t_url . '&dak=' . $p_bug_dak );
+	} else {
+		print_successful_redirect( $t_url );
+	}
 }
 
 /**

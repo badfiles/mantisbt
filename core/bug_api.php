@@ -1004,6 +1004,23 @@ function bug_exists( $p_bug_id ) {
 	}
 }
 
+ * Validate if presented string exists as direct_access_key field of a bug and not empty.
+ * @param integer $p_bug_id A bug identifier, if null checks against $p_bug_ref, otherwise check in the database.
+ * @param integer $p_bug_dak A key to validate.
+ * @param integer $p_bug_ref A known key if bug has been already requested (optional, needed only if $p_bug_id === null)
+ * @return boolean
+ * @access public
+ */
+function bug_validate_dak( $p_bug_id = null, $p_bug_dak = '', $p_bug_ref = '' ) {
+	if( '' == $p_bug_dak ) return false;
+	if( null === $p_bug_id ) {
+		if( $p_bug_dak == $p_bug_ref ) return true;
+	} else {
+		if( $p_bug_dak == bug_get_field( $p_bug_id, 'direct_access_key' ) ) return true;
+	}
+	return false;
+}
+
 /**
  * Check if a bug exists. If it doesn't then trigger an error
  * @param integer $p_bug_id Integer representing bug identifier.

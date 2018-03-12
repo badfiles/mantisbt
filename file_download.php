@@ -108,11 +108,7 @@ if( $f_type == 'bug' ) {
 	$t_project_id = $v_project_id;
 }
 
-if( ( $f_bug_dak == '' ) || ( $f_bug_dak !== bug_get_field( $v_bug_id, 'direct_access_key' ) ) ) {
-	$t_direct_access = false;
-} else {
-	$t_direct_access = true;
-}
+$t_direct_access = bug_validate_dak( $v_bug_id, $f_bug_dak );
 
 # Check access rights
 switch( $f_type ) {

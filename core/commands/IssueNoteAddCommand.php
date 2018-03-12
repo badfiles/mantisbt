@@ -95,6 +95,13 @@ class IssueNoteAddCommand extends Command {
 	private $private = false;
 
 	/**
+	 * Direct access?
+	 *
+	 * @var boolean
+	 */
+	private $direct_access = false;
+
+	/**
 	 * The note text to add.
 	 */
 	private $text = '';
@@ -148,6 +155,8 @@ class IssueNoteAddCommand extends Command {
 		$this->parseViewState();
 		$this->parseFiles();
 
+		$this->direct_access = bug_validate_dak( null, $this->payload( 'dak', '' ), $this->issue->direct_access_key );
+
 		$t_files_included = !empty( $this->files );
 
 		if( $t_files_included ) {
@@ -199,7 +208,9 @@ class IssueNoteAddCommand extends Command {
 
 		# Can reporter add notes?
 		if( !access_has_bug_level( config_get( 'add_bugnote_threshold' ), $t_issue_id, $this->reporterId ) ) {
-			throw new ClientException( "Reporter can't add notes", ERROR_ACCESS_DENIED );
+			if( !$this->direct_access ) {
+				throw new ClientException( "Reporter can't add notes", ERROR_ACCESS_DENIED );
+			}
 		}
 
 		# Can reporter add private notes?
@@ -212,7 +223,9 @@ class IssueNoteAddCommand extends Command {
 		# Can reporter attach files, if supplied?
 		if( $t_files_included ) {
 			if( !file_allow_bug_upload( $this->issue->id, $this->reporterId ) ) {
-				throw new ClientException( 'access denied for uploading files', ERROR_ACCESS_DENIED );
+				if( !$this->direct_access ) {
+					throw new ClientException( 'access denied for uploading files', ERROR_ACCESS_DENIED );
+				}
 			}
 		}
 
@@ -266,6 +279,7 @@ class IssueNoteAddCommand extends Command {
 
 		# Process the mentions in the added note
 		$t_user_ids_that_got_mention_notifications = bugnote_process_mentions( $this->issue->id, $t_note_id, $this->payload( 'text' ) );
+		if( $this->direct_access ) $t_user_ids_that_got_mention_notifications[] = $this->issue->reporter_id;
 
 		# Send email explicitly from here to have file support, this will move into the API once we have
 		# proper bugnote files support in db schema and object model.

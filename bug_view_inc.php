@@ -92,12 +92,11 @@ $t_bug = bug_get( $f_bug_id, true );
 # per-project function calls use the project ID of this bug.
 $g_project_override = $t_bug->project_id;
 
-if( ( $f_bug_dak == '' ) ||
-    ( $f_bug_dak !== $t_bug->direct_access_key ) ) {
+if( bug_validate_dak( null, $f_bug_dak, $t_bug->direct_access_key ) ) {
+	$t_direct_access = true;
+} else {
 	$t_direct_access = false;
 	access_ensure_bug_level( config_get( 'view_bug_threshold' ), $f_bug_id );
-} else {
-	$t_direct_access = true;
 }
 
 $f_history = gpc_get_bool( 'history', config_get( 'history_default_visible' ) );

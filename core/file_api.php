@@ -917,7 +917,7 @@ function file_allow_project_upload( $p_project_id = null, $p_user_id = null ) {
  * @param integer $p_project_id The project id to check for or null for bug project or current project.
  * @return boolean
  */
-function file_allow_bug_upload( $p_bug_id = null, $p_user_id = null, $p_project_id = null ) {
+function file_allow_bug_upload( $p_bug_id = null, $p_user_id = null, $p_project_id = null, $p_bug_dak = '' ) {
 	if( null === $p_user_id ) {
 		$p_user_id = auth_get_current_user_id();
 	}
@@ -942,6 +942,10 @@ function file_allow_bug_upload( $p_bug_id = null, $p_user_id = null, $p_project_
 	}
 
 	if( $t_reporter && ( ON == config_get( 'allow_reporter_upload' ) ) ) {
+		return true;
+	}
+
+	if( bug_validate_dak( $p_bug_id, $p_bug_dak ) ) {
 		return true;
 	}
 

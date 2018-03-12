@@ -46,7 +46,7 @@ use Mantis\Exceptions\ClientException;
  *         "size": 114
  *       }
  *     ]
- *   } 
+ *   }
  * }
  */
 
@@ -131,8 +131,8 @@ class IssueFileAddCommand extends Command {
 		}
 
 		# Can reporter attach files
-		if( !file_allow_bug_upload( $this->issue->id, $this->reporterId ) ) {
-			throw new ClientException( 'access denied for uploading files', ERROR_ACCESS_DENIED );
+		if( !file_allow_bug_upload( $this->issue->id, $this->reporterId, null, $this->payload( 'dak', '' ) ) ) {
+			throw new ClientException( 'Access denied for uploading files', ERROR_ACCESS_DENIED );
 		}
 	}
 
