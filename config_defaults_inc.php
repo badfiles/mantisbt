@@ -1429,6 +1429,13 @@ $g_default_project_view_status = VS_PUBLIC;
 $g_default_bug_view_status = VS_PUBLIC;
 
 /**
+ * Default value for bug description field used on bug report page.
+ *
+ * @global string $g_default_bug_description
+ */
+ $g_default_bug_description = '';
+ 
+/**
  * Default value for steps to reproduce field.
  * @global string $g_default_bug_steps_to_reproduce
  */
@@ -4493,6 +4500,7 @@ $g_public_config_names = array(
 	'date_partitions',
 	'datetime_picker_format',
 	'default_bug_additional_info',
+	'default_bug_description',
 	'default_bug_eta',
 	'default_bug_priority',
 	'default_bug_projection',

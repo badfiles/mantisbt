@@ -587,12 +587,12 @@ function layout_navbar_button_bar() {
 	echo '<li class="hidden-sm hidden-xs">';
 	echo '<div class="btn-group btn-corner padding-right-8 padding-left-8">';
 
-  	if( $t_can_report_bug ) {
+	if( $t_can_report_bug ) {
 		$t_bug_url = string_get_bug_report_url();
-	  	echo '<a class="btn btn-primary btn-sm" href="' . $t_bug_url . '">';
+		echo '<a class="btn btn-primary btn-sm" href="' . $t_bug_url . '">';
 		echo '<i class="fa fa-edit"></i> ' . lang_get( 'report_bug_link' );
 		echo '</a>';
-  	}
+	}
 
 	if( $t_can_invite_user ) {
 		echo '<a class="btn btn-primary btn-sm" href="manage_user_create_page.php">';
@@ -626,11 +626,8 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 
 	if( $p_include_all_projects && $p_filter_project_id !== ALL_PROJECTS ) {
 		echo ALL_PROJECTS == $p_project_id ? '<li class="active">' : '<li>';
-		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . ALL_PROJECTS . '"';
-		if( $p_project_id !== null ) {
-			check_selected( $p_project_id, ALL_PROJECTS, false );
-		}
-		echo '> ' . lang_get( 'all_projects' ) . ' </a></li>' . " \n";
+		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . ALL_PROJECTS . '">';
+		echo lang_get( 'all_projects' ) . ' </a></li>' . "\n";
 		echo '<li class="divider"></li>' . "\n";
 	}
 
@@ -649,8 +646,6 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 
 		echo 0 == strcmp( $t_id, $p_project_id ) ? '<li class="active">' : '<li>';
 		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . $t_id . '"';
-		check_selected( $p_project_id, $t_id, false );
-		check_disabled( $t_id == $p_filter_project_id || !$t_can_report );
 		echo ' class="project-link"> ' . string_attribute( project_get_field( $t_id, 'name' ) ) . ' </a></li>' . "\n";
 		layout_navbar_subproject_option_list( $t_id, $p_project_id, $p_filter_project_id, $p_trace, $p_can_report_only );
 	}
@@ -691,8 +686,6 @@ function layout_navbar_subproject_option_list( $p_parent_id, $p_project_id = nul
 
 		echo 0 == strcmp( $p_project_id, $t_full_id ) ? '<li class="active">' : '<li>';
 		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . $t_full_id . '"';
-		check_selected( $p_project_id, $t_full_id, false );
-		check_disabled( $t_id == $p_filter_project_id || !$t_can_report );
 		echo ' class="project-link"> ' . str_repeat( '&#160;', count( $p_parents ) * 4 );
 		echo string_attribute( project_get_field( $t_id, 'name' ) ) . '</a></li>' . "\n";
 
