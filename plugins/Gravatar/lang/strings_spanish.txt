@@ -30,7 +30,7 @@
  * ** http://www.mantisbt.org/wiki/doku.php/mantisbt:translationshowto **
  * **********************************************************************
  */
-/** Laki (لەکی)
+/** Spanish (español)
  * 
  * See the qqq 'language' for message documentation incl. usage of parameters
  * To improve a translation please visit http://translatewiki.net
@@ -38,9 +38,8 @@
  * @ingroup Language
  * @file
  *
- * @author Hosseinblue
+ * @author Fitoschido
  */
 
-$s_plugin_format_config = 'تنظیمةل';
-$s_plugin_format_enabled = 'روشن/روشتا';
-$s_plugin_format_disabled = 'خاموش/کوور';
+$s_plugin_Gravatar_title = 'Avatares a través de Gravatar';
+$s_plugin_Gravatar_description = 'Un complemento que muestra avatares de usuario correspondientes a las direcciones de correo registradas en un servicio de avatares.';

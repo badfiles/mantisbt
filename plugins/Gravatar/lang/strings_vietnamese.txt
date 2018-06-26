@@ -30,7 +30,7 @@
  * ** http://www.mantisbt.org/wiki/doku.php/mantisbt:translationshowto **
  * **********************************************************************
  */
-/** Laki (لەکی)
+/** Vietnamese (Tiếng Việt)
  * 
  * See the qqq 'language' for message documentation incl. usage of parameters
  * To improve a translation please visit http://translatewiki.net
@@ -38,9 +38,8 @@
  * @ingroup Language
  * @file
  *
- * @author Hosseinblue
+ * @author Leducthn
  */
 
-$s_plugin_format_config = 'تنظیمةل';
-$s_plugin_format_enabled = 'روشن/روشتا';
-$s_plugin_format_disabled = 'خاموش/کوور';
+$s_plugin_Gravatar_title = 'Ảnh đại diện từ Gravatar';
+$s_plugin_Gravatar_description = 'Một phần mở rộng dùng để hiển thị ảnh đại diện của người dùng dựa trên các địa chỉ email có dùng dịch vụ ảnh đại diện của họ.';

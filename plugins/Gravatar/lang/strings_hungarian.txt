@@ -30,7 +30,7 @@
  * ** http://www.mantisbt.org/wiki/doku.php/mantisbt:translationshowto **
  * **********************************************************************
  */
-/** Laki (لەکی)
+/** Hungarian (magyar)
  * 
  * See the qqq 'language' for message documentation incl. usage of parameters
  * To improve a translation please visit http://translatewiki.net
@@ -38,9 +38,8 @@
  * @ingroup Language
  * @file
  *
- * @author Hosseinblue
+ * @author MeskoBalazs
  */
 
-$s_plugin_format_config = 'تنظیمةل';
-$s_plugin_format_enabled = 'روشن/روشتا';
-$s_plugin_format_disabled = 'خاموش/کوور';
+$s_plugin_Gravatar_title = 'Avatárok a Gravatarral';
+$s_plugin_Gravatar_description = 'Bővítmény, amely a felhasználók avatárját jeleníti meg az e-mail címük alapján.';

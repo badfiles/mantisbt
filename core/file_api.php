@@ -64,7 +64,7 @@ $g_cache_file_count = array();
  */
 function file_attach_files( $p_bug_id, $p_files, $p_to_send = false, $p_protected = false ) {
 	if( $p_files === null || count( $p_files ) == 0 ) {
-		return;
+		return array();
 	}
 
 	$t_file_infos = array();
@@ -957,7 +957,7 @@ function file_allow_bug_upload( $p_bug_id = null, $p_user_id = null, $p_project_
 		$p_user_id = auth_get_current_user_id();
 	}
 
-	# If uploads are disbled just return false
+	# If uploads are disabled just return false
 	if( !file_is_uploading_enabled() ) {
 		return false;
 	}

@@ -992,13 +992,12 @@ function user_get_name( $p_user_id ) {
 }
 
 /**
- * Show realnames be shown to logged in user?
+ * Should realnames be shown to logged in user?
  *
  * @return bool true to show, false otherwise.
  */
 function user_show_realname() {
-	return config_get( 'show_realname' ) == ON &&
-		access_has_project_level( config_get( 'show_user_realname_threshold' ) );
+	return config_get( 'show_realname' ) == ON;
 }
 
 /**
@@ -1019,7 +1018,8 @@ function user_get_name_from_row( array $p_user_row ) {
 }
 
 /**
- * Get display name in format "username (realname)"
+ * Return display name in format "realname (username)" if user_show_realname() is true and
+ * realname is not empty otherwise return username
  *
  * @param array $p_user_row The user row with 'realname' and 'username' fields
  * @return string display name
