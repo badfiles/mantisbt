@@ -1483,7 +1483,6 @@ function filter_get_bug_rows_query_clauses( array $p_filter, $p_project_id = nul
 
 	$t_limit_reporters = config_get( 'limit_reporters' );
 	$t_report_bug_threshold = config_get( 'report_bug_threshold' );
-	$t_where_param_count = 0;
 
 	$t_current_user_id = auth_get_current_user_id();
 
@@ -1503,8 +1502,6 @@ function filter_get_bug_rows_query_clauses( array $p_filter, $p_project_id = nul
 	}
 
 	$t_filter = filter_ensure_valid_filter( $p_filter );
-
-	$t_view_type = $t_filter['_view_type'];
 
 	db_param_push();
 
@@ -2929,16 +2926,6 @@ function filter_db_get_name( $p_filter_id ) {
 	}
 
 	return $t_filter_row['name'];
-}
-
-/**
- * Check if the specified filter id exists.
- *
- * @return true: exists, false: otherwise.
- */
-function filter_exists( $p_filter_id ) {
-	$t_filter = filter_cache_row( $p_filter_id, /* trigger_errors */ false );
-	return is_array( $t_filter );
 }
 
 /**
