@@ -2478,22 +2478,6 @@ function filter_cache_result( array $p_rows, array $p_id_array_lastmod ) {
 	return $t_rows;
 }
 
-/** --DELETED FUNCTION
- * Mainly based on filter_draw_selection_area2() but adds the support for the collapsible
- * filter display.
- * @param integer $p_page_number Page number.
- * @param boolean $p_for_screen  Whether output is for screen view.
- * @return void
- * @see filter_draw_selection_area2
-
-function filter_draw_selection_area( $p_page_number, $p_for_screen = true ) {
-	if( access_compare_level( current_user_get_access_level(), config_get( 'filter_view_threshold' ) )) {
-		echo '<div class="col-md-12 col-xs-12">';
-		filter_draw_selection_area2( $p_page_number, $p_for_screen, true );
-		echo '</div>';
-	}
-} */
-
 /**
  * Prints the filter selection area for both the bug list view screen and
  * the bug list print screen. This function was an attempt to make it easier to
@@ -2504,6 +2488,7 @@ function filter_draw_selection_area( $p_page_number, $p_for_screen = true ) {
  * @return void
  */
 function filter_draw_selection_area( $p_page_number, $p_for_screen = true, $p_expanded = true ) {
+if( !access_compare_level( current_user_get_access_level(), config_get( 'filter_view_threshold' ) ) ) return;
 	$t_form_name_suffix = $p_expanded ? '_open' : '_closed';
 
 	$t_filter = current_user_get_bug_filter();
