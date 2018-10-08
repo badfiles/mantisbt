@@ -718,10 +718,11 @@ foreach( $t_related_custom_field_ids as $t_id ) {
 
 	$t_def = custom_field_get_definition( $t_id );
 	$t_val = string_custom_field_value( $t_def, $t_id, $f_bug_id );
+
 	if( $t_val <> '' ) {
 		$t_custom_fields_found = true;
 		echo '<tr>';
-		echo '<th class="bug-custom-field category">', string_display( lang_get_defaulted( $t_def['name'] ) ), '</th>';
+		echo '<th class="bug-custom-field category">', string_display_line( lang_get_defaulted( $t_def['name'] ) ), '</th>';
 		echo '<td class="bug-custom-field" colspan="5">';
 		echo $t_val;
 		echo '</td></tr>';

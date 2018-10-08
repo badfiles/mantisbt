@@ -622,12 +622,12 @@ if( $t_show_attachments ) {
 			<?php if( $t_def['require_report'] ) {?><span class="required">*</span><?php } ?>
 			<?php if( $t_def['type'] != CUSTOM_FIELD_TYPE_RADIO && $t_def['type'] != CUSTOM_FIELD_TYPE_CHECKBOX ) { ?>
 				<label for="custom_field_<?php echo string_attribute( $t_def['id'] ) ?>">
-					<b><?php echo string_display( lang_get_defaulted( $t_def['name'] ) ) ?></b>
+					<b><?php echo string_display_line( lang_get_defaulted( $t_def['name'] ) ) ?></b>
 				</label>
 				<?php if( $t_def['description'] != '' ) {
 					echo '<br /><span class="small">' . nl2br( $t_def['description'] ) .'</span>';
 				} ?>
-			<?php } else { echo string_display( lang_get_defaulted( $t_def['name'] ) ); } ?>
+			<?php } else { echo string_display_line( lang_get_defaulted( $t_def['name'] ) ); } ?>
 		</th>
 		<td>
 			<?php print_custom_field_input( $t_def, ( $f_master_bug_id === 0 ) ? null : $f_master_bug_id, $t_def['require_report'] ) ?>

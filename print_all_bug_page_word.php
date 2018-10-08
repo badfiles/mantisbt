@@ -487,7 +487,7 @@ foreach( $t_related_custom_field_ids as $t_custom_field_id ) {
 				$c_date_added = date( $t_date_format, $t_attachment['date_added'] );
 				echo $c_filename . ' (' . get_filesize_info( $t_attachment['size'] , config_get( 'file_size_system' ) ) . ')'
 					. ') <span class="italic-small">' . $c_date_added . '</span><br />'
-					. string_display_links( $t_path . $c_download_url );
+					. string_display_line_links( $t_path . $c_download_url );
 
 				if( $t_attachment['preview'] && $t_attachment['type'] == 'image' && $f_type_page == 'html' ) {
 					echo '<br /><img src="', $c_download_url, '" alt="', $t_attachment['alt'], '" /><br />';
