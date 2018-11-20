@@ -110,34 +110,6 @@ if( !empty( $t_tags ) ) {
 	}
 }
 
-/* --REMOVED CODE
-$t_bug_data = new BugData;
-$t_bug_data->project_id             = $t_project_id;
-$t_bug_data->reporter_id            = auth_get_current_user_id();
-$t_bug_data->build                  = gpc_get_string( 'build', '' );
-$t_bug_data->platform               = gpc_get_string( 'platform', '' );
-$t_bug_data->os                     = gpc_get_string( 'os', '' );
-$t_bug_data->os_build               = gpc_get_string( 'os_build', '' );
-$t_bug_data->version                = gpc_get_string( 'product_version', '' );
-$t_bug_data->profile_id             = gpc_get_int( 'profile_id', 0 );
-$t_bug_data->handler_id             = gpc_get_int( 'handler_id', 0 );
-$t_bug_data->view_state             = gpc_get_int( 'view_state', config_get( 'default_bug_view_status' ) );
-$t_bug_data->category_id            = gpc_get_int( 'category_id', 0 );
-$t_bug_data->reproducibility        = gpc_get_int( 'reproducibility', config_get( 'default_bug_reproducibility' ) );
-$t_bug_data->severity               = gpc_get_int( 'severity', config_get( 'default_bug_severity' ) );
-$t_bug_data->priority               = gpc_get_int( 'priority', config_get( 'default_bug_priority' ) );
-$t_bug_data->projection             = gpc_get_int( 'projection', config_get( 'default_bug_projection' ) );
-$t_bug_data->eta                    = gpc_get_int( 'eta', config_get( 'default_bug_eta' ) );
-$t_bug_data->resolution             = gpc_get_string( 'resolution', config_get( 'default_bug_resolution' ) );
-$t_bug_data->status                 = gpc_get_string( 'status', config_get( 'bug_submit_status' ) );
-$t_bug_data->summary                = serialize( gpc_get_string_array( 'summary' ) );
-$t_bug_data->description            = gpc_get_string( 'description' );
-$t_bug_data->steps_to_reproduce     = gpc_get_string( 'steps_to_reproduce', config_get( 'default_bug_steps_to_reproduce' ) );
-$t_bug_data->additional_information = gpc_get_string( 'additional_info', config_get( 'default_bug_additional_info' ) );
-$t_bug_data->due_date               = gpc_get_string( 'due_date', date_strtotime( config_get( 'due_date_default' ) ) );
-if( is_blank( $t_bug_data->due_date ) ) {
-	$t_bug_data->due_date = date_get_null();
-======= */
 $f_files = gpc_get_file( 'ufile', null );
 if( $f_files !== null && !empty( $f_files ) ) {
 	$t_issue['files'] = helper_array_transpose( $f_files );
