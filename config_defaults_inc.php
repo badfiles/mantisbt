@@ -1433,8 +1433,8 @@ $g_default_bug_view_status = VS_PUBLIC;
  *
  * @global string $g_default_bug_description
  */
- $g_default_bug_description = '';
- 
+$g_default_bug_description = '';
+
 /**
  * Default value for steps to reproduce field.
  * @global string $g_default_bug_steps_to_reproduce
@@ -3161,11 +3161,12 @@ $g_bugnote_link_tag = '~';
  * this is the prefix to use when creating links to bug views from bug counts
  * (eg. on the main page and the summary page).
  * Default is a temporary filter
- * only change the filter this time - 'view_all_set.php?type=1&amp;temporary=y'
- * permanently change the filter - 'view_all_set.php?type=1';
+ * only change the filter this time - 'view_all_set.php?type=' . FILTER_ACTION_PARSE_NEW . '&amp;temporary=y'
+ * permanently change the filter - 'view_all_set.php?type=' . FILTER_ACTION_PARSE_NEW;
+ * (FILTER_ACTION_xxx constants are defined in core/constant_inc.php)
  * @global string $g_bug_count_hyperlink_prefix
  */
-$g_bug_count_hyperlink_prefix = 'view_all_set.php?type=1&amp;temporary=y';
+$g_bug_count_hyperlink_prefix = 'view_all_set.php?type=' . FILTER_ACTION_PARSE_NEW . '&amp;temporary=y';
 
 /**
  * The regular expression to use when validating new user login names

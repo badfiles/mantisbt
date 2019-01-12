@@ -21,7 +21,7 @@
 /**
  * Mantis Version
  */
-define( 'MANTIS_VERSION', '2.19.0-dev' );
+define( 'MANTIS_VERSION', '2.20.0-dev' );
 define( 'FILTER_VERSION', 'v9' );
 
 # --- constants -------------------
@@ -492,6 +492,13 @@ define( 'FILTER_STANDARD_UNASSIGNED', 'unassigned' );
 define( 'FILTER_STANDARD_REPORTED', 'reported' );
 define( 'FILTER_STANDARD_MONITORED', 'monitored' );
 
+# Filter actions, refactored from view_all_set.php
+define( 'FILTER_ACTION_RESET', 0 );
+define( 'FILTER_ACTION_PARSE_NEW', 1 );
+define( 'FILTER_ACTION_PARSE_ADD', 2 );
+define( 'FILTER_ACTION_LOAD', 3 );
+define( 'FILTER_ACTION_GENERALIZE', 4 );
+
 # Versions
 define( 'VERSION_ALL', null );
 define( 'VERSION_FUTURE', false );
@@ -637,8 +644,8 @@ define( 'JQUERY_VERSION', '3.1.1' );
 define( 'JQUERY_HASH', 'sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=' );
 
 # Bootstrap & FontAwesome
-define( 'BOOTSTRAP_VERSION', '3.3.7' );
-define( 'BOOTSTRAP_HASH', 'sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=' );
+define( 'BOOTSTRAP_VERSION', '3.4.0' );
+define( 'BOOTSTRAP_HASH', 'sha384-vhJnz1OVIdLktyixHY4Uk3OHEwdQqPppqYR8+5mjsauETgLOcEynD9oPHhhz18Nw' );
 define( 'FONT_AWESOME_VERSION', '4.7.0' );
 
 # Moment & DateTimePicker

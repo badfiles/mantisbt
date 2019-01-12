@@ -116,3 +116,7 @@ td.print-overdue    { font-weight: bold; }
 .error-details .code {
 	font-family: monospace;
 }
+
+table.filters td.category {
+	color: #337ab7;
+}
