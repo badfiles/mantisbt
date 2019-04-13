@@ -846,34 +846,34 @@ function print_os_build_option_list( $p_os_build, $p_user_id = null ) {
 }
 
 /**
- * Print the option list for versions
- * @param string  $p_version       The currently selected version.
- * @param integer $p_project_id    Project id, otherwise current project will be used.
- * @param integer $p_released      Null to get all, 1: only released, 0: only future versions.
- * @param boolean $p_leading_blank Allow selection of no version.
- * @param boolean $p_with_subs     Whether to include sub-projects.
+ * Print the option list for versions.
+ * All versions related for each project will be printed. Those include, for each
+ * project, the directly linked versions and the inherited versions if applicable.
+ *
+ * @param string              $p_version       The currently selected version.
+ * @param integer|array|null  $p_project_ids   A project id, or array of ids, or null to use current project.
+ * @param integer             $p_released      Null to get all, 1: only released, 0: only future versions.
+ * @param boolean             $p_leading_blank Allow selection of no version.
  * @return void
  */
-function print_version_option_list( $p_version = '', $p_project_id = null, $p_released = null, $p_leading_blank = true, $p_with_subs = false ) {
-	if( null === $p_project_id ) {
-		$c_project_id = helper_get_current_project();
-	} else {
-		$c_project_id = (int)$p_project_id;
+function print_version_option_list( $p_version = '', $p_project_ids = null, $p_released = null, $p_leading_blank = true ) {
+	if( null === $p_project_ids ) {
+		$p_project_ids = helper_get_current_project();
 	}
+	$t_project_ids = is_array( $p_project_ids ) ? $p_project_ids : array( $p_project_ids );
 
-	if( $p_with_subs ) {
-		$t_versions = version_get_all_rows_with_subs( $c_project_id, $p_released, null );
-	} else {
-		$t_versions = version_get_all_rows( $c_project_id, $p_released, null );
-	}
+	$t_versions = version_get_all_rows( $t_project_ids, $p_released, null );
 
 	# Ensure the selected version (if specified) is included in the list
 	# Note: Filter API specifies selected versions as an array
 	if( !is_array( $p_version ) ) {
 		if( !empty( $p_version ) ) {
-			$t_version_id = version_get_id( $p_version, $c_project_id );
-			if( $t_version_id !== false ) {
-				$t_versions[] = version_cache_row( $t_version_id );
+			foreach( $t_project_ids as $t_project_id ) {
+				$t_version_id = version_get_id( $p_version, $t_project_id );
+				if( $t_version_id !== false ) {
+					$t_versions[] = version_cache_row( $t_version_id );
+					break;
+				}
 			}
 		}
 	}
@@ -884,6 +884,8 @@ function print_version_option_list( $p_version = '', $p_project_id = null, $p_re
 
 	$t_listed = array();
 	$t_max_length = config_get( 'max_dropdown_length' );
+
+	$t_show_project_name = count( $t_project_ids ) > 1;
 
 	foreach( $t_versions as $t_version ) {
 		# If the current version is obsolete, and current version not equal to $p_version,
@@ -900,8 +902,7 @@ function print_version_option_list( $p_version = '', $p_project_id = null, $p_re
 			$t_listed[] = $t_version_version;
 			echo '<option value="' . $t_version_version . '"';
 			check_selected( $p_version, $t_version['version'] );
-
-			$t_version_string = string_attribute( prepare_version_string( $c_project_id, $t_version['id'] ) );
+			$t_version_string = string_attribute( prepare_version_string( $t_version['project_id'], $t_version['id'], $t_show_project_name ) );
 
 			echo '>', string_shorten( $t_version_string, $t_max_length ), '</option>';
 		}
@@ -2134,9 +2135,11 @@ function print_max_filesize( $p_size ) {
  * @return void
  */
 function print_dropzone_form_data() {
+	//$t_max_file_size = ceil( file_get_max_file_size() / ( 1024*1024 ) );
 	echo 'data-force-fallback="' . ( config_get( 'dropzone_enabled' ) ? 'false' : 'true' ) . '"' . "\n";
-	echo "\t" . 'data-max-filesize="'. ceil( config_get( 'max_file_size' ) / pow( config_get( 'file_size_system' ), 2 ) ) . '"' . "\n";
-	echo "\t" . 'data-base-filesize="'. config_get( 'file_size_system' ) . '"' . "\n";
+//	echo "\t" . 'data-max-filesize="'. ceil( config_get( 'max_file_size' ) / pow( config_get( 'file_size_system' ), 2 ) ) . '"' . "\n";
+//	echo "\t" . 'data-base-filesize="'. config_get( 'file_size_system' ) . '"' . "\n";
+	echo "\t" . 'data-max-filesize-bytes="'. file_get_max_file_size() . '"' . "\n";
 	$t_allowed_files = config_get( 'allowed_files' );
 	if ( !empty ( $t_allowed_files ) ) {
 		$t_allowed_files = '.' . implode ( ',.', explode ( ',', config_get( 'allowed_files' ) ) );
@@ -2154,6 +2157,30 @@ function print_dropzone_form_data() {
 	echo "\t" . 'data-remove-file-confirmation="' . htmlspecialchars( lang_get( 'dropzone_remove_file_confirmation' ) ) . '"' . "\n";
 	echo "\t" . 'data-max-files-exceeded="' . htmlspecialchars( lang_get( 'dropzone_max_files_exceeded' ) ) . '"' . "\n";
 	echo "\t" . 'data-dropzone-not-supported="' . htmlspecialchars( lang_get( 'dropzone_not_supported' ) ) . '"';
+	echo "\t" . 'data-dropzone_multiple_files_too_big="' . htmlspecialchars( lang_get( 'dropzone_multiple_files_too_big' ) ) . '"';
+}
+
+/**
+ * Populate a hidden div where its inner html will be used as preview template
+ * for dropzone attached files
+ * @return void
+ */
+function print_dropzone_template(){
+	?>
+	<div id="dropzone-preview-template" class="hidden">
+		<div class="dz-preview dz-file-preview">
+			<div class="dz-filename"><span data-dz-name></span></div>
+			<div><img data-dz-thumbnail /></div>
+			<div class="dz-size" data-dz-size></div>
+			<div class="progress progress-small progress-striped active">
+				<div class="progress-bar progress-bar-success" data-dz-uploadprogress></div>
+			</div>
+			<div class="dz-success-mark"><span></span></div>
+			<div class="dz-error-mark"><span></span></div>
+			<div class="dz-error-message"><span data-dz-errormessage></span></div>
+		</div>
+	</div>
+	<?php
 }
 
 /**

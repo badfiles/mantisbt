@@ -21,7 +21,7 @@
 /**
  * Mantis Version
  */
-define( 'MANTIS_VERSION', '2.20.0-dev' );
+define( 'MANTIS_VERSION', '2.21.0-dev' );
 define( 'FILTER_VERSION', 'v9' );
 
 # --- constants -------------------
@@ -302,6 +302,9 @@ define( 'ERROR_PROJECT_NOT_FOUND', 700 );
 define( 'ERROR_PROJECT_NAME_NOT_UNIQUE', 701 );
 define( 'ERROR_PROJECT_NAME_INVALID', 702 );
 define( 'ERROR_PROJECT_RECURSIVE_HIERARCHY', 703 );
+define( 'ERROR_PROJECT_SUBPROJECT_DUPLICATE', 704 );
+define( 'ERROR_PROJECT_SUBPROJECT_NOT_FOUND', 705 );
+define( 'ERROR_PROJECT_HIERARCHY_DISABLED', 706 );
 
 # ERROR_USER_*
 define( 'ERROR_USER_NAME_NOT_UNIQUE', 800 );
@@ -487,6 +490,7 @@ define( 'FILTER_MATCH_ALL', 0 );
 define( 'FILTER_MATCH_ANY', 1 );
 
 # Standard Filters
+define( 'FILTER_STANDARD_ANY', 'any' );
 define( 'FILTER_STANDARD_ASSIGNED', 'assigned' );
 define( 'FILTER_STANDARD_UNASSIGNED', 'unassigned' );
 define( 'FILTER_STANDARD_REPORTED', 'reported' );
@@ -655,21 +659,21 @@ define( 'DATETIME_PICKER_VERSION', '4.17.47' );
 define( 'DATETIME_PICKER_HASH', 'sha256-5YmaxAwMjIpMrVlK84Y/+NjCpKnFYa8bWWBbUHSBGfU=' );
 
 # Chart JS
-define( 'CHARTJS_VERSION', '2.1.6' );
-define( 'CHARTJS_HASH', 'sha256-Emd9qupGNNjtRpaQjhpA4hn+PWAETkO2GB3gzBL3thM=' );
-define( 'CHARTJSBUNDLE_HASH', 'sha256-OBi9RJU9sFk/2JEV23eSQSqe/eUK4km5NxGgo/XMiqY=' );
+define( 'CHARTJS_VERSION', '2.7.3' );
+define( 'CHARTJS_HASH', 'sha384-WJu6cbQvbPRsw+66L1nOomDAZzhTALnUlpchFlWHimhJ9o95CMue7xEZXXDRKV2S' );
+define( 'CHARTJSBUNDLE_HASH', 'sha384-e4YKd0O/y4TmH7qskMQzKnOrqN83RJ7TmJ4RsBLHodJ6jHOE30I7J1uZfLdvybhc' );
 
 # Tyeahead JS
 define( 'TYPEAHEAD_VERSION', '1.1.1' );
 define( 'TYPEAHEAD_HASH', 'sha256-qZIhMVBV4/crmcmYXNq5ZE5gPRiiPPMKVYbapf5HDBs=' );
 
 # List JS
-define( 'LISTJS_VERSION', '1.4.1' );
-define( 'LISTJS_HASH', 'sha256-lFOz0Sg8djWQPKOfRce9A9EcYSWhFMsYo+ulRYVnjrw=' );
+define( 'LISTJS_VERSION', '1.5.0' );
+define( 'LISTJS_HASH', 'sha384-JDmRxRiXkNkskRM5AD4qHRGk9ItwZ9flbqOpsRYs8SOrIRwcMtTGKP2Scnjptzgm' );
 
 # Dropzone JS
-define( 'DROPZONE_VERSION', '4.3.0' );
-define( 'DROPZONE_HASH', 'sha256-p2l8VeL3iL1J0NxcXbEVtoyYSC+VbEbre5KHbzq1fq8=' );
+define( 'DROPZONE_VERSION', '5.5.0' );
+define( 'DROPZONE_HASH', 'sha384-TBYvJK9bRa7Ii3OZh+eaXb5r98Ad36+kotsxTD3tIEa9vgJOQ0lRMfZtWAJxPq4P' );
 
 # Byte Order Markers
 define( 'UTF8_BOM', "\xEF\xBB\xBF" );

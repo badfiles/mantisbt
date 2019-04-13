@@ -1913,8 +1913,8 @@ $g_dropzone_enabled = ON;
 $g_attachments_file_permissions = 0400;
 
 /**
- * Maximum file size that can be uploaded
- * Also check your PHP settings (default is usually 2MiBs)
+ * Maximum file size (bytes) that can be uploaded.
+ * Also check your PHP settings (default is usually 2MBs)
  * @global integer $g_max_file_size
  */
 $g_max_file_size = 5 * 1024 * 1024;
@@ -4398,7 +4398,7 @@ $g_global_settings = array(
 	'hostname','html_valid_tags', 'html_valid_tags_single_line', 'default_language',
 	'language_auto_map', 'fallback_language', 'login_method', 'plugins_enabled',
 	'session_save_path', 'session_validation', 'show_detailed_errors', 'show_queries_count',
-	'stop_on_errors', 'version_suffix', 'debug_email',
+	'show_timer', 'show_memory_usage', 'stop_on_errors', 'version_suffix', 'debug_email',
 	'fileinfo_magic_db_file', 'css_include_file', 'css_rtl_include_file',
 	'file_type_icons', 'path', 'short_path', 'absolute_path', 'core_path',
 	'class_path','library_path', 'language_path', 'absolute_path_default_upload_folder',

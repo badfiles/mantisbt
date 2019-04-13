@@ -146,11 +146,12 @@ function layout_page_header_end( $p_page_id = null) {
  * @return void
  */
 function layout_page_begin( $p_active_sidebar_page = null ) {
-	layout_navbar();
-
 	if( !db_is_connected() ) {
 		return;
 	}
+	current_user_modify_single_project_default();
+
+	layout_navbar();
 
 	layout_main_container_begin();
 
@@ -514,55 +515,26 @@ function layout_navbar_user_menu( $p_show_avatar = true ) {
  * @return void
  */
 function layout_navbar_projects_menu() {
-	if( !auth_is_user_authenticated() ) {
+	if( !layout_navbar_can_show_projects_menu() ) {
 		return;
 	}
+	echo '<li class="grey" id="dropdown_projects_menu">' . "\n";
+	echo '<a data-toggle="dropdown" href="#" class="dropdown-toggle">' . "\n";
 
-	# Project Selector (hidden if only one project visible to user)
-	$t_show_project_selector = true;
-	$t_project_ids = current_user_get_accessible_projects();
-	if( count( $t_project_ids ) == 1 ) {
-		$t_project_id = (int) $t_project_ids[0];
-		if( count( current_user_get_accessible_subprojects( $t_project_id ) ) == 0 ) {
-			$t_show_project_selector = false;
-		}
-	}
-
-	if( $t_show_project_selector ) {
-		echo '<li class="grey" id="dropdown_projects_menu">' . "\n";
-		echo '<a data-toggle="dropdown" href="#" class="dropdown-toggle">' . "\n";
-
-		$t_current_project_id = helper_get_current_project();
-		if( ALL_PROJECTS == $t_current_project_id) {
-			echo '&#160;' . string_attribute( lang_get( 'all_projects' ) ) . '&#160;' . "\n";
-		} else {
-			echo '&#160;' . string_attribute( project_get_field( $t_current_project_id, 'name' ) ) . '&#160;' . "\n";
-		}
-
-		echo ' <i class="ace-icon fa fa-angle-down bigger-110"></i>' . "\n";
-		echo '</a>' . "\n";
-
-		echo '<ul class="dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-close scrollable-menu">' . "\n";
-		layout_navbar_projects_list( join( ';', helper_get_current_project_trace() ), true, null, true );
-		echo '</ul>' . "\n";
-		echo '</li>' . "\n";
+	$t_current_project_id = helper_get_current_project();
+	if( ALL_PROJECTS == $t_current_project_id) {
+		echo '&#160;' . string_attribute( lang_get( 'all_projects' ) ) . '&#160;' . "\n";
 	} else {
-		# User has only one project, set it as both current and default
-		if( ALL_PROJECTS == helper_get_current_project() ) {
-			helper_set_current_project( $t_project_id );
-
-			if( !current_user_is_protected() ) {
-				current_user_set_default_project( $t_project_id );
-			}
-
-			# Force reload of current page, except if we got here after
-			# creating the first project
-			$t_redirect_url = str_replace( config_get_global( 'short_path' ), '', $_SERVER['REQUEST_URI'] );
-			if( 'manage_proj_create.php' != $t_redirect_url ) {
-				html_meta_redirect( $t_redirect_url, 0, false );
-			}
-		}
+		echo '&#160;' . string_attribute( project_get_field( $t_current_project_id, 'name' ) ) . '&#160;' . "\n";
 	}
+
+	echo ' <i class="ace-icon fa fa-angle-down bigger-110"></i>' . "\n";
+	echo '</a>' . "\n";
+
+	echo '<ul class="dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-close scrollable-menu">' . "\n";
+	layout_navbar_projects_list( join( ';', helper_get_current_project_trace() ), true, null, true );
+	echo '</ul>' . "\n";
+	echo '</li>' . "\n";
 }
 
 /**
@@ -782,28 +754,9 @@ function layout_print_sidebar( $p_active_sidebar_page = null ) {
 		}
 
 		# Manage Users (admins) or Manage Project (managers) or Manage Custom Fields
-		if( access_has_global_level( config_get( 'manage_site_threshold' ) ) ) {
-			layout_sidebar_menu( 'manage_overview_page.php', 'manage_link', 'fa-gears', $p_active_sidebar_page );
-		} else {
-			if( access_has_global_level( config_get( 'manage_user_threshold' ) ) ) {
-				$t_link = 'manage_user_page.php';
-			} else {
-				$t_link = '';
-				if( access_has_any_project_level( 'manage_project_threshold' ) ) {
-					if( $t_current_project == ALL_PROJECTS ) {
-						$t_link = 'manage_proj_page.php';
-					} else {
-						if( access_has_project_level( config_get( 'manage_project_threshold' ), $t_current_project ) ) {
-							$t_link = 'manage_proj_edit_page.php?project_id=' . $t_current_project;
-						} else {
-							if ( access_has_global_level( config_get( 'manage_custom_fields_threshold' ) ) ) {
-								$t_link = 'manage_custom_field_page.php';
-							}
-						}
-					}
-				}
-			}
-			if( $t_link != '' ) layout_sidebar_menu( $t_link , 'manage_link', 'fa-gears' );
+		$t_link = layout_manage_menu_link();
+		if( !is_blank( $t_link ) ) {
+			layout_sidebar_menu( $t_link , 'manage_link', 'fa-gears', $p_active_sidebar_page );
 		}
 
 		# Time Tracking / Billing
@@ -1170,26 +1123,30 @@ function layout_footer() {
 */
 	event_signal( 'EVENT_LAYOUT_PAGE_FOOTER' );
 
-	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get_global( 'show_queries_count' ) ) {
+	$t_show_timer = config_get_global( 'show_timer' );
+	$t_show_memory_usage = config_get_global( 'show_memory_usage' );
+	$t_show_queries_count = config_get_global( 'show_queries_count' );
+	$t_display_debug_info = $t_show_timer || $t_show_memory_usage || $t_show_queries_count;
+
+	if( $t_display_debug_info ) {
 		echo '<div class="col-xs-12 no-padding grey">' . "\n";
 		echo '<address class="no-margin pull-right">' . "\n";
 	}
 
-
 	# Print the page execution time
-	if( config_get( 'show_timer' ) ) {
+	if( $t_show_timer ) {
 		$t_page_execution_time = sprintf( lang_get( 'page_execution_time' ), number_format( microtime( true ) - $g_request_time, 4 ) );
 		echo '<small><i class="fa fa-clock-o"></i> ' . $t_page_execution_time . '</small>&#160;&#160;&#160;&#160;' . "\n";
 	}
 
 	# Print the page memory usage
-	if( config_get( 'show_memory_usage' ) ) {
+	if( $t_show_memory_usage ) {
 		$t_page_memory_usage = sprintf( lang_get( 'memory_usage_in_kb' ), number_format( memory_get_peak_usage() / 1024 ) );
 		echo '<small><i class="fa fa-bolt"></i> ' . $t_page_memory_usage . '</small>&#160;&#160;&#160;&#160;' . "\n";
 	}
 
 	# Determine number of unique queries executed
-	if( config_get_global( 'show_queries_count' ) ) {
+	if( $t_show_queries_count ) {
 		$t_total_queries_count = count( $g_queries_array );
 		$t_unique_queries_count = 0;
 		$t_total_query_execution_time = 0;
@@ -1215,7 +1172,7 @@ function layout_footer() {
 		echo '<small><i class="fa fa-clock-o"></i> ' . $t_total_query_time . '</small>&#160;&#160;&#160;&#160;' . "\n";
 	}
 
-	if( config_get( 'show_timer' ) || config_get( 'show_memory_usage' ) || config_get_global( 'show_queries_count' ) ) {
+	if( $t_display_debug_info ) {
 		echo '</address>' . "\n";
 		echo '</div>' . "\n";
 	}
@@ -1265,4 +1222,56 @@ function layout_login_page_logo() {
 		<img src="<?php echo helper_mantis_url( config_get( 'logo_image' ) ); ?>">
 	</div>
 	<?php
+}
+
+/**
+ * Returns a single link for the "manage" menu item in sidebar, based on current
+ * user permissions, and priority if several subpages are available.
+ * If there is not any accesible manage page, returns null.
+ * @return string|null	Page name for the manage menu link, or null if unavailable.
+ */
+function layout_manage_menu_link() {
+	static $t_link = null;
+	if( access_has_global_level( config_get( 'manage_site_threshold' ) ) ) {
+		$t_link = 'manage_overview_page.php';
+	} else {
+		if( access_has_global_level( config_get( 'manage_user_threshold' ) ) ) {
+			$t_link = 'manage_user_page.php';
+		} else {
+			if( access_has_any_project_level( 'manage_project_threshold' ) ) {
+				$t_current_project = helper_get_current_project();
+				if( $t_current_project == ALL_PROJECTS ) {
+					$t_link = 'manage_proj_page.php';
+				} else {
+					if( access_has_project_level( config_get( 'manage_project_threshold' ), $t_current_project ) ) {
+						$t_link = 'manage_proj_edit_page.php?project_id=' . $t_current_project;
+					} else {
+						if ( access_has_global_level( config_get( 'manage_custom_fields_threshold' ) ) ) {
+							$t_link = 'manage_custom_field_page.php';
+						}
+					}
+				}
+			}
+		}
+	}
+	return $t_link;
+}
+
+/**
+ * Returns true if the projects menu can be shown for current user.
+ * In some circumstances, we won't show the menu to simplify the UI.
+ * @return boolean	True if the projects menu can be shown.
+ */
+function layout_navbar_can_show_projects_menu() {
+	if( !auth_is_user_authenticated() ) {
+		return false;
+	}
+
+	# Project selector is only shown if there are more than one project, or
+	# if the user hass access to manage pages, where having ALL_PROJECTS is
+	# needed (#20054)
+	$t_show_project_selector =
+		!is_blank( layout_manage_menu_link() )
+		|| current_user_has_more_than_one_project();
+	return $t_show_project_selector;
 }
