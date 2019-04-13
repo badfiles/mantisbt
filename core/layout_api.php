@@ -531,7 +531,7 @@ function layout_navbar_projects_menu() {
 	echo ' <i class="ace-icon fa fa-angle-down bigger-110"></i>' . "\n";
 	echo '</a>' . "\n";
 
-	echo '<ul class="dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-close scrollable-menu">' . "\n";
+	echo '<ul id="projects-list" class=" dropdown-menu dropdown-menu-right dropdown-yellow dropdown-caret dropdown-close">' . "\n";
 	layout_navbar_projects_list( join( ';', helper_get_current_project_trace() ), true, null, true );
 	echo '</ul>' . "\n";
 	echo '</li>' . "\n";
@@ -549,7 +549,7 @@ function layout_navbar_button_bar() {
 	$t_show_report_bug_button = access_has_any_project_level( 'report_bug_threshold' ) &&
 		!is_page_name( string_get_bug_page( "report" ) ) &&
 		!is_page_name( string_get_bug_page( "update" ) );
-	$t_show_invite_user_button = current_user_is_administrator();
+	$t_show_invite_user_button = access_has_global_level( config_get( 'manage_user_threshold' ) );
 
 	if( !$t_show_report_bug_button && !$t_show_invite_user_button ) {
 		return;
@@ -595,19 +595,22 @@ function layout_navbar_projects_list( $p_project_id = null, $p_include_all_proje
 	$t_project_ids = user_get_accessible_projects( $t_user_id );
 	$t_can_report = true;
 
+	echo '<li>';
+	echo '<div class="projects-searchbox">';
+	echo '<input class="search form-control input-md" placeholder="' . lang_get( 'search' ) . '" />';
+	echo '</div>';
+	echo '</li>';
+	echo '<li class="divider"></li>' . "\n";
+	echo '<li>';
+	echo '<div class="scrollable-menu">';
+	echo '<ul class="list dropdown-yellow no-margin">';
+
 	if( $p_include_all_projects && $p_filter_project_id !== ALL_PROJECTS ) {
 		echo ALL_PROJECTS == $p_project_id ? '<li class="active">' : '<li>';
 		echo '<a href="' . helper_mantis_url( 'set_project.php' ) . '?project_id=' . ALL_PROJECTS . '">';
 		echo lang_get( 'all_projects' ) . ' </a></li>' . "\n";
 		echo '<li class="divider"></li>' . "\n";
 	}
-
-	echo '<li>';
-	echo '<div id="projects-list">';
-	echo '<div class="projects-searchbox">';
-	echo '<input class="search form-control input-md" placeholder="' . lang_get( 'search' ) . '" />';
-	echo '</div>';
-	echo '<ul class="list dropdown-yellow no-margin">';
 
 	foreach( $t_project_ids as $t_id ) {
 		if( $p_can_report_only ) {
@@ -963,6 +966,8 @@ function layout_page_content_begin() {
  * @return void
  */
 function layout_page_content_end() {
+	error_print_delayed();
+
 	# Print table of log events
 	log_print_to_page();
 

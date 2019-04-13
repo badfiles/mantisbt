@@ -935,7 +935,10 @@ function print_summary_menu( $p_page = '', array $p_filter = null ) {
 
 	# Plugins menu items - these are cooked links
 	foreach ( $t_menu_options as $t_menu_item ) {
-		echo '<li>' . $t_menu_item . '</li>';
+		$t_active = $p_page && strpos( $t_menu_item, $p_page ) !== false
+			? ' class="active"'
+			: '';
+		echo "<li{$t_active}>{$t_menu_item}</li>";
 	}
 
 	echo '</ul>' . "\n";
@@ -1394,7 +1397,9 @@ function html_buttons_view_bug_page( $p_bug_id ) {
 }
 
 /**
- * get the css class name for the given status, user and project
+ * Get the foreground color CSS class for the given status, user and project.
+ * @see html_get_status_css_bg() for background color
+ *
  * @param integer $p_status  An enumeration value.
  * @param integer $p_user    A valid user identifier.
  * @param integer $p_project A valid project identifier.
@@ -1405,13 +1410,56 @@ function html_buttons_view_bug_page( $p_bug_id ) {
  * This is due to the dynamic css for color coding (css/status_config.php).
  * Build CSS including project or even user-specific colors ?
  */
-function html_get_status_css_class( $p_status, $p_user = null, $p_project = null ) {
+function html_get_status_css_fg( $p_status, $p_user = null, $p_project = null ) {
 	$t_status_enum = config_get( 'status_enum_string', null, $p_user, $p_project );
 	if( MantisEnum::hasValue( $t_status_enum, $p_status ) ) {
-		return 'status-' . $p_status . '-color';
+		return 'status-' . $p_status . '-fg';
 	} else {
 		return '';
 	}
+}
+
+/**
+ * Get the background color CSS class for the given status, user and project.
+ * @see html_get_status_css_fg() for foreground color
+ *
+ * @param integer $p_status  An enumeration value.
+ * @param integer $p_user    A valid user identifier.
+ * @param integer $p_project A valid project identifier.
+ *
+ * @return string
+ */
+function html_get_status_css_bg( $p_status, $p_user = null, $p_project = null ) {
+	$t_status_enum = config_get( 'status_enum_string', null, $p_user, $p_project );
+	if( MantisEnum::hasValue( $t_status_enum, $p_status ) ) {
+		return 'status-' . $p_status . '-bg';
+	} else {
+		return '';
+	}
+}
+
+/**
+ * Get the css class name for the given status, user and project.
+ *
+ * @param integer $p_status  An enumeration value.
+ * @param integer $p_user    A valid user identifier.
+ * @param integer $p_project A valid project identifier.
+ * @return string
+ *
+ * @deprecated 2.21.0 Use html_get_status_css_fg() or html_get_status_css_bg() instead
+ */
+function html_get_status_css_class( $p_status, $p_user = null, $p_project = null ) {
+	error_parameters(
+		__FUNCTION__ . '()',
+		'html_get_status_css_fg() or html_get_status_css_bg()'
+	);
+	trigger_error( ERROR_DEPRECATED_SUPERSEDED, DEPRECATED );
+
+	$t_class = html_get_status_css_fg( $p_status, $p_user, $p_project )
+		. ' '
+		. html_get_status_css_bg( $p_status, $p_user, $p_project );
+
+	return trim( $t_class );
 }
 
 /**
