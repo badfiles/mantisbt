@@ -732,6 +732,7 @@ define( 'PAGE_CONFIG_DEFAULT', 'adm_permissions_report.php' );
 define( 'MANAGE_CONFIG_ACTION_CREATE', 'create' );
 define( 'MANAGE_CONFIG_ACTION_CLONE', 'clone' );
 define( 'MANAGE_CONFIG_ACTION_EDIT', 'edit' );
+define( 'MANAGE_CONFIG_ACTION_VIEW', 'view' );
 
 # Database functional type identifiers.
 define( 'DB_TYPE_UNDEFINED', 0 );
