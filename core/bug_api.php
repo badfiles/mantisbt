@@ -769,7 +769,10 @@ class BugData {
 		history_log_event_direct( $c_bug_id, 'sponsorship_total', $t_old_data->sponsorship_total, $this->sponsorship_total );
 		history_log_event_direct( $c_bug_id, 'sticky', $t_old_data->sticky, $this->sticky );
 
-		history_log_event_direct( $c_bug_id, 'due_date', ( $t_old_data->due_date != date_get_null() ) ? $t_old_data->due_date : null, ( $this->due_date != date_get_null() ) ? $this->due_date : null );
+		history_log_event_direct( $c_bug_id, 'due_date',
+			( $t_old_data->due_date != date_get_null() ) ? $t_old_data->due_date : null,
+			( $this->due_date != date_get_null() ) ? $this->due_date : null
+		);
 
 		# Update extended info if requested
 		if( $p_update_extended ) {
@@ -1748,7 +1751,7 @@ function bug_get_attachments( $p_bug_id, $p_only_to_send = false ) {
 	db_param_push();
 	$t_filter = '';
 	if( $p_only_to_send) $t_filter = ' AND to_send = true ';
-	$t_query = 'SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id, to_send, protected
+	$t_query = 'SELECT id, title, diskfile, filename, filesize, file_type, date_added, user_id, bugnote_id, to_send, protected
 		                FROM {bug_file}
 		                WHERE bug_id=' . db_param() . $t_filter . '
 		                ORDER BY date_added';

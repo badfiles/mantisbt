@@ -333,13 +333,6 @@ function email_collect_recipients( $p_bug_id, $p_notify_type, array $p_extra_use
 	}
 
 	# add users who contributed bugnotes
-	$t_bugnote_id = ( $p_bugnote_id === null ) ? bugnote_get_latest_id( $p_bug_id ) : $p_bugnote_id;
-	if( $t_bugnote_id !== 0 ) {
-		$t_bugnote_date = bugnote_get_field( $t_bugnote_id, 'last_modified' );
-	}
-	$t_bug = bug_get( $p_bug_id );
-	$t_bug_date = $t_bug->last_updated;
-
 	$t_notes_enabled = ( ON == email_notify_flag( $p_notify_type, 'bugnotes' ) );
 	db_param_push();
 	$t_query = 'SELECT DISTINCT reporter_id FROM {bugnote} WHERE bug_id = ' . db_param();
@@ -395,6 +388,9 @@ function email_collect_recipients( $p_bug_id, $p_notify_type, array $p_extra_use
 		case 'closed':
 		case 'bugnote':
 			$t_pref_field = 'email_on_' . $p_notify_type;
+			if( !$p_bugnote_id ) {
+				$p_bugnote_id = bugnote_get_latest_id( $p_bug_id );
+			}
 			break;
 		case 'owner':
 			# The email_on_assigned notification type is now effectively
@@ -421,6 +417,7 @@ function email_collect_recipients( $p_bug_id, $p_notify_type, array $p_extra_use
 	#  of user ids so we could pull them all in.  We'll see if it's necessary
 	$t_final_recipients = array();
 
+	$t_bug = bug_get( $p_bug_id );
 	$t_user_ids = array_keys( $t_recipients );
 	user_cache_array_rows( $t_user_ids );
 	user_pref_cache_array_rows( $t_user_ids );
@@ -463,9 +460,11 @@ function email_collect_recipients( $p_bug_id, $p_notify_type, array $p_extra_use
 
 		# exclude users who don't have at least viewer access to the bug,
 		# or who can't see bugnotes if the last update included a bugnote
-		if( !access_has_bug_level( config_get( 'view_bug_threshold', null, $t_id, $t_bug->project_id ), $p_bug_id, $t_id )
-		 || ( $t_bugnote_id !== 0 &&
-				$t_bug_date == $t_bugnote_date && !access_has_bugnote_level( config_get( 'view_bug_threshold', null, $t_id, $t_bug->project_id ), $t_bugnote_id, $t_id ) )
+		$t_view_bug_threshold = config_get( 'view_bug_threshold', null, $t_id, $t_bug->project_id );
+		if(   !access_has_bug_level( $t_view_bug_threshold, $p_bug_id, $t_id )
+		   || (   $p_bugnote_id
+			   && !access_has_bugnote_level( $t_view_bug_threshold, $p_bugnote_id, $t_id )
+			  )
 		) {
 			log_event( LOG_EMAIL_RECIPIENT, 'Issue = #%d, drop @U%d (access level)', $p_bug_id, $t_id );
 			continue;
@@ -2046,11 +2045,82 @@ function email_build_visible_bug_data( $p_user_id, $p_bug_id, $p_message_id ) {
 		}
 	}
 
-	$t_bug_data['relations'] = relationship_get_summary_text( $p_bug_id );
+	$t_bug_data['relations'] = email_relationship_get_summary_text( $p_bug_id );
 
 	current_user_set( $t_current_user_id );
 
 	return $t_bug_data;
+}
+
+/**
+ * return formatted string with all the details on the requested relationship
+ * @param integer             $p_bug_id       A bug identifier.
+ * @param BugRelationshipData $p_relationship A bug relationship object.
+ * @return string
+ */
+function email_relationship_get_details( $p_bug_id, BugRelationshipData $p_relationship ) {
+	$t_summary_wrap_at = mb_strlen( config_get( 'email_separator2' ) ) - 28;
+
+	if( $p_bug_id == $p_relationship->src_bug_id ) {
+		# root bug is in the source side, related bug in the destination side
+		$t_related_project_id = $p_relationship->dest_bug_id;
+		$t_related_bug_id = $p_relationship->dest_bug_id;
+		$t_relationship_descr = relationship_get_description_src_side( $p_relationship->type );
+	} else {
+		# root bug is in the dest side, related bug in the source side
+		$t_related_project_id = $p_relationship->src_bug_id;
+		$t_related_bug_id = $p_relationship->src_bug_id;
+		$t_relationship_descr = relationship_get_description_dest_side( $p_relationship->type );
+	}
+
+	# related bug not existing...
+	if( !bug_exists( $t_related_bug_id ) ) {
+		return '';
+	}
+
+	# user can access to the related bug at least as a viewer
+	if( !access_has_bug_level( config_get( 'view_bug_threshold', null, null, $t_related_project_id ), $t_related_bug_id ) ) {
+		return '';
+	}
+
+	# get the information from the related bug and prepare the link
+	$t_bug = bug_get( $t_related_bug_id, false );
+
+	$t_relationship_info_text = utf8_str_pad( $t_relationship_descr, 20 );
+	$t_relationship_info_text .= utf8_str_pad( bug_format_id( $t_related_bug_id ), 8 );
+
+	# add summary
+	if( mb_strlen( $t_bug->summary ) <= $t_summary_wrap_at ) {
+		$t_relationship_info_text .= string_email_links( $t_bug->summary );
+	} else {
+		$t_relationship_info_text .= mb_substr( string_email_links( $t_bug->summary ), 0, $t_summary_wrap_at - 3 ) . '...';
+	}
+
+	$t_relationship_info_text .= "\n";
+
+	return $t_relationship_info_text;
+}
+
+/**
+ * Get ALL the RELATIONSHIPS OF A SPECIFIC BUG in text format (used by email_api.php
+ * @param integer $p_bug_id A bug identifier.
+ * @return string
+ */
+function email_relationship_get_summary_text( $p_bug_id ) {
+	# A variable that will be set by the following call to indicate if relationships belong
+	# to multiple projects.
+	$t_show_project = false;
+
+	$t_relationship_all = relationship_get_all( $p_bug_id, $t_show_project );
+	$t_relationship_all_count = count( $t_relationship_all );
+
+	# prepare the relationships table
+	$t_summary = '';
+	for( $i = 0; $i < $t_relationship_all_count; $i++ ) {
+		$t_summary .= email_relationship_get_details( $p_bug_id, $t_relationship_all[$i] );
+	}
+
+	return $t_summary;
 }
 
 /**

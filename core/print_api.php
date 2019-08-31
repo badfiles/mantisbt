@@ -354,7 +354,6 @@ function print_tag_attach_form( $p_bug_id, $p_string = '' ) {
 ?>
 	<form method="post" action="tag_attach.php" class="form-inline">
 	<?php echo form_security_field( 'tag_attach' )?>
-	<label class="inline small"><?php echo sprintf( lang_get( 'tag_separate_by' ), config_get( 'tag_separator' ) )?></label>
 	<input type="hidden" name="bug_id" value="<?php echo $p_bug_id?>" class="input-sm" />
 	<?php print_tag_input( $p_bug_id, $p_string ); ?>
 	<input type="submit" value="<?php echo lang_get( 'tag_attach' )?>" class="btn btn-primary btn-sm btn-white btn-round" />
@@ -371,6 +370,7 @@ function print_tag_attach_form( $p_bug_id, $p_string = '' ) {
  */
 function print_tag_input( $p_bug_id = 0, $p_string = '' ) {
 ?>
+	<label class="inline small"><?php printf( lang_get( 'tag_separate_by' ), config_get( 'tag_separator' ) )?></label>
 	<input type="hidden" id="tag_separator" value="<?php echo config_get( 'tag_separator' )?>" />
 	<input type="text" name="tag_string" id="tag_string" class="input-sm" size="40" value="<?php echo string_attribute( $p_string )?>" />
 	<select class="input-sm" <?php echo helper_get_tab_index()?> name="tag_select" id="tag_select" class="input-sm">
@@ -653,7 +653,7 @@ function print_subproject_option_list( $p_parent_id, $p_project_id = null, $p_fi
 		}
 
 		if( $p_trace ) {
-			$t_full_id = join( $p_parents, ';' ) . ';' . $t_id;
+			$t_full_id = implode( ';', $p_parents ) . ';' . $t_id;
 		} else {
 			$t_full_id = $t_id;
 		}
@@ -2204,3 +2204,37 @@ function print_option_list_from_array( array $p_array, $p_filter_value ) {
 		echo '>' . string_attribute( $t_value ) . '</option>' . "\n";
 	}
 }
+
+/**
+ * Print HTML relationship listbox
+ *
+ * @param integer $p_default_rel_type Relationship Type (default -1).
+ * @param string  $p_select_name      List box name (default "rel_type").
+ * @param boolean $p_include_any      Include an ANY option in list box (default false).
+ * @param boolean $p_include_none     Include a NONE option in list box (default false).
+ * @param string  $p_input_css        CSS classes to use with input fields
+ * @return void
+ */
+function print_relationship_list_box( $p_default_rel_type = BUG_REL_ANY, $p_select_name = 'rel_type', $p_include_any = false, $p_include_none = false, $p_input_css = "input-sm" ) {
+	global $g_relationships;
+	?>
+<select class="<?php echo $p_input_css ?>" name="<?php echo $p_select_name?>">
+<?php if( $p_include_any ) {?>
+<option value="<?php echo BUG_REL_ANY ?>" <?php echo( $p_default_rel_type == BUG_REL_ANY ? ' selected="selected"' : '' )?>>[<?php echo lang_get( 'any' )?>]</option>
+<?php
+	}
+
+	if( $p_include_none ) {?>
+<option value="<?php echo BUG_REL_NONE ?>" <?php echo( $p_default_rel_type == BUG_REL_NONE ? ' selected="selected"' : '' )?>>[<?php echo lang_get( 'none' )?>]</option>
+<?php
+	}
+
+	foreach( $g_relationships as $t_type => $t_relationship ) {
+		?>
+<option value="<?php echo $t_type?>"<?php echo( $p_default_rel_type == $t_type ? ' selected="selected"' : '' )?>><?php echo lang_get( $t_relationship['#description'] )?></option>
+<?php
+	}?>
+</select>
+<?php
+}
+
